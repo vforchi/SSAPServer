@@ -28,7 +28,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 
 /**
- * Controller implementing the REST interface of SSAP
+ * Controller implementing the /ssa API of SSAP
  *
  * @author Vincenzo Forch&igrave (ESO), vforchi@eso.org, vincenzo.forchi@gmail.com
  */

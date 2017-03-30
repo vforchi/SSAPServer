@@ -16,4 +16,8 @@ repositories {
 	jcenter()
 }
 
+/*
+ * The build system is split in two files because we also include it as part of the build of a bigger project.
+ * In that case we use only SSAPServer.gradle
+ */
 apply from: 'SSAPServer.gradle'
