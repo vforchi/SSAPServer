@@ -30,10 +30,10 @@ class ParametersMappingsSpec extends Specification {
 
 	def "Get column mappings"() {
 		when:
-		def mappings = RangeListParameter.ParametersMappings.getParameterMappings(jsonData)
+		def mappings = ParametersMappings.getParameterMappings(jsonData)
 
 		then:
-		mappings[RangeListParameter.ParametersMappings.POS] == "s_region"
+		mappings[ParametersMappings.POS] == "s_region"
 	}
 
 }
