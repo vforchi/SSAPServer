@@ -38,7 +38,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static org.eso.asp.ssap.domain.RangeListParameter.ParametersMappings.*;
+import static org.eso.asp.ssap.domain.ParametersMappings.*;
 
 /**
  * @author Vincenzo Forch&igrave (ESO), vforchi@eso.org, vincenzo.forchi@gmail.com
@@ -62,17 +62,19 @@ public class SSAPServiceTAPImpl implements SSAPService {
     @Value("${ssap.tap.table:ivoa.ssa}")
     public String tapTable;
 
+    @Value("#{${ssap.tap.params.to.columns:{:}}}")
     public Map<String, Object> paramsToColumns;
 
     @PostConstruct
     public void init() {
         /* if not initialized, map using the UCDs */
-        if (paramsToColumns == null) {
+        if (paramsToColumns == null || paramsToColumns.size() == 0) {
             try {
                 StringBuffer adqlURL = new StringBuffer(tapURL);
 
                 String query = "SELECT * FROM TAP_SCHEMA.columns WHERE table_name = '" + tapTable + "'";
 
+                /* TODO: json is not standard TAP. Use the VOTAble */
                 adqlURL.append("/sync?LANG=ADQL")
                         .append("&FORMAT=json")
                         .append("&REQUEST=doQuery")

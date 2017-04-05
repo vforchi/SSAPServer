@@ -19,7 +19,7 @@ package org.eso.asp.ssap.controller;
  * Copyright 2017 - European Southern Observatory (ESO)
  */
 
-import org.eso.asp.ssap.domain.RangeListParameter;
+import org.eso.asp.ssap.domain.ParametersMappings;
 import org.eso.asp.ssap.service.SSAPService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -49,11 +49,11 @@ public class SSAPController {
     @ResponseBody
     ResponseEntity<?> getSpectra(
             @RequestParam(value = "VERSION", required = false) String version,
-            @RequestParam(value = "REQUEST", required = true) String request,
+            @RequestParam(value = "REQUEST", required = true)  String request,
             @RequestParam Map<String, String> allParams) {
 
         try {
-            if (request.equals(RangeListParameter.ParametersMappings.QUERY_DATA)) {
+            if (request.equals(ParametersMappings.QUERY_DATA)) {
                 Object body = service.queryData(allParams);
                 return ResponseEntity.ok(body);
             } else
