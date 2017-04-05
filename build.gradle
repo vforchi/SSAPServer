@@ -21,3 +21,5 @@ repositories {
  * In that case we use only SSAPServer.gradle
  */
 apply from: 'SSAPServer.gradle'
+
+version = '0.0.1'

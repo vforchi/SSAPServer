@@ -34,9 +34,9 @@ Execute:
 ```
 ./gradlew build
 ```
-in the project root directory, a standalone jar file will be created under `build/libs/SSAPServer.jar`. You can run it like this:
+in the project root directory, a standalone jar file will be created under `build/libs/SSAPServer-<version>.jar`. You can run it like this:
 ```
-java -jar SSAPServer.jar --ssap.tap.url=http://<host>:<port>/yourtap
+java -jar SSAPServer-<version>.jar --ssap.tap.url=http://<host>:<port>/yourtap
 ```
 
 ## More configuration options
