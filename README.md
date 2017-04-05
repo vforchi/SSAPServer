@@ -38,5 +38,8 @@ java -jar SSAPServer.jar --ssap.tap.url=http://<host>:<port>/yourtap
 ```
 
 ## More configuration options
-server.port = 9000 // the port where the server runs. This property comes from Spring Boot
+These can be set in any way allowed by Spring Boot (see [here](https://docs.spring.io/spring-boot/docs/current/reference/html/boot-features-external-config.html))
+```
+server.port = 9000 // the port where the server runs.
+```
 
