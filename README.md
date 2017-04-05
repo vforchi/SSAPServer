@@ -24,7 +24,7 @@ Not yet implemented
 ## Run the server
 Execute:
 ```
-./gradlew bootRun -Pargs="--ssap.tap.server=http://<host>:<port>/yourtap"
+./gradlew bootRun -Pargs="--ssap.tap.url=http://<host>:<port>/yourtap"
 ```
 in the project root directory: the server will start at `http://localhost:9000/ssa`
 ## Build
@@ -34,7 +34,7 @@ Execute:
 ```
 in the project root directory, a standalone jar file will be created under `build/libs/SSAPServer.jar`. You can run it like this:
 ```
-java -jar SSAPServer.jar --ssap.tap.server=http://<host>:<port>/yourtap
+java -jar SSAPServer.jar --ssap.tap.url=http://<host>:<port>/yourtap
 ```
 
 ## More configuration options
