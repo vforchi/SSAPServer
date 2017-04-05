@@ -24,7 +24,7 @@ Not yet implemented
 ## Run the server
 Execute:
 ```
-./gradlew bootRun
+./gradlew bootRun -Pargs="--ssap.tap.server=http://<host>:<port>/yourtap"
 ```
 in the project root directory: the server will start at `http://localhost:9000/ssa`
 ## Build
@@ -32,7 +32,10 @@ Execute:
 ```
 ./gradlew build
 ```
-in the project root directory, a standalone jar file will be created under `build/distributions`
+in the project root directory, a standalone jar file will be created under `build/libs/SSAPServer.jar`. You can run it like this:
+```
+java -jar SSAPServer.jar --ssap.tap.server=http://<host>:<port>/yourtap
+```
 
 ## More configuration options
 server.port = 9000 // the port where the server runs. This property comes from Spring Boot
