@@ -4,6 +4,8 @@ The server is a Spring Boot application that implements the API defined in the s
 
 The server can either redirect the requests to a TAP service or go directly to the DB.
 
+SSAPServer is at a very early stage of development and currently supports only queries with `POS` and `SIZE`.
+
 ## Using TAP
 In this mode the server translates the incoming requests into ADQL and sends them to a TAP service.
 The tool assumes a specific schema is available on the TAP server. Unfortunately it is not possible to query directly ObsCore, 
@@ -38,5 +40,8 @@ java -jar SSAPServer.jar --ssap.tap.url=http://<host>:<port>/yourtap
 ```
 
 ## More configuration options
-server.port = 9000 // the port where the server runs. This property comes from Spring Boot
+These can be set in any way allowed by Spring Boot (see [here](https://docs.spring.io/spring-boot/docs/current/reference/html/boot-features-external-config.html))
+```
+server.port = 9000 // the port where the server runs.
+```
 
