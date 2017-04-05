@@ -21,12 +21,10 @@ package org.eso.asp.ssap.domain;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
+import org.springframework.boot.json.JsonParserFactory;
 
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -130,4 +128,46 @@ public class RangeListParameter {
         return param;
     }
 
+    /**
+     * Created by vforchi on 05/04/17.
+     */
+    public static class ParametersMappings {
+
+        public static final String QUERY_DATA = "queryData";
+
+        public static final String MAXREC = "MAXREC";
+        public static final String TOP  = "TOP";
+
+        public static final String POS  = "POS";
+        public static final String SIZE = "SIZE";
+
+        public static final Map<String, String> utypes;
+        static {
+            Map<String, String> tempUtypes = new HashMap<>();
+            tempUtypes.put(POS, "obscore:Char.SpatialAxis.Coverage.Support.Area");
+            utypes = Collections.unmodifiableMap(tempUtypes);
+        }
+
+        public static Map<String, Object> getParameterMappings(String jsonContent) {
+            Map jsonObj = JsonParserFactory.getJsonParser().parseMap(jsonContent);
+            List<Map>  metadata = (List) jsonObj.get("metadata");
+            List<List> columns  = (List) jsonObj.get("data");
+            int idxName = -1, idxUtype = -1;
+            for (int i = 0; i < metadata.size(); i++) {
+                Map entry = (Map) metadata.get(i);
+                if (entry.get("name").equals("column_name"))
+                    idxName = i;
+                else if (entry.get("name").equals("utype"))
+                    idxUtype = i;
+            }
+
+            Map<String, Object> res = new HashMap<>();
+            for (List column: columns) {
+                if (utypes.get(POS).equals(column.get(idxUtype)))
+                    res.put(POS, column.get(idxName));
+            }
+            return res;
+        }
+
+    }
 }

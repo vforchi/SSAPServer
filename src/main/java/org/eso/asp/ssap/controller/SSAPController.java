@@ -18,7 +18,8 @@ package org.eso.asp.ssap.controller;
  *
  * Copyright 2017 - European Southern Observatory (ESO)
  */
-import org.eso.asp.ssap.SSAPConstants;
+
+import org.eso.asp.ssap.domain.RangeListParameter;
 import org.eso.asp.ssap.service.SSAPService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -52,7 +53,7 @@ public class SSAPController {
             @RequestParam Map<String, String> allParams) {
 
         try {
-            if (request.equals(SSAPConstants.QUERY_DATA)) {
+            if (request.equals(RangeListParameter.ParametersMappings.QUERY_DATA)) {
                 Object body = service.queryData(allParams);
                 return ResponseEntity.ok(body);
             } else

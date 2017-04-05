@@ -19,3 +19,9 @@ dependencies {
 bootRepackage {
 	mainClass = 'org.eso.asp.ssap.SSAPServer'
 }
+
+bootRun {
+	if ( project.hasProperty('args') ) {
+		args project.args.split('\\s+')
+	}
+}
