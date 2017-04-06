@@ -59,7 +59,7 @@ public class SSAPServiceTAPImpl implements SSAPService {
     @Value("${ssap.tap.select.clause:*}")
     public String selectedColumns;
 
-    @Value("${ssap.tap.table:dbo.ssa}")
+    @Value("${ssap.tap.table:ivoa.ssa}")
     public String tapTable;
 
     @Value("#{${ssap.tap.params.to.columns:{:}}}")
@@ -74,9 +74,8 @@ public class SSAPServiceTAPImpl implements SSAPService {
 
                 String query = "SELECT * FROM TAP_SCHEMA.columns WHERE table_name = '" + tapTable + "'";
 
-                /* TODO: json is not standard TAP. Use the VOTAble */
                 adqlURL.append("/sync?LANG=ADQL")
-                        .append("&FORMAT=json")
+                        .append("&FORMAT=votable%2Ftd")
                         .append("&REQUEST=doQuery")
                         .append("&QUERY=")
                         .append(URLEncoder.encode(query, "ISO-8859-1"));
@@ -85,7 +84,7 @@ public class SSAPServiceTAPImpl implements SSAPService {
                         .connectTimeout(timeoutSeconds * 1000)
                         .socketTimeout(timeoutSeconds * 1000)
                         .execute().returnContent().asString();
-                paramsToColumns = getParameterMappings(body);
+                paramsToColumns = parseFromXML(body);
             } catch (Exception e) {
                 log.error(e.getMessage());
                 throw new RuntimeException(e);

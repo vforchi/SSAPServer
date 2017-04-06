@@ -1,5 +1,6 @@
-package org.eso.asp.ssap.domain;
+package org.eso.asp.ssap.domain
 
+import org.springframework.boot.json.JsonParserFactory
 /*
  * This file is part of SSAPServer.
  *
@@ -18,14 +19,7 @@ package org.eso.asp.ssap.domain;
  *
  * Copyright 2017 - European Southern Observatory (ESO)
  */
-
-import org.springframework.boot.json.JsonParserFactory;
-
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
+import java.text.ParseException
 /**
  * @author Vincenzo Forch&igrave (ESO), vforchi@eso.org, vincenzo.forchi@gmail.com
  */
@@ -46,10 +40,10 @@ public class ParametersMappings {
         utypes = Collections.unmodifiableMap(tempUtypes);
     }
 
-    public static Map<String, Object> getParameterMappings(String jsonContent) {
+    public static Map<String, Object> parseFromJSON(String jsonContent) throws ParseException {
         Map jsonObj = JsonParserFactory.getJsonParser().parseMap(jsonContent);
-        List<Map> metadata = (List) jsonObj.get("metadata");
-        List<List> columns  = (List) jsonObj.get("data");
+        List<Map> metadata = (List<Map>) jsonObj.get("metadata");
+        List<List> columns  = (List<List>) jsonObj.get("data");
         int idxName = -1, idxUtype = -1;
         for (int i = 0; i < metadata.size(); i++) {
             Map entry = metadata.get(i);
@@ -67,7 +61,28 @@ public class ParametersMappings {
                     res.put(POS, column.get(idxName));
             }
         }
+        if (res.size() != 1)
+            throw new ParseException("Couldn't find all necessary columns", 0);
         return res;
+    }
+
+    public static Map<String, Object> parseFromXML(String xmlContent) throws ParseException {
+        try {
+            def VOTABLE = new XmlParser().parseText(xmlContent)
+
+            /* find indices of columns containing utype and column_name in the table */
+            NodeList fields = VOTABLE.RESOURCE.TABLE.FIELD
+            int idxName  = fields.findIndexOf { it.@name == 'column_name'}
+            int idxUtype = fields.findIndexOf { it.@name == 'utype'}
+
+            NodeList columns = VOTABLE.RESOURCE.TABLE.DATA.TABLEDATA.TR
+
+            def res = [:]
+            res.POS = columns.find { it.TD[idxUtype].text() == utypes.POS}.TD[idxName].text()
+            return res
+        } catch (Exception e) {
+            throw new ParseException(e.getMessage(), 0)
+        }
     }
 
 }
