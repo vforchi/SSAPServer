@@ -38,7 +38,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static org.eso.asp.ssap.domain.ParametersMappings.*;
+import static org.eso.asp.ssap.domain.ParameterMappings.*;
 
 /**
  * @author Vincenzo Forch&igrave (ESO), vforchi@eso.org, vincenzo.forchi@gmail.com

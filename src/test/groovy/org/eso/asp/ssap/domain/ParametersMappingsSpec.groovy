@@ -30,10 +30,10 @@ class ParametersMappingsSpec extends Specification {
 
 	def "Get column mappings from JSON"() {
 		when:
-		def mappings = ParametersMappings.parseFromJSON(jsonData)
+		def mappings = ParameterMappings.parseFromJSON(jsonData)
 
 		then:
-		mappings[ParametersMappings.POS] == "s_region"
+		mappings[ParameterMappings.POS] == "s_region"
 	}
 
 	def "Get column mappings from XML"() {
@@ -41,10 +41,10 @@ class ParametersMappingsSpec extends Specification {
 		def xml = this.class.getResource('/ssap_columns.vot').text
 
 		when:
-		def mappings = ParametersMappings.parseFromXML(xml)
+		def mappings = ParameterMappings.parseFromXML(xml)
 
 		then:
-		mappings[ParametersMappings.POS] == "s_region"
+		mappings[ParameterMappings.POS] == "s_region"
 	}
 
 }

@@ -53,7 +53,18 @@ class SSAPServerSpec extends Specification {
 		restTemplate.getForObject("/ssa?REQUEST=queryData&POS=10.0,20.0", String.class)
 
 		then:
-		tapService.requestParams.QUERY == "SELECT * FROM ivoa.ssa WHERE CONTAINS(s_region, CIRCLE('',10.0,20.0,1)) = 1"
+		tapService.requestParams.QUERY == "SELECT * FROM $service.tapTable WHERE CONTAINS(s_region, CIRCLE('',10.0,20.0,1)) = 1"
+	}
+
+	def "Query with POS and SIZE"() {
+		setup:
+		service.tapURL = "http://localhost:$port"
+
+		when:
+		restTemplate.getForObject("/ssa?REQUEST=queryData&POS=10.0,20.0&SIZE=0.1", String.class)
+
+		then:
+		tapService.requestParams.QUERY == "SELECT * FROM $service.tapTable WHERE CONTAINS(s_region, CIRCLE('',10.0,20.0,0.1)) = 1"
 	}
 
 }

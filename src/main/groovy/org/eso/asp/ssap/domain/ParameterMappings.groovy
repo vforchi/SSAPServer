@@ -21,9 +21,13 @@ import org.springframework.boot.json.JsonParserFactory
  */
 import java.text.ParseException
 /**
+ * This class contains definitions, contants and methods to define mappings between
+ * the input parameters in SSA and the columns in TAP, based on the utypes defined
+ * in the standard.
+ * 
  * @author Vincenzo Forch&igrave (ESO), vforchi@eso.org, vincenzo.forchi@gmail.com
  */
-public class ParametersMappings {
+public class ParameterMappings {
 
     public static final String QUERY_DATA = "queryData";
 
@@ -33,6 +37,9 @@ public class ParametersMappings {
     public static final String POS  = "POS";
     public static final String SIZE = "SIZE";
 
+    /**
+     * utypes associated to the input parameters in SSA
+     */
     public static final Map<String, String> utypes;
     static {
         Map<String, String> tempUtypes = new HashMap<>();
@@ -75,11 +82,16 @@ public class ParametersMappings {
             int idxName  = fields.findIndexOf { it.@name == 'column_name'}
             int idxUtype = fields.findIndexOf { it.@name == 'utype'}
 
+            /* data of the table, containing the SSA columns */
             NodeList columns = VOTABLE.RESOURCE.TABLE.DATA.TABLEDATA.TR
 
-            def res = [:]
-            res.POS = columns.find { it.TD[idxUtype].text() == utypes.POS}.TD[idxName].text()
-            return res
+            /* return a map containing:
+               key: the input parameter in SSA
+               value: the name of the column with the required utype */
+            return utypes.collectEntries { ssaPar, utype ->
+                def column = columns.find { it.TD[idxUtype].text() == utype}
+                [(ssaPar): column.TD[idxName].text()]
+            }
         } catch (Exception e) {
             throw new ParseException(e.getMessage(), 0)
         }
