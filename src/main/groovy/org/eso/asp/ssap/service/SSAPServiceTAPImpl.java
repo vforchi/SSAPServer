@@ -59,7 +59,7 @@ public class SSAPServiceTAPImpl implements SSAPService {
     @Value("${ssap.tap.select.clause:*}")
     public String selectedColumns;
 
-    @Value("${ssap.tap.table:ivoa.ssa}")
+    @Value("${ssap.tap.table:dbo.ssa}")
     public String tapTable;
 
     @Value("#{${ssap.tap.params.to.columns:{:}}}")

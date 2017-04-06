@@ -338,7 +338,7 @@ FROM TAP_SCHEMA.columns where table_name = 'ivoa.ssa'"/>
     <TD>ivoa.ssa</TD>
     <TD>pos.outline;obs.field</TD>
     <TD></TD>
-    <TD>obscore:Char.SpatialAxis.Coverage.Support.Area</TD>
+    <TD>ssa:Char.SpatialAxis.Coverage.Support.Area</TD>
   </TR>
   <TR>
     <TD></TD>

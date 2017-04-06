@@ -43,7 +43,7 @@ public class ParameterMappings {
     public static final Map<String, String> utypes;
     static {
         Map<String, String> tempUtypes = new HashMap<>();
-        tempUtypes.put(POS, "obscore:Char.SpatialAxis.Coverage.Support.Area");
+        tempUtypes.put(POS, "ssa:Char.SpatialAxis.Coverage.Support.Area");
         utypes = Collections.unmodifiableMap(tempUtypes);
     }
 
