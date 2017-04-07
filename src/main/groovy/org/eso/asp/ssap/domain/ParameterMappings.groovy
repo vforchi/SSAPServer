@@ -1,6 +1,5 @@
 package org.eso.asp.ssap.domain
 
-import org.springframework.boot.json.JsonParserFactory
 /*
  * This file is part of SSAPServer.
  *
@@ -19,7 +18,10 @@ import org.springframework.boot.json.JsonParserFactory
  *
  * Copyright 2017 - European Southern Observatory (ESO)
  */
+
+import groovy.json.JsonSlurper
 import java.text.ParseException
+
 /**
  * This class contains definitions, contants and methods to define mappings between
  * the input parameters in SSA and the columns in TAP, based on the utypes defined
@@ -29,48 +31,38 @@ import java.text.ParseException
  */
 public class ParameterMappings {
 
-    public static final String QUERY_DATA = "queryData";
+    public static final String QUERY_DATA = "queryData"
 
-    public static final String MAXREC = "MAXREC";
-    public static final String TOP  = "TOP";
+    public static final String MAXREC = "MAXREC"
+    public static final String TOP  = "TOP"
 
-    public static final String POS  = "POS";
-    public static final String SIZE = "SIZE";
+    public static final String POS  = "POS"
+    public static final String SIZE = "SIZE"
 
     /**
      * utypes associated to the input parameters in SSA
      */
-    public static final Map<String, String> utypes;
-    static {
-        Map<String, String> tempUtypes = new HashMap<>();
-        tempUtypes.put(POS, "ssa:Char.SpatialAxis.Coverage.Support.Area");
-        utypes = Collections.unmodifiableMap(tempUtypes);
-    }
+    public static final Map<String, String> utypes = [(POS): "ssa:Char.SpatialAxis.Coverage.Support.Area"].asImmutable()
 
     public static Map<String, Object> parseFromJSON(String jsonContent) throws ParseException {
-        Map jsonObj = JsonParserFactory.getJsonParser().parseMap(jsonContent);
-        List<Map> metadata = (List<Map>) jsonObj.get("metadata");
-        List<List> columns  = (List<List>) jsonObj.get("data");
-        int idxName = -1, idxUtype = -1;
-        for (int i = 0; i < metadata.size(); i++) {
-            Map entry = metadata.get(i);
-            if (entry.get("name").equals("column_name"))
-                idxName = i;
-            else if (entry.get("name").equals("utype"))
-                idxUtype = i;
-        }
+        try {
+            def json = new JsonSlurper().parseText(jsonContent)
 
-        Map<String, Object> res = new HashMap<>();
-        for (List column: columns) {
-            Object utype = column.get(idxUtype);
-            if (utype != null) {
-                if (utypes.get(POS).equalsIgnoreCase(utype.toString()))
-                    res.put(POS, column.get(idxName));
+            int idxName  = json.metadata.findIndexOf { it.name == 'column_name'}
+            int idxUtype = json.metadata.findIndexOf { it.name == 'utype'}
+
+            def res = utypes.collectEntries { ssaPar, utype ->
+                def column = json.data.find { it[idxUtype] == utype}
+                [(ssaPar): column[idxName]]
             }
+
+            if (res.size() != utypes.size())
+                throw new ParseException("Couldn't find all necessary columns", 0)
+
+            return res
+        } catch (Exception e) {
+            throw new ParseException(e.getMessage(), 0)
         }
-        if (res.size() != 1)
-            throw new ParseException("Couldn't find all necessary columns", 0);
-        return res;
     }
 
     public static Map<String, Object> parseFromXML(String xmlContent) throws ParseException {
@@ -88,10 +80,15 @@ public class ParameterMappings {
             /* return a map containing:
                key: the input parameter in SSA
                value: the name of the column with the required utype */
-            return utypes.collectEntries { ssaPar, utype ->
+            def res = utypes.collectEntries { ssaPar, utype ->
                 def column = columns.find { it.TD[idxUtype].text() == utype}
                 [(ssaPar): column.TD[idxName].text()]
             }
+
+            if (res.size() != utypes.size())
+                throw new ParseException("Couldn't find all necessary columns", 0)
+
+            return res
         } catch (Exception e) {
             throw new ParseException(e.getMessage(), 0)
         }
