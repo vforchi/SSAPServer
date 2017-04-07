@@ -58,7 +58,6 @@ class RangeListParameterSpec extends Specification {
 		"VAL;source"        || 1            | []       | ["VAL"]       | []           | "source"
 
 		/* single range */
-		/* doubles */
 		"0.123/1.23"        || 1            | [[0.123, 1.23]] | []       | []       | null
 		"0.123/1.43;source" || 1            | [[0.123, 1.43]] | []       | []       | "source"
 
@@ -70,6 +69,9 @@ class RangeListParameterSpec extends Specification {
 		"1E-7,1E-4/1E-2" || 2       | [[0.0001, 0.01]] | [] | [10**(-7)] | null
 		"1E-7/1E-6,1E-2;sss" || 2   | [[10**(-7), 10**(-6)]] | [] | [0.01] | "sss"
 		"1E-7/1E-6,J;sss" || 2      | [[10**(-7), 10**(-6)]] | ["J"] | [] | "sss"
+
+		/* range with strings */
+		"2010/2011-01-01" || 1    | [["2010", "2011-01-01"]] | [] | [] | null
 	}
 
 	@Unroll

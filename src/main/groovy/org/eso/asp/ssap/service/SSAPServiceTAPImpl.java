@@ -122,7 +122,7 @@ public class SSAPServiceTAPImpl implements SSAPService {
                 RangeListParameter rlp = RangeListParameter.parse(value, 2);
                 if (rlp.getDoubleEntries().size() != 2)
                     throw new ParseException("", 0); //TOOO
-                Double ra  = rlp.getDoubleEntries().get(0);
+                Double ra = rlp.getDoubleEntries().get(0);
                 Double dec = rlp.getDoubleEntries().get(1);
                 String size = "1";
 
@@ -138,6 +138,13 @@ public class SSAPServiceTAPImpl implements SSAPService {
                 buf.append(size);
                 buf.append(")) = 1");
                 whereConditions.add(buf.toString());
+            } else if (key.equals(TIME)) {
+                RangeListParameter rlp = RangeListParameter.parse(value, 1);
+                if (rlp.getStringEntries().size() == 1) {
+
+                } else if (rlp.getRangeEntries().size() == 1) {
+
+                }
 //            } else if (paramsToColumns.containsKey(key)) {
 //                whereCondition.append(paramsToColumns.get(key));
 //                whereCondition.append(" = ");

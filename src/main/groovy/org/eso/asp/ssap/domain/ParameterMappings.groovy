@@ -1,5 +1,16 @@
 package org.eso.asp.ssap.domain
 
+import groovy.json.JsonSlurper
+import org.apache.commons.lang3.tuple.ImmutablePair
+import org.apache.commons.lang3.tuple.Pair
+
+import java.text.ParseException
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+import java.time.temporal.ChronoField
+import java.time.temporal.ChronoUnit
+import java.time.temporal.JulianFields
+import java.time.temporal.Temporal
 /*
  * This file is part of SSAPServer.
  *
@@ -18,10 +29,6 @@ package org.eso.asp.ssap.domain
  *
  * Copyright 2017 - European Southern Observatory (ESO)
  */
-
-import groovy.json.JsonSlurper
-import java.text.ParseException
-
 /**
  * This class contains definitions, contants and methods to define mappings between
  * the input parameters in SSA and the columns in TAP, based on the utypes defined
@@ -42,7 +49,7 @@ public class ParameterMappings {
     public static final String BAND   = "BAND"
     public static final String TIME   = "TIME"
     public static final String FORMAT = "FORMAT"
-    
+
     /**
      * utypes associated to the input parameters in SSA
      */
@@ -109,6 +116,51 @@ public class ParameterMappings {
         } catch (Exception e) {
             throw new ParseException(e.getMessage(), 0)
         }
+    }
+
+    private static Double toMjd(Temporal time) {
+        Double mjd = time.getLong(JulianFields.MODIFIED_JULIAN_DAY)
+        mjd += time.getLong(ChronoField.SECOND_OF_DAY) / 86400
+        return mjd
+    }
+
+    /**
+     * Convert one of the time instants defined in the TIME input parameter in an interval.
+     * For example, if the input is 1999, the method returns two instants representing the
+     * beginning and the end of year 1999. For more info, see the definition of TIME in SSA
+     *
+     * @param time
+     * @return a pair containing the interval expressed in MJD
+     * @throws ParseException
+     */
+    public static Pair<Double, Double> stringToMjdObsInterval(String time) throws ParseException {
+        def inputTime = time
+
+        def timeStart, timeEnd
+
+        /* if the string is not complete to the second, add the missing part
+           and define the width of the interval */
+        def unit = ChronoUnit.SECONDS
+        if (time ==~ /\d{4}/) {
+            unit = ChronoUnit.YEARS
+            time += "-01-01T00:00:00"
+        } else if (time ==~ /\d{4}-\d{2}/) {
+            unit = ChronoUnit.MONTHS
+            time += "-01T00:00:00"
+        } else if (time ==~ /\d{4}-\d{2}-\d{2}/) {
+            unit = ChronoUnit.DAYS
+            time += "T00:00:00"
+        }
+
+        try {
+            def formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME
+            timeStart = LocalDateTime.parse(time, formatter)
+            timeEnd   = timeStart.plus(1, unit)
+        } catch (Exception e4) {
+            throw new ParseException("TIME string $inputTime is not valid", 0)
+        }
+
+        return new ImmutablePair<Double, Double>(toMjd(timeStart), toMjd(timeEnd))
     }
 
 }

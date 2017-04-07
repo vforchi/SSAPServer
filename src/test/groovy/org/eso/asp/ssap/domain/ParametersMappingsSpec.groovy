@@ -1,5 +1,12 @@
 package org.eso.asp.ssap.domain
 
+import org.apache.commons.lang3.tuple.Pair
+import spock.lang.Specification
+import spock.lang.Unroll
+
+import java.time.LocalDateTime
+import java.time.ZoneOffset
+import java.time.format.DateTimeFormatter
 /*
  * This file is part of SSAPServer.
  *
@@ -18,9 +25,6 @@ package org.eso.asp.ssap.domain
  *
  * Copyright 2017 - European Southern Observatory (ESO)
  */
-
-import spock.lang.Specification
-
 /**
  * @author Vincenzo Forch&igrave (ESO), vforchi@eso.org, vincenzo.forchi@gmail.com
  */
@@ -47,6 +51,48 @@ class ParametersMappingsSpec extends Specification {
 		then:
 		mappings[ParameterMappings.POS]  == "s_region"
 		mappings[ParameterMappings.TIME] == ["t_min", "t_max"]
+	}
+
+	@Unroll
+	def "Convert #string to MJD #mjd"() {
+		when:
+		def format = DateTimeFormatter.ISO_LOCAL_DATE_TIME.withZone(ZoneOffset.UTC)
+		def date = LocalDateTime.parse(string, format)
+		def conv = ParameterMappings.toMjd(date)
+
+		then:
+		conv == mjd
+
+		where:
+		string || mjd
+		"2000-01-01T00:00:00" || 51544.0
+		"2010-01-01T00:00:00" || 55197.0
+
+		"2000-01-01T01:00:00" || 51544.0 + 1/24
+		"2010-01-01T00:01:00" || 55197.0 + 1/60/24
+		"2010-01-01T00:00:01" || 55197.0 + 1/86400
+	}
+
+	@Unroll
+	def "Convert #string to MJD interval"() {
+		setup:
+		def format = DateTimeFormatter.ISO_LOCAL_DATE_TIME.withZone(ZoneOffset.UTC)
+		def mjdMin = ParameterMappings.toMjd(LocalDateTime.parse(start, format))
+		def mjdMax = ParameterMappings.toMjd(LocalDateTime.parse(stop, format))
+		
+		when:
+		Pair conv = ParameterMappings.stringToMjdObsInterval(string)
+
+		then:
+		conv.getLeft()  == mjdMin
+		conv.getRight() == mjdMax
+
+		where:
+		string || start | stop
+		"1999"          || "1999-01-01T00:00:00" | "2000-01-01T00:00:00"
+		"1999-02"       || "1999-02-01T00:00:00" | "1999-03-01T00:00:00"
+		"1999-06-03"    || "1999-06-03T00:00:00" | "1999-06-04T00:00:00"
+		"1999-06-03T10:01:02"  || "1999-06-03T10:01:02" | "1999-06-03T10:01:03"
 	}
 
 }

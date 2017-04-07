@@ -43,12 +43,12 @@ import java.util.stream.Collectors;
  */
 public class RangeListParameter {
 
-    private List<Pair<Double, Double>> rangeEntries = new ArrayList<>();
+    private List<Pair<?, ?>> rangeEntries = new ArrayList<>();
     private List<Double> doubleEntries = new ArrayList<>();
     private List<String> stringEntries = new ArrayList<>();
     private final String qualifier;
 
-    public RangeListParameter(List<Pair<Double, Double>> rangeEntries, List<Double> doubleEntries, List<String> stringEntries, String qualifier) {
+    public RangeListParameter(List<Pair<?, ?>> rangeEntries, List<Double> doubleEntries, List<String> stringEntries, String qualifier) {
         this.rangeEntries = rangeEntries;
         this.doubleEntries = doubleEntries;
         this.stringEntries = stringEntries;
@@ -60,7 +60,7 @@ public class RangeListParameter {
         return rangeEntries.size() + doubleEntries.size() + stringEntries.size();
     }
 
-    public List<Pair<Double, Double>> getRangeEntries() {
+    public List<Pair<?, ?>> getRangeEntries() {
         return rangeEntries;
     }
 
@@ -92,7 +92,7 @@ public class RangeListParameter {
             par = tokens[0];
         }
 
-        List<Pair<Double, Double>> rangeEntries = new ArrayList<>();
+        List<Pair<?, ?>> rangeEntries = new ArrayList<>();
         List<Double> doubleEntries = new ArrayList<>();
         List<String> stringEntries = new ArrayList<>();
         String[] entries = par.split(",");
@@ -107,7 +107,7 @@ public class RangeListParameter {
                             List<Double> items = Arrays.stream(tokens).map(Double::valueOf).collect(Collectors.toList());
                             rangeEntries.add(new ImmutablePair<>(items.get(0), items.get(1)));
                         } catch (NumberFormatException e) {
-                            throw new ParseException("", 0); // TODO
+                            rangeEntries.add(new ImmutablePair<>(tokens[0], tokens[1]));
                         }
                     } else if (tokens.length == 3) {
                         // TODO
