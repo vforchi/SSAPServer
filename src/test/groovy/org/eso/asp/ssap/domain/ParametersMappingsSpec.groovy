@@ -33,7 +33,8 @@ class ParametersMappingsSpec extends Specification {
 		def mappings = ParameterMappings.parseFromJSON(jsonData)
 
 		then:
-		mappings[ParameterMappings.POS] == "s_region"
+		mappings[ParameterMappings.POS]  == "s_region"
+		mappings[ParameterMappings.TIME] == ["t_min", "t_max"]
 	}
 
 	def "Get column mappings from XML"() {
@@ -44,7 +45,8 @@ class ParametersMappingsSpec extends Specification {
 		def mappings = ParameterMappings.parseFromXML(xml)
 
 		then:
-		mappings[ParameterMappings.POS] == "s_region"
+		mappings[ParameterMappings.POS]  == "s_region"
+		mappings[ParameterMappings.TIME] == ["t_min", "t_max"]
 	}
 
 }

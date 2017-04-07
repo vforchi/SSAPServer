@@ -36,13 +36,18 @@ public class ParameterMappings {
     public static final String MAXREC = "MAXREC"
     public static final String TOP  = "TOP"
 
-    public static final String POS  = "POS"
-    public static final String SIZE = "SIZE"
-
+    /* mandatory parameters */
+    public static final String POS    = "POS"
+    public static final String SIZE   = "SIZE"
+    public static final String BAND   = "BAND"
+    public static final String TIME   = "TIME"
+    public static final String FORMAT = "FORMAT"
+    
     /**
      * utypes associated to the input parameters in SSA
      */
-    public static final Map<String, String> utypes = [(POS): "ssa:Char.SpatialAxis.Coverage.Support.Area"].asImmutable()
+    public static final Map<String, Object> utypes = [(POS): "ssa:Char.SpatialAxis.Coverage.Support.Area",
+                                                      (TIME): ["ssa:Char.TimeAxis.Coverage.Bounds.Start", "ssa:Char.TimeAxis.Coverage.Bounds.Stop"]].asImmutable()
 
     public static Map<String, Object> parseFromJSON(String jsonContent) throws ParseException {
         try {
@@ -52,8 +57,14 @@ public class ParameterMappings {
             int idxUtype = json.metadata.findIndexOf { it.name == 'utype'}
 
             def res = utypes.collectEntries { ssaPar, utype ->
-                def column = json.data.find { it[idxUtype] == utype}
-                [(ssaPar): column[idxName]]
+                if (utype instanceof String) {
+                    def column = json.data.find { it[idxUtype] == utype}
+                    [(ssaPar): column[idxName]]
+                } else if (utype instanceof List) {
+                    /* we start from the utype instead of columns.findAll to preserve the order of the utype */
+                    def cols = utype.collect { type -> json.data.find { it[idxUtype] == type } }
+                    [(ssaPar): cols.collect { it[idxName] }]
+                }
             }
 
             if (res.size() != utypes.size())
@@ -81,8 +92,14 @@ public class ParameterMappings {
                key: the input parameter in SSA
                value: the name of the column with the required utype */
             def res = utypes.collectEntries { ssaPar, utype ->
-                def column = columns.find { it.TD[idxUtype].text() == utype}
-                [(ssaPar): column.TD[idxName].text()]
+                if (utype instanceof String) {
+                    def col = columns.find { it.TD[idxUtype].text() == utype }
+                    [(ssaPar): col.TD[idxName].text()]
+                } else if (utype instanceof List) {
+                    /* we start from the utype instead of columns.findAll to preserve the order of the utype */
+                    def cols = utype.collect { type -> columns.find { it.TD[idxUtype].text() == type } }
+                    [(ssaPar): cols.collect { it.TD[idxName].text() }]
+                }
             }
 
             if (res.size() != utypes.size())
