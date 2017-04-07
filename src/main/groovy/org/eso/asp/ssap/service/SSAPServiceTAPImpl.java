@@ -41,6 +41,9 @@ import java.util.Map;
 import static org.eso.asp.ssap.domain.ParameterMappings.*;
 
 /**
+ * This class implements SSAPService by translating SSA requests into ADQL queries
+ * and send them to a TAP service. It is instantiated if ssap.use.tap=true
+ *
  * @author Vincenzo Forch&igrave (ESO), vforchi@eso.org, vincenzo.forchi@gmail.com
  */
 @Service
@@ -70,17 +73,12 @@ public class SSAPServiceTAPImpl implements SSAPService {
         /* if not initialized, map using the UCDs */
         if (paramsToColumns == null || paramsToColumns.size() == 0) {
             try {
-                StringBuffer adqlURL = new StringBuffer(tapURL);
+                StringBuffer tapRequest = getAdqlURL();
 
                 String query = "SELECT * FROM TAP_SCHEMA.columns WHERE table_name = '" + tapTable + "'";
+                tapRequest.append(URLEncoder.encode(query, "ISO-8859-1"));
 
-                adqlURL.append("/sync?LANG=ADQL")
-                        .append("&FORMAT=votable%2Ftd")
-                        .append("&REQUEST=doQuery")
-                        .append("&QUERY=")
-                        .append(URLEncoder.encode(query, "ISO-8859-1"));
-
-                String body = Request.Get(adqlURL.toString())
+                String body = Request.Get(tapRequest.toString())
                         .connectTimeout(timeoutSeconds * 1000)
                         .socketTimeout(timeoutSeconds * 1000)
                         .execute().returnContent().asString();
@@ -95,20 +93,18 @@ public class SSAPServiceTAPImpl implements SSAPService {
     @Override
     public Object queryData(Map<String, String> params) throws IOException, ParseException {
 
-        StringBuffer adqlURL = new StringBuffer(tapURL);
+        StringBuffer tapRequest = getAdqlURL();
 
-        adqlURL.append("/sync?LANG=ADQL")
-               .append("&FORMAT=votable%2Ftd")
-               .append("&REQUEST=doQuery")
-               .append("&QUERY=")
-               .append(createADQLQuery(params));
+        /* query */
+        tapRequest.append(createADQLQuery(params));
 
+        /* MAXREC */
         if (params.containsKey(MAXREC)) {
-            adqlURL.append("&MAXREC=").append(params.get(MAXREC));
+            tapRequest.append("&MAXREC=").append(params.get(MAXREC));
             params.remove(MAXREC);
         }
 
-        return Request.Get(adqlURL.toString())
+        return Request.Get(tapRequest.toString())
                 .connectTimeout(timeoutSeconds*1000)
                 .socketTimeout(timeoutSeconds*1000)
                 .execute().returnContent().asString();
@@ -164,4 +160,16 @@ public class SSAPServiceTAPImpl implements SSAPService {
 
         return URLEncoder.encode(adqlQuery.toString(), "ISO-8859-1");
     }
+
+    public StringBuffer getAdqlURL() {
+        StringBuffer buf = new StringBuffer(tapURL);
+
+        buf.append("/sync?LANG=ADQL")
+           .append("&FORMAT=votable%2Ftd")
+           .append("&REQUEST=doQuery")
+           .append("&QUERY=");
+
+        return buf;
+    }
+
 }

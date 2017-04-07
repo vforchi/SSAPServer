@@ -26,6 +26,7 @@ import org.springframework.boot.context.embedded.LocalServerPort
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.client.TestRestTemplate
 import spock.lang.Specification
+import spock.lang.Unroll
 
 /**
  * @author Vincenzo Forch&igrave (ESO), vforchi@eso.org, vincenzo.forchi@gmail.com
@@ -45,26 +46,31 @@ class SSAPServerSpec extends Specification {
 	@LocalServerPort
 	int port
 
-	def "Query with POS"() {
-		setup:
+	def setup() {
 		service.tapURL = "http://localhost:$port"
-
-		when:
-		restTemplate.getForObject("/ssa?REQUEST=queryData&POS=10.0,20.0", String.class)
-
-		then:
-		tapService.requestParams.QUERY == "SELECT * FROM $service.tapTable WHERE CONTAINS(s_region, CIRCLE('',10.0,20.0,1)) = 1"
 	}
 
-	def "Query with POS and SIZE"() {
-		setup:
-		service.tapURL = "http://localhost:$port"
-
+	@Unroll
+	def "Query with #name"() {
 		when:
-		restTemplate.getForObject("/ssa?REQUEST=queryData&POS=10.0,20.0&SIZE=0.1", String.class)
+		restTemplate.getForObject("/ssa?REQUEST=queryData&$query", String.class)
 
 		then:
-		tapService.requestParams.QUERY == "SELECT * FROM $service.tapTable WHERE CONTAINS(s_region, CIRCLE('',10.0,20.0,0.1)) = 1"
+		tapService.requestParams.QUERY == "SELECT * FROM $service.tapTable WHERE $condition"
+
+		where:
+		name | query || condition
+		"POS"               | "POS=10.0,20.0"                       || "CONTAINS(s_region, CIRCLE('',10.0,20.0,1)) = 1"
+		"POS and SIZE"      | "POS=10.0,20.0&SIZE=0.1"              || "CONTAINS(s_region, CIRCLE('',10.0,20.0,0.1)) = 1"
+		"POS and VERSION"   | "POS=10.0,20.0&SIZE=0.1&VERSION=1.1"  || "CONTAINS(s_region, CIRCLE('',10.0,20.0,0.1)) = 1"
+	}
+
+	def "Reject unsupported version"() {
+		when:
+		def res = restTemplate.getForObject("/ssa?REQUEST=queryData&POS=10.0,20.0&VERSION=1.0", String.class)
+
+		then:
+		res == "VERSION=1.0 is not supported"
 	}
 
 }

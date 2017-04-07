@@ -22,10 +22,13 @@ package org.eso.asp.ssap.controller;
 import org.eso.asp.ssap.domain.ParameterMappings;
 import org.eso.asp.ssap.service.SSAPService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Configurable;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -34,30 +37,32 @@ import java.util.Map;
  * @author Vincenzo Forch&igrave (ESO), vforchi@eso.org, vincenzo.forchi@gmail.com
  */
 @RestController
+@Configurable
 @RequestMapping("/ssa")
 public class SSAPController {
 
     @Autowired
     SSAPService service;
 
-//    @Bean
-//    Filter caseInsensitiveFilter() {
-//        return new CaseInsensitiveRequestFilter();
-//    }
+    @Value("#{${ssap.versions.supported:{1.1}}}")
+    List<String> supportedVersions;
 
     @RequestMapping(method = RequestMethod.GET, produces = { MediaType.TEXT_XML_VALUE })
     @ResponseBody
     ResponseEntity<?> getSpectra(
             @RequestParam(value = "VERSION", required = false) String version,
-            @RequestParam(value = "REQUEST", required = true)  String request,
-            @RequestParam Map<String, String> allParams) {
+            @RequestParam(value = "REQUEST")                   String request,
+            @RequestParam                                      Map<String, String> allParams) {
 
         try {
+            if (version != null && !supportedVersions.contains(version))
+                return ResponseEntity.badRequest().body("VERSION=" + version + " is not supported");
+
             if (request.equals(ParameterMappings.QUERY_DATA)) {
                 Object body = service.queryData(allParams);
                 return ResponseEntity.ok(body);
             } else
-                return ResponseEntity.badRequest().body("REQUEST=" + request + "is not implemented");
+                return ResponseEntity.badRequest().body("REQUEST=" + request + " is not implemented");
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
