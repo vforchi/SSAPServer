@@ -136,8 +136,6 @@ public class ParameterMappings {
     public static Pair<Double, Double> stringToMjdObsInterval(String time) throws ParseException {
         def inputTime = time
 
-        def timeStart, timeEnd
-
         /* if the string is not complete to the second, add the missing part
            and define the width of the interval */
         def unit = ChronoUnit.SECONDS
@@ -154,13 +152,12 @@ public class ParameterMappings {
 
         try {
             def formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME
-            timeStart = LocalDateTime.parse(time, formatter)
-            timeEnd   = timeStart.plus(1, unit)
+            def timeStart = LocalDateTime.parse(time, formatter)
+            def timeEnd   = timeStart.plus(1, unit)
+            return new ImmutablePair<Double, Double>(toMjd(timeStart), toMjd(timeEnd))
         } catch (Exception e4) {
             throw new ParseException("TIME string $inputTime is not valid", 0)
         }
-
-        return new ImmutablePair<Double, Double>(toMjd(timeStart), toMjd(timeEnd))
     }
 
 }
