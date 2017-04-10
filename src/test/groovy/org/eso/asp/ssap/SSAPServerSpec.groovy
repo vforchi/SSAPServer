@@ -64,9 +64,12 @@ class SSAPServerSpec extends Specification {
 		"POS and SIZE"      | "POS=10.0,20.0&SIZE=0.1"              || "CONTAINS(s_region, CIRCLE('',10.0,20.0,0.1)) = 1"
 		"POS and VERSION"   | "POS=10.0,20.0&SIZE=0.1&VERSION=1.1"  || "CONTAINS(s_region, CIRCLE('',10.0,20.0,0.1)) = 1"
 
-//		"TIME yyyy"         | "TIME=2010"                           || ""
-//		"TIME yyyy-MM"      | "TIME=2010-06"                        || ""
-//		"TIME yyyy-MM-dd"   | "TIME=2010-05-01"                     || ""
+		"TIME yyyy"         | "TIME=2010"                           || "t_min <= 55562.0 AND t_max >= 55197.0"
+		"TIME yyyy-MM"      | "TIME=2010-06"                        || "t_min <= 55378.0 AND t_max >= 55348.0"
+		"TIME yyyy-MM-dd"   | "TIME=2010-05-01"                     || "t_min <= 55318.0 AND t_max >= 55317.0"
+		"TIME yyyy-MM-ddThh:mm:ss" | "TIME=2010-05-01T01:12:54"     || "t_min <= 55317.0506365741 AND t_max >= 55317.050625"
+
+		"TIME yyyy/yyyy-MM-dd" | "TIME=2010/2011-04-01"             || "t_min <= 55317.0506365741 AND t_max >= 55317.050625"
 	}
 
 	def "Reject unsupported version"() {

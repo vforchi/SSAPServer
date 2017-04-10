@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -41,35 +42,29 @@ import java.util.stream.Collectors;
  * @author Vincenzo Forch&igrave (ESO), vforchi@eso.org, vincenzo.forchi@gmail.com
  *
  */
-public class RangeListParameter {
+public class RangeListParameter<T> {
 
-    private List<Pair<?, ?>> rangeEntries = new ArrayList<>();
-    private List<Double> doubleEntries = new ArrayList<>();
-    private List<String> stringEntries = new ArrayList<>();
+    private List<Pair<T, T>> rangeEntries = new ArrayList<>();
+    private List<T> singleEntries = new ArrayList<>();
     private final String qualifier;
 
-    public RangeListParameter(List<Pair<?, ?>> rangeEntries, List<Double> doubleEntries, List<String> stringEntries, String qualifier) {
+    public RangeListParameter(List<Pair<T, T>> rangeEntries, List<T> singleEntries, String qualifier) {
         this.rangeEntries = rangeEntries;
-        this.doubleEntries = doubleEntries;
-        this.stringEntries = stringEntries;
+        this.singleEntries = singleEntries;
         this.qualifier = qualifier;
     }
 
     /**** GETTERS ****/
     public int getNumEntries() {
-        return rangeEntries.size() + doubleEntries.size() + stringEntries.size();
+        return rangeEntries.size() + singleEntries.size();
     }
 
-    public List<Pair<?, ?>> getRangeEntries() {
+    public List<Pair<T, T>> getRangeEntries() {
         return rangeEntries;
     }
 
-    public List<String> getStringEntries() {
-        return stringEntries;
-    }
-
-    public List<Double> getDoubleEntries() {
-        return doubleEntries;
+    public List<T> getSingleEntries() {
+        return singleEntries;
     }
 
     public String getQualifier() {
@@ -77,11 +72,39 @@ public class RangeListParameter {
     }
 
     /*** Static methods to build the object from a String ****/
-    public static RangeListParameter parse(String par) throws ParseException {
-        return parse(par, null);
+    private static class DefaultConversion implements Function<String, Object> {
+        @Override
+        public Object apply(String s) {
+            try {
+                return Double.valueOf(s);
+            } catch (NumberFormatException e) {
+                return s;
+            }
+        }
     }
 
-    public static RangeListParameter parse(String par, Integer length) throws ParseException {
+    public static RangeListParameter<Object> parse(String par) throws ParseException {
+        return parse(par, null, new DefaultConversion());
+    }
+
+    public static RangeListParameter<Object> parse(String par, Integer length) throws ParseException {
+        return parse(par, length, new DefaultConversion());
+    }
+
+    public static <S> RangeListParameter<S> parse(String par, Function<String, S> f) throws ParseException {
+        return parse(par, null, f);
+    }
+
+    /**
+     * This method converts a String into a range list parameter
+     * @param par the input value
+     * @param length the requested length of the list, if null any length is accepted
+     * @param f a function to convert the elements into output values
+     * @param <S> the class of the elements in the parameter
+     * @return a range list parameter
+     * @throws ParseException
+     */
+    public static <S> RangeListParameter<S> parse(String par, Integer length, Function<String, S> f) throws ParseException {
 
         String qualifier = null;
         if (par.contains(";")) {
@@ -92,22 +115,21 @@ public class RangeListParameter {
             par = tokens[0];
         }
 
-        List<Pair<?, ?>> rangeEntries = new ArrayList<>();
-        List<Double> doubleEntries = new ArrayList<>();
-        List<String> stringEntries = new ArrayList<>();
+        List<Pair<S, S>> rangeEntries = new ArrayList<>();
+        List<S> singleEntries = new ArrayList<>();
         String[] entries = par.split(",");
         if (length != null && entries.length != length)
             throw new ParseException("Wrong length in range list: expected " + length + ", found " + entries.length, 0);
         else {
-            for (String entry: entries) {
+            for (String entry : entries) {
                 if (entry.contains("/")) {
                     String[] tokens = entry.split("/");
                     if (tokens.length == 2) {
                         try {
-                            List<Double> items = Arrays.stream(tokens).map(Double::valueOf).collect(Collectors.toList());
+                            List<S> items = Arrays.stream(tokens).map(f).collect(Collectors.toList());
                             rangeEntries.add(new ImmutablePair<>(items.get(0), items.get(1)));
                         } catch (NumberFormatException e) {
-                            rangeEntries.add(new ImmutablePair<>(tokens[0], tokens[1]));
+                            throw new ParseException("", 0); // TODO
                         }
                     } else if (tokens.length == 3) {
                         // TODO
@@ -116,17 +138,17 @@ public class RangeListParameter {
                     }
                 } else {
                     try {
-                        doubleEntries.add(Double.parseDouble(entry));
+                        singleEntries.add(f.apply(entry));
                     } catch (NumberFormatException e) {
-                        stringEntries.add(entry);
+                        throw new ParseException("", 0); // TODO
                     }
                 }
             }
         }
-        RangeListParameter param = new RangeListParameter(Collections.unmodifiableList(rangeEntries),
-                                                        Collections.unmodifiableList(doubleEntries),
-                                                        Collections.unmodifiableList(stringEntries),
-                                                        qualifier);
-        return param;
+        return new RangeListParameter<>(Collections.unmodifiableList(rangeEntries),
+                Collections.unmodifiableList(singleEntries),
+                qualifier);
     }
 }
+
+

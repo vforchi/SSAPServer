@@ -21,7 +21,7 @@ package org.eso.asp.ssap.service;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.fluent.Request;
-import org.eso.asp.ssap.domain.RangeListParameter;
+import org.eso.asp.ssap.util.QueryCreator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Configurable;
@@ -115,41 +115,13 @@ public class SSAPServiceTAPImpl implements SSAPService {
 
         List<String> whereConditions = new ArrayList<>();
         for (Map.Entry<String,String> entry: params.entrySet()) {
-            StringBuffer buf = new StringBuffer();
             String key   = entry.getKey();
             String value = entry.getValue();
             if (key.equals(POS)) {
-                RangeListParameter rlp = RangeListParameter.parse(value, 2);
-                if (rlp.getDoubleEntries().size() != 2)
-                    throw new ParseException("", 0); //TOOO
-                Double ra = rlp.getDoubleEntries().get(0);
-                Double dec = rlp.getDoubleEntries().get(1);
-                String size = "1";
-
-                if (params.containsKey(SIZE))
-                    size = params.get(SIZE);
-                buf.append("CONTAINS(");
-                buf.append(paramsToColumns.get(POS));
-                buf.append(", CIRCLE('',");
-                buf.append(ra);
-                buf.append(",");
-                buf.append(dec);
-                buf.append(",");
-                buf.append(size);
-                buf.append(")) = 1");
-                whereConditions.add(buf.toString());
+                String size = params.getOrDefault(SIZE, null);
+                whereConditions.add(QueryCreator.createPosQuery(paramsToColumns.get(POS).toString(), value, size));
             } else if (key.equals(TIME)) {
-                RangeListParameter rlp = RangeListParameter.parse(value, 1);
-                if (rlp.getStringEntries().size() == 1) {
-
-                } else if (rlp.getRangeEntries().size() == 1) {
-
-                }
-//            } else if (paramsToColumns.containsKey(key)) {
-//                whereCondition.append(paramsToColumns.get(key));
-//                whereCondition.append(" = ");
-//                whereCondition.append(value);
-//                whereConditions.add(whereCondition.toString());
+                whereConditions.add(QueryCreator.createTimeQuery((List) paramsToColumns.get(TIME), value));
             }
         }
 
@@ -168,7 +140,7 @@ public class SSAPServiceTAPImpl implements SSAPService {
         return URLEncoder.encode(adqlQuery.toString(), "ISO-8859-1");
     }
 
-    public StringBuffer getAdqlURL() {
+    private StringBuffer getAdqlURL() {
         StringBuffer buf = new StringBuffer(tapURL);
 
         buf.append("/sync?LANG=ADQL")
