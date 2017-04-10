@@ -10,7 +10,7 @@ SSAPServer is at a very early stage of development and currently supports only q
 ## Using TAP
 In this mode the server translates the incoming requests into ADQL and sends them to a TAP service.
 The tool assumes a specific schema is available on the TAP server. Unfortunately it is not possible to query directly ObsCore, 
-because the UCDs are different and some columns are missing. Therefore we defined a view that can be build on top of
+because the UCDs are different and some columns are missing. Therefore we defined a view that can be built on top of
 ObsCore to enable SSA access. You can find the definition of this view for SQLServer under TBD
 
 ## Direct DB queries
