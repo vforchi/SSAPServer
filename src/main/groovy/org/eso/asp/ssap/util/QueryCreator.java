@@ -27,6 +27,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.eso.asp.ssap.domain.ParameterMappings.stringToMjdObsInterval;
@@ -71,21 +72,7 @@ public class QueryCreator {
         return buf.toString();
     }
 
-    public static String createTimeQuery(List columns, String value) throws ParseException {
-        Double start = null, end = null;
-        RangeListParameter<String> rlp = RangeListParameter.parse(value, 1, RangeListParameter.STRING_CONVERTER);
-        if (rlp.getSingleEntries().size() == 1) {
-            Pair<Double, Double> interval = ParameterMappings.stringToMjdObsInterval(rlp.getSingleEntries().get(0));
-            start = interval.getLeft();
-            end   = interval.getRight();
-        } else if (rlp.getRangeEntries().size() == 1) {
-            start = stringToMjdObsInterval(rlp.getRangeEntries().get(0).getLeft()).getLeft();
-            end   = stringToMjdObsInterval(rlp.getRangeEntries().get(0).getRight()).getRight();
-        }
-
-        if (start == null && end == null)
-            throw new ParseException("Invalid TIME value " + value, 0);
-
+    private static String generateTimeCondition(List columns, Double start, Double end) {
         /*
          * If we have two intervals x1-x2 and y1-y2, they intersect if
          * x1 <= y2 and x2 <= y1
@@ -97,5 +84,24 @@ public class QueryCreator {
         } else {
             return columns.get(0).toString() + " <= " + end + " AND " + columns.get(1).toString() + " >= " + start;
         }
+    }
+
+    public static String createTimeQuery(List columns, String value) throws ParseException {
+        List<String> conditions = new ArrayList<>();
+
+        RangeListParameter<String> rlp = RangeListParameter.parse(value, RangeListParameter.STRING_CONVERTER);
+
+        for (String val: rlp.getSingleEntries()) {
+            Pair<Double, Double> interval = ParameterMappings.stringToMjdObsInterval(val);
+            conditions.add(generateTimeCondition(columns, interval.getLeft(), interval.getRight()));
+        }
+
+        for (Pair<String,String> range: rlp.getRangeEntries()) {
+            Double start = stringToMjdObsInterval(range.getLeft()).getLeft();
+            Double end   = stringToMjdObsInterval(range.getRight()).getRight();
+            conditions.add(generateTimeCondition(columns, start, end));
+        }
+
+        return String.join(" OR ", conditions);
     }
 }

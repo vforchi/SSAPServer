@@ -75,6 +75,8 @@ class SSAPServerSpec extends Specification {
 
 		"TIME /yyyy-MM-dd" | "TIME=/2010-03-03"     || "t_min <= 55259.0"
 		"TIME yyyy-MM-dd/" | "TIME=2010-03-03/"     || "t_max >= 55258.0"
+
+		"TIME multiple ranges" | "TIME=/2010,2011"  || "t_min <= 55927.0 AND t_max >= 55562.0 OR t_min <= 55562.0"
 	}
 
 	@Unroll
@@ -89,7 +91,7 @@ class SSAPServerSpec extends Specification {
 		name | query || message
 		"unsupported version" | "REQUEST=queryData&POS=10.0,20.0&VERSION=1.0" || "VERSION=1.0 is not supported"
 		"unsupported format"  | "REQUEST=queryData&POS=10.0,20.0&FORMAT=xml"  || "FORMAT=xml is not supported"
-		"empty TIME"    | "REQUEST=queryData&TIME=/" || "Invalid TIME value /"
+		"empty TIME"    | "REQUEST=queryData&TIME=/" || "Invalid range /"
 	}
 
 	def "Reject unsupported version"() {

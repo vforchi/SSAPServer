@@ -56,7 +56,8 @@ public class ParameterMappings {
      * utypes associated to the input parameters in SSA
      */
     public static final Map<String, Object> utypes = [(POS): "Char.SpatialAxis.Coverage.Support.Area",
-                                                      (TIME): ["Char.TimeAxis.Coverage.Bounds.Start", "Char.TimeAxis.Coverage.Bounds.Stop"]].asImmutable()
+                                                      (TIME): ["Char.TimeAxis.Coverage.Bounds.Start", "Char.TimeAxis.Coverage.Bounds.Stop"],
+                                                      ].asImmutable()
 
     public static Map<String, Object> parseFromJSON(String jsonContent) throws ParseException {
         try {

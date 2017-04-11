@@ -108,11 +108,11 @@ public class RangeListParameter<T> {
     public static Function<String, String> STRING_CONVERTER = new StringConversion();
 
     public static RangeListParameter<Object> parse(String par) throws ParseException {
-        return parse(par, null, new DefaultConversion());
+        return parse(par, null, DEFAULT_CONVERTER);
     }
 
     public static RangeListParameter<Object> parse(String par, Integer length) throws ParseException {
-        return parse(par, length, new DefaultConversion());
+        return parse(par, length, DEFAULT_CONVERTER);
     }
 
     public static <S> RangeListParameter<S> parse(String par, Function<String, S> f) throws ParseException {
@@ -146,7 +146,9 @@ public class RangeListParameter<T> {
             throw new ParseException("Wrong length in range list: expected " + length + ", found " + entries.length, 0);
         else {
             for (String entry : entries) {
-                if (entry.contains("/")) {
+                if ("/".equals(entry))
+                    throw new ParseException("Invalid range /", 0);
+                else if (entry.contains("/")) {
                     String[] tokens = entry.split("/", -1);
                     if (tokens.length == 2) {
                         try {

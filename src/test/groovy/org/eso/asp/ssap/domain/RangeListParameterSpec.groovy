@@ -111,4 +111,13 @@ class RangeListParameterSpec extends Specification {
 		"12,33" | 1  || 2
 		"11/121,123/33" | 3 || 2
 	}
+
+	void "Empty range"() {
+		when:
+		RangeListParameter.parse("/");
+
+		then:
+		ParseException ex = thrown()
+		ex.message == "Invalid range /"
+	}
 }
