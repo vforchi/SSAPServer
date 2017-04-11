@@ -44,19 +44,31 @@ public class SSAPController {
     @Autowired
     SSAPService service;
 
-    @Value("#{${ssap.versions.supported:{1.1}}}")
+    @Value("#{${ssap.versions.supported:{'1.1'}}}")
     List<String> supportedVersions;
+
+    @Value("#{${ssap.formats.supported:{'all', 'compliant', 'native', 'fits', 'application/fits'}}}")
+    List<String> supportedFormats;
 
     @RequestMapping(method = RequestMethod.GET, produces = { MediaType.TEXT_XML_VALUE })
     @ResponseBody
     ResponseEntity<?> getSpectra(
             @RequestParam(value = "VERSION", required = false) String version,
             @RequestParam(value = "REQUEST")                   String request,
+            @RequestParam(value = "FORMAT", required = false)  String format,
             @RequestParam                                      Map<String, String> allParams) {
 
         try {
             if (version != null && !supportedVersions.contains(version))
                 return ResponseEntity.badRequest().body("VERSION=" + version + " is not supported");
+
+            if (format != null) {
+                if (format.toLowerCase() == "metadata") {
+                    return ResponseEntity.badRequest().body("FORMAT=" + format + " is not supported"); // TODO
+                } else if (!supportedFormats.contains(format.toLowerCase())) {
+                    return ResponseEntity.badRequest().body("FORMAT=" + format + " is not supported");
+                }
+            }
 
             if (request.equals(ParameterMappings.QUERY_DATA)) {
                 Object body = service.queryData(allParams);

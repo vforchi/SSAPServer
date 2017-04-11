@@ -1,16 +1,5 @@
 package org.eso.asp.ssap.domain
 
-import groovy.json.JsonSlurper
-import org.apache.commons.lang3.tuple.ImmutablePair
-import org.apache.commons.lang3.tuple.Pair
-
-import java.text.ParseException
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
-import java.time.temporal.ChronoField
-import java.time.temporal.ChronoUnit
-import java.time.temporal.JulianFields
-import java.time.temporal.Temporal
 /*
  * This file is part of SSAPServer.
  *
@@ -29,6 +18,19 @@ import java.time.temporal.Temporal
  *
  * Copyright 2017 - European Southern Observatory (ESO)
  */
+
+import groovy.json.JsonSlurper
+import org.apache.commons.lang3.tuple.ImmutablePair
+import org.apache.commons.lang3.tuple.Pair
+
+import java.text.ParseException
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+import java.time.temporal.ChronoField
+import java.time.temporal.ChronoUnit
+import java.time.temporal.JulianFields
+import java.time.temporal.Temporal
+
 /**
  * This class contains definitions, contants and methods to define mappings between
  * the input parameters in SSA and the columns in TAP, based on the utypes defined

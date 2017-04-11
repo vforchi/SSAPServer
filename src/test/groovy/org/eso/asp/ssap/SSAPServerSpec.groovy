@@ -63,6 +63,8 @@ class SSAPServerSpec extends Specification {
 		"POS"               | "POS=10.0,20.0"                       || "CONTAINS(s_region, CIRCLE('',10.0,20.0,1)) = 1"
 		"POS and SIZE"      | "POS=10.0,20.0&SIZE=0.1"              || "CONTAINS(s_region, CIRCLE('',10.0,20.0,0.1)) = 1"
 		"POS and VERSION"   | "POS=10.0,20.0&SIZE=0.1&VERSION=1.1"  || "CONTAINS(s_region, CIRCLE('',10.0,20.0,0.1)) = 1"
+		"POS and FORMAT 1"  | "POS=10.0,20.0&FORMAT=fits"           || "CONTAINS(s_region, CIRCLE('',10.0,20.0,1)) = 1"
+		"POS and FORMAT 2"  | "POS=10.0,20.0&FORMAT=FITS"           || "CONTAINS(s_region, CIRCLE('',10.0,20.0,1)) = 1"
 
 		"TIME yyyy"         | "TIME=2010"                           || "t_min <= 55562.0 AND t_max >= 55197.0"
 		"TIME yyyy-MM"      | "TIME=2010-06"                        || "t_min <= 55378.0 AND t_max >= 55348.0"
@@ -86,6 +88,7 @@ class SSAPServerSpec extends Specification {
 		where:
 		name | query || message
 		"unsupported version" | "REQUEST=queryData&POS=10.0,20.0&VERSION=1.0" || "VERSION=1.0 is not supported"
+		"unsupported format"  | "REQUEST=queryData&POS=10.0,20.0&FORMAT=xml"  || "FORMAT=xml is not supported"
 		"empty TIME"    | "REQUEST=queryData&TIME=/" || "Invalid TIME value /"
 	}
 
