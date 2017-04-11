@@ -21,6 +21,8 @@ package org.eso.asp.ssap.controller;
 
 import org.eso.asp.ssap.domain.ParameterMappings;
 import org.eso.asp.ssap.service.SSAPService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.beans.factory.annotation.Value;
@@ -41,6 +43,8 @@ import java.util.Map;
 @RequestMapping("/ssa")
 public class SSAPController {
 
+    private static final Logger log = LoggerFactory.getLogger(SSAPController.class);
+
     @Autowired
     SSAPService service;
 
@@ -57,6 +61,8 @@ public class SSAPController {
             @RequestParam(value = "REQUEST")                   String request,
             @RequestParam(value = "FORMAT", required = false)  String format,
             @RequestParam                                      Map<String, String> allParams) {
+
+        log.info("Incoming request: version={}, request={}, format={}, params={}", version, request, format, allParams);
 
         try {
             if (version != null && !supportedVersions.contains(version))
