@@ -75,6 +75,20 @@ class SSAPServerSpec extends Specification {
 		"TIME yyyy-MM-dd/" | "TIME=2010-03-03/"     || "t_max >= 55258.0"
 	}
 
+	@Unroll
+	def "Error condition: #name"() {
+		when:
+		def res = restTemplate.getForObject("/ssa?$query", String.class)
+
+		then:
+		res == message
+
+		where:
+		name | query || message
+		"unsupported version" | "REQUEST=queryData&POS=10.0,20.0&VERSION=1.0" || "VERSION=1.0 is not supported"
+		"empty TIME"    | "REQUEST=queryData&TIME=/" || "Invalid TIME value /"
+	}
+
 	def "Reject unsupported version"() {
 		when:
 		def res = restTemplate.getForObject("/ssa?REQUEST=queryData&POS=10.0,20.0&VERSION=1.0", String.class)

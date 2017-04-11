@@ -83,6 +83,9 @@ public class QueryCreator {
             end   = stringToMjdObsInterval(rlp.getRangeEntries().get(0).getRight()).getRight();
         }
 
+        if (start == null && end == null)
+            throw new ParseException("Invalid TIME value " + value, 0);
+
         /*
          * If we have two intervals x1-x2 and y1-y2, they intersect if
          * x1 <= y2 and x2 <= y1
