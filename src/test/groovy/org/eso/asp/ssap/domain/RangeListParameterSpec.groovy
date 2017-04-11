@@ -50,27 +50,33 @@ class RangeListParameterSpec extends Specification {
 		where:
 		par                 | c || expectedSize | expectedRanges | expectedValues | expectedQualifier
 		/* single element */
-		"0.123"             | { Double.valueOf(it)} || 1            | []       | [0.123]          | null
-		"1E-7"              | { Double.valueOf(it)}  || 1           | []       | [10**(-7)]       | null
-		"0.123;source"      | { Double.valueOf(it)}  || 1           | []       | [0.123]          | "source"
-		"VAL"               | { String.valueOf(it)}  || 1           | []       | ["VAL"]          |  null
-		"VAL;source"        | { String.valueOf(it)} || 1            | []       | ["VAL"]          | "source"
+		"0.123"             | RangeListParameter.DOUBLE_CONVERTER || 1            | []       | [0.123]          | null
+		"1E-7"              | RangeListParameter.DOUBLE_CONVERTER  || 1           | []       | [10**(-7)]       | null
+		"0.123;source"      | RangeListParameter.DOUBLE_CONVERTER  || 1           | []       | [0.123]          | "source"
+		"VAL"               | RangeListParameter.STRING_CONVERTER  || 1           | []       | ["VAL"]          |  null
+		"VAL;source"        | RangeListParameter.STRING_CONVERTER || 1            | []       | ["VAL"]          | "source"
 
 		/* single range */
-		"0.123/1.23"        | { Double.valueOf(it)}  || 1           | [[0.123, 1.23]] | []       | null
-		"0.123/1.43;source" | { Double.valueOf(it)}  || 1           | [[0.123, 1.43]] | []       | "source"
+		"0.123/1.23"        | RangeListParameter.DOUBLE_CONVERTER  || 1           | [[0.123, 1.23]] | []       | null
+		"0.123/1.43;source" | RangeListParameter.DOUBLE_CONVERTER  || 1           | [[0.123, 1.43]] | []       | "source"
 
 		/* multiple ranges */
-		"1E-7/1E-6,1E-4/1E-2" | { Double.valueOf(it)}  || 2         | [[10**(-7), 10**(-6)], [0.0001, 0.01]] | [] | null
-		"1E-7/1E-6,1E-4/1E-2;sss" | { Double.valueOf(it)}  || 2     | [[10**(-7), 10**(-6)], [0.0001, 0.01]] | [] | "sss"
+		"1E-7/1E-6,1E-4/1E-2" | RangeListParameter.DOUBLE_CONVERTER  || 2         | [[10**(-7), 10**(-6)], [0.0001, 0.01]] | [] | null
+		"1E-7/1E-6,1E-4/1E-2;sss" | RangeListParameter.DOUBLE_CONVERTER  || 2     | [[10**(-7), 10**(-6)], [0.0001, 0.01]] | [] | "sss"
 
 		/* mixed single and range */
-		"1E-7,1E-4/1E-2" | { Double.valueOf(it)}  || 2       | [[0.0001, 0.01]] | [10**(-7)] | null
-		"1E-7/1E-6,1E-2;sss" | { Double.valueOf(it)}  || 2   | [[10**(-7), 10**(-6)]] | [0.01] | "sss"
-		"1E-7/1E-6,J;sss" | { try { Double.valueOf(it) } catch (Exception e) { it } } || 2      | [[10**(-7), 10**(-6)]] | ["J"]  | "sss"
+		"1E-7,1E-4/1E-2" |RangeListParameter.DOUBLE_CONVERTER  || 2       | [[0.0001, 0.01]] | [10**(-7)] | null
+		"1E-7/1E-6,1E-2;sss" | RangeListParameter.DOUBLE_CONVERTER  || 2   | [[10**(-7), 10**(-6)]] | [0.01] | "sss"
+		"1E-7/1E-6,J;sss" | new RangeListParameter.DefaultConversion() || 2      | [[10**(-7), 10**(-6)]] | ["J"]  | "sss"
 
 		/* range with strings */
-		"2010/2011-01-01" | { String.valueOf(it)} || 1    | [["2010", "2011-01-01"]] | [] | null
+		"2010/2011-01-01" | RangeListParameter.STRING_CONVERTER || 1    | [["2010", "2011-01-01"]] | [] | null
+
+		/* open ranges */
+		"/123.45" | RangeListParameter.DOUBLE_CONVERTER || 1  | [[null, 123.45]] | [] | null
+		"/2000"   | RangeListParameter.STRING_CONVERTER || 1  | [[null, "2000"]] | [] | null
+		"123.45/" | RangeListParameter.DOUBLE_CONVERTER || 1  | [[123.45, null]] | [] | null
+		"2000/"   | RangeListParameter.STRING_CONVERTER || 1  | [["2000", null]] | [] | null
 	}
 
 	@Unroll

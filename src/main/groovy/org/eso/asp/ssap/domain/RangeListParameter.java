@@ -75,6 +75,8 @@ public class RangeListParameter<T> {
     private static class DefaultConversion implements Function<String, Object> {
         @Override
         public Object apply(String s) {
+            if (s == null || s.length() == 0)
+                return null;
             try {
                 return Double.valueOf(s);
             } catch (NumberFormatException e) {
@@ -82,6 +84,28 @@ public class RangeListParameter<T> {
             }
         }
     }
+
+    private static class DoubleConversion implements Function<String, Double> {
+        @Override
+        public Double apply(String s) {
+            if (s == null || s.length() == 0)
+                return null;
+            return Double.valueOf(s);
+        }
+    }
+
+    private static class StringConversion implements Function<String, String> {
+        @Override
+        public String apply(String s) {
+            if (s.length() == 0)
+                return null;
+            return s;
+        }
+    }
+
+    public static Function<String, Object> DEFAULT_CONVERTER = new DefaultConversion();
+    public static Function<String, Double> DOUBLE_CONVERTER = new DoubleConversion();
+    public static Function<String, String> STRING_CONVERTER = new StringConversion();
 
     public static RangeListParameter<Object> parse(String par) throws ParseException {
         return parse(par, null, new DefaultConversion());
@@ -123,7 +147,7 @@ public class RangeListParameter<T> {
         else {
             for (String entry : entries) {
                 if (entry.contains("/")) {
-                    String[] tokens = entry.split("/");
+                    String[] tokens = entry.split("/", -1);
                     if (tokens.length == 2) {
                         try {
                             List<S> items = Arrays.stream(tokens).map(f).collect(Collectors.toList());

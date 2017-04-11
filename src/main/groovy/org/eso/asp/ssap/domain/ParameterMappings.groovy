@@ -53,8 +53,8 @@ public class ParameterMappings {
     /**
      * utypes associated to the input parameters in SSA
      */
-    public static final Map<String, Object> utypes = [(POS): "ssa:Char.SpatialAxis.Coverage.Support.Area",
-                                                      (TIME): ["ssa:Char.TimeAxis.Coverage.Bounds.Start", "ssa:Char.TimeAxis.Coverage.Bounds.Stop"]].asImmutable()
+    public static final Map<String, Object> utypes = [(POS): "Char.SpatialAxis.Coverage.Support.Area",
+                                                      (TIME): ["Char.TimeAxis.Coverage.Bounds.Start", "Char.TimeAxis.Coverage.Bounds.Stop"]].asImmutable()
 
     public static Map<String, Object> parseFromJSON(String jsonContent) throws ParseException {
         try {
@@ -65,11 +65,11 @@ public class ParameterMappings {
 
             def res = utypes.collectEntries { ssaPar, utype ->
                 if (utype instanceof String) {
-                    def column = json.data.find { it[idxUtype] == utype}
+                    def column = json.data.find { it[idxUtype]?.endsWith(utype) }
                     [(ssaPar): column[idxName]]
                 } else if (utype instanceof List) {
                     /* we start from the utype instead of columns.findAll to preserve the order of the utype */
-                    def cols = utype.collect { type -> json.data.find { it[idxUtype] == type } }
+                    def cols = utype.collect { type -> json.data.find { it[idxUtype]?.endsWith(type) } }
                     [(ssaPar): cols.collect { it[idxName] }]
                 }
             }
@@ -100,11 +100,11 @@ public class ParameterMappings {
                value: the name of the column with the required utype */
             def res = utypes.collectEntries { ssaPar, utype ->
                 if (utype instanceof String) {
-                    def col = columns.find { it.TD[idxUtype].text() == utype }
+                    def col = columns.find { it.TD[idxUtype].text()?.endsWith(utype) }
                     [(ssaPar): col.TD[idxName].text()]
                 } else if (utype instanceof List) {
                     /* we start from the utype instead of columns.findAll to preserve the order of the utype */
-                    def cols = utype.collect { type -> columns.find { it.TD[idxUtype].text() == type } }
+                    def cols = utype.collect { type -> columns.find { it.TD[idxUtype].text()?.endsWith(type) } }
                     [(ssaPar): cols.collect { it.TD[idxName].text() }]
                 }
             }
@@ -134,6 +134,9 @@ public class ParameterMappings {
      * @throws ParseException
      */
     public static Pair<Double, Double> stringToMjdObsInterval(String time) throws ParseException {
+        if (time == null)
+            return new ImmutablePair<Double, Double>(null, null);
+
         def inputTime = time
 
         /* if the string is not complete to the second, add the missing part

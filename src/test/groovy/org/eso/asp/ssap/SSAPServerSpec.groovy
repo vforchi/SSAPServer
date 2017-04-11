@@ -69,7 +69,10 @@ class SSAPServerSpec extends Specification {
 		"TIME yyyy-MM-dd"   | "TIME=2010-05-01"                     || "t_min <= 55318.0 AND t_max >= 55317.0"
 		"TIME yyyy-MM-ddThh:mm:ss" | "TIME=2010-05-01T01:12:54"     || "t_min <= 55317.0506365741 AND t_max >= 55317.050625"
 
-		"TIME yyyy/yyyy-MM-dd" | "TIME=2010/2011-04-01"             || "t_min <= 55317.0506365741 AND t_max >= 55317.050625"
+		"TIME yyyy/yyyy-MM-dd" | "TIME=2010/2011-04-01"             || "t_min <= 55653.0 AND t_max >= 55197.0"
+
+		"TIME /yyyy-MM-dd" | "TIME=/2010-03-03"     || "t_min <= 55259.0"
+		"TIME yyyy-MM-dd/" | "TIME=2010-03-03/"     || "t_max >= 55258.0"
 	}
 
 	def "Reject unsupported version"() {

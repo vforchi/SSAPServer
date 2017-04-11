@@ -73,16 +73,26 @@ public class QueryCreator {
 
     public static String createTimeQuery(List columns, String value) throws ParseException {
         Double start = null, end = null;
-        RangeListParameter<String> rlp = RangeListParameter.parse(value, 1, String::valueOf);
+        RangeListParameter<String> rlp = RangeListParameter.parse(value, 1, RangeListParameter.STRING_CONVERTER);
         if (rlp.getSingleEntries().size() == 1) {
             Pair<Double, Double> interval = ParameterMappings.stringToMjdObsInterval(rlp.getSingleEntries().get(0));
             start = interval.getLeft();
             end   = interval.getRight();
         } else if (rlp.getRangeEntries().size() == 1) {
             start = stringToMjdObsInterval(rlp.getRangeEntries().get(0).getLeft()).getLeft();
-            end   = stringToMjdObsInterval(rlp.getRangeEntries().get(1).getRight()).getRight();
+            end   = stringToMjdObsInterval(rlp.getRangeEntries().get(0).getRight()).getRight();
         }
 
-        return columns.get(0).toString() + " <= " + end + " AND " + columns.get(1).toString()  + " >= " + start;
+        /*
+         * If we have two intervals x1-x2 and y1-y2, they intersect if
+         * x1 <= y2 and x2 <= y1
+         */
+        if (start == null) {
+            return columns.get(0).toString() + " <= " + end;
+        } else if (end == null) {
+            return columns.get(1).toString() + " >= " + start;
+        } else {
+            return columns.get(0).toString() + " <= " + end + " AND " + columns.get(1).toString() + " >= " + start;
+        }
     }
 }
