@@ -4,7 +4,7 @@ The server is a Spring Boot application that implements the API defined in the s
 
 The server can either redirect the requests to a TAP service or go directly to the DB.
 
-SSAPServer is at a very early stage of development and currently supports only queries with `POS` and `SIZE`.
+SSAPServer is at a very early stage of development and currently supports only queries with `POS`, `SIZE` amd `TIME`.
 
 
 ## Using TAP
@@ -38,6 +38,7 @@ Here are all the available configuration options, with their default values. The
 ```
 # Generic configuration
 ssap.versions.supported = {1.1} // a list of the supported protocol versions
+ssap.size.default = 1 // default value of SIZE, if none is specified
 
 # Configuration options specific to the TAP access
 ssap.use.tap = true // mandatory

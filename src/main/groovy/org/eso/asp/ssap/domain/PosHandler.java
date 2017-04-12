@@ -1,0 +1,84 @@
+package org.eso.asp.ssap.domain;
+
+/*
+ * This file is part of SSAPServer.
+ *
+ * SSAPServer is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * SSAPServer is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with SSAPServer. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * Copyright 2017 - European Southern Observatory (ESO)
+ */
+
+import org.springframework.beans.factory.annotation.Configurable;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.stereotype.Component;
+
+import javax.naming.ConfigurationException;
+import java.text.ParseException;
+import java.util.Map;
+
+/**
+ * @author Vincenzo Forch&igrave (ESO), vforchi@eso.org, vincenzo.forchi@gmail.com
+ */
+@Component
+@Configurable
+@ConditionalOnMissingBean(name = "myPosHandler")
+public class PosHandler implements ParameterHandler {
+
+    public static final String POS  = "POS";
+    public static final String SIZE = "SIZE";
+
+    @Value("${ssap.tap.utype.POS:Char.SpatialAxis.Coverage.Support.Area}")
+    String posUtype;
+
+    String posColumn;
+
+    @Value("${ssap.size.default:1}")
+    private String defaultSize;
+
+    @Override
+    public void configure(Map<String, String> utypeToColumns) throws ConfigurationException {
+        posColumn = utypeToColumns.getOrDefault(posUtype, null);
+        if (posColumn == null)
+            throw new ConfigurationException("Couldn't find mapping for parameter POS");
+    }
+
+    @Override
+    public String validateAndGenerateQueryCondition(Map<String, String> params) throws ParseException {
+        if (!params.containsKey(POS))
+            return null;
+        
+        String posValue = params.get(POS);
+        String size     = params.getOrDefault(SIZE, defaultSize);
+
+        RangeListParameter<Double> rlp = RangeListParameter.parse(posValue, 2, Double::valueOf);
+        if (rlp.getSingleEntries().size() != 2)
+            throw new ParseException("", 0); //TOOO
+        Double ra = rlp.getSingleEntries().get(0);
+        Double dec = rlp.getSingleEntries().get(1);
+
+        StringBuffer buf = new StringBuffer();
+        buf.append("CONTAINS(");
+        buf.append(posColumn);
+        buf.append(", CIRCLE('',");
+        buf.append(ra);
+        buf.append(",");
+        buf.append(dec);
+        buf.append(",");
+        buf.append(size);
+        buf.append(")) = 1");
+        return buf.toString();
+    }
+
+}

@@ -1,6 +1,5 @@
-package org.eso.asp.ssap.domain
+package org.eso.asp.ssap.domain;
 
-import spock.lang.Specification
 /*
  * This file is part of SSAPServer.
  *
@@ -19,22 +18,18 @@ import spock.lang.Specification
  *
  * Copyright 2017 - European Southern Observatory (ESO)
  */
+
+import javax.naming.ConfigurationException;
+import java.text.ParseException;
+import java.util.Map;
+
 /**
  * @author Vincenzo Forch&igrave (ESO), vforchi@eso.org, vincenzo.forchi@gmail.com
  */
-class ParametersMappingsSpec extends Specification {
+public interface ParameterHandler {
 
-	def "Get column mappings from XML"() {
-		setup:
-		def xml = this.class.getResource('/ssap_columns.vot').text
+    void configure(Map<String, String> paramsToColumns) throws ConfigurationException;
 
-		when:
-		def mappings = ParameterMappings.getUtypeToColumnsMappingsFromVOTable(xml)
-
-		then:
-		mappings['Char.SpatialAxis.Coverage.Support.Area']  == "s_region"
-		mappings['Char.TimeAxis.Coverage.Bounds.Start'] == "t_min"
-		mappings['Char.TimeAxis.Coverage.Bounds.Stop']  == "t_max"
-	}
+    String validateAndGenerateQueryCondition(Map<String, String> params) throws ParseException;
 
 }

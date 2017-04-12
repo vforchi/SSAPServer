@@ -1,6 +1,5 @@
-package org.eso.asp.ssap.domain
+package org.eso.asp.ssap
 
-import spock.lang.Specification
 /*
  * This file is part of SSAPServer.
  *
@@ -19,22 +18,29 @@ import spock.lang.Specification
  *
  * Copyright 2017 - European Southern Observatory (ESO)
  */
+
+import org.eso.asp.ssap.domain.MyTimeHandler
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.context.ApplicationContext
+import org.springframework.test.context.ActiveProfiles
+import spock.lang.Specification
+
 /**
  * @author Vincenzo Forch&igrave (ESO), vforchi@eso.org, vincenzo.forchi@gmail.com
  */
-class ParametersMappingsSpec extends Specification {
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@ActiveProfiles("replacetime")
+class ReplaceParamBean extends Specification {
 
-	def "Get column mappings from XML"() {
-		setup:
-		def xml = this.class.getResource('/ssap_columns.vot').text
+	@Autowired
+	ApplicationContext context
 
+	def "Replace TIME bean"() {
 		when:
-		def mappings = ParameterMappings.getUtypeToColumnsMappingsFromVOTable(xml)
+		def bean = context.getBean("myTimeHandler")
 
 		then:
-		mappings['Char.SpatialAxis.Coverage.Support.Area']  == "s_region"
-		mappings['Char.TimeAxis.Coverage.Bounds.Start'] == "t_min"
-		mappings['Char.TimeAxis.Coverage.Bounds.Stop']  == "t_max"
+		bean.class == MyTimeHandler.class
 	}
-
 }

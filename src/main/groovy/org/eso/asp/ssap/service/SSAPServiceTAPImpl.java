@@ -19,14 +19,15 @@ package org.eso.asp.ssap.service;
  * Copyright 2017 - European Southern Observatory (ESO)
  */
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.fluent.Request;
-import org.eso.asp.ssap.util.QueryCreator;
+import org.eso.asp.ssap.domain.ParameterHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
@@ -34,9 +35,8 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.eso.asp.ssap.domain.ParameterMappings.*;
 
@@ -53,6 +53,9 @@ public class SSAPServiceTAPImpl implements SSAPService {
 
     private static final Logger log = LoggerFactory.getLogger(SSAPServiceTAPImpl.class);
 
+    @Autowired
+    ApplicationContext context;
+
     @Value("${ssap.tap.timeout:10}")
     private Integer timeoutSeconds;
 
@@ -65,14 +68,16 @@ public class SSAPServiceTAPImpl implements SSAPService {
     @Value("${ssap.tap.table:dbo.ssa}")
     public String tapTable;
 
-    @Value("#{${ssap.tap.params.to.columns:{:}}}")
-    public Map<String, Object> paramsToColumns;
+    @Value("#{${ssap.tap.utype.to.columns:{:}}}")
+    public Map<String, String> utypeToColumns;
+
+    private Collection<ParameterHandler> parHandlers;
 
     @PostConstruct
     public void init() {
         /* if not initialized, map using the UCDs */
-        if (paramsToColumns == null || paramsToColumns.size() == 0) {
-            try {
+        try {
+            if (utypeToColumns == null || utypeToColumns.size() == 0) {
                 StringBuffer tapRequest = getAdqlURL();
 
                 String query = "SELECT * FROM TAP_SCHEMA.columns WHERE table_name = '" + tapTable + "'";
@@ -82,11 +87,15 @@ public class SSAPServiceTAPImpl implements SSAPService {
                         .connectTimeout(timeoutSeconds * 1000)
                         .socketTimeout(timeoutSeconds * 1000)
                         .execute().returnContent().asString();
-                paramsToColumns = parseFromXML(body);
-            } catch (Exception e) {
-                log.error(e.getMessage());
-                throw new RuntimeException(e);
+
+                utypeToColumns = getUtypeToColumnsMappingsFromVOTable(body);
             }
+            parHandlers = context.getBeansOfType(ParameterHandler.class).values();
+            for (ParameterHandler handler: parHandlers)
+                handler.configure(utypeToColumns);
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            throw new RuntimeException(e);
         }
     }
 
@@ -113,28 +122,26 @@ public class SSAPServiceTAPImpl implements SSAPService {
 
     protected String createADQLQuery(Map<String, String> params) throws ParseException, UnsupportedEncodingException {
 
-        List<String> whereConditions = new ArrayList<>();
-        for (Map.Entry<String,String> entry: params.entrySet()) {
-            String key   = entry.getKey();
-            String value = entry.getValue();
-            if (key.equals(POS)) {
-                String size = params.getOrDefault(SIZE, null);
-                whereConditions.add(QueryCreator.createPosQuery(paramsToColumns.get(POS).toString(), value, size));
-            } else if (key.equals(TIME)) {
-                whereConditions.add(QueryCreator.createTimeQuery((List) paramsToColumns.get(TIME), value));
-            }
-        }
-
+        /* build query */
         StringBuffer adqlQuery = new StringBuffer();
+        /* SELECT */
         adqlQuery.append("SELECT ");
+        /* TOP */
         if (params.containsKey(TOP))
             adqlQuery.append(" TOP ").append(params.get(TOP)).append(" ");
+        /* FROM */
         adqlQuery.append(selectedColumns)
                  .append(" FROM ")
                  .append(tapTable);
+        /* WHERE */
+        List<String> whereConditions = new ArrayList<>();
+        for (ParameterHandler handler: parHandlers)
+            whereConditions.add(handler.validateAndGenerateQueryCondition(params));
+
         if (whereConditions.size() > 0) {
             adqlQuery.append(" WHERE ");
-            adqlQuery.append(StringUtils.join(whereConditions, " AND "));
+            String whereCondition = whereConditions.stream().filter(Objects::nonNull).collect(Collectors.joining(" AND "));
+            adqlQuery.append(whereCondition);
         }
 
         return URLEncoder.encode(adqlQuery.toString(), "ISO-8859-1");
