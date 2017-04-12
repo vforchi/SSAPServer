@@ -22,6 +22,7 @@ package org.eso.asp.ssap.domain;
 import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 import javax.naming.ConfigurationException;
@@ -34,12 +35,13 @@ import java.util.Map;
 @Component
 @Configurable
 @ConditionalOnMissingBean(name = "myPosHandler")
+@ConditionalOnProperty(value="ssap.use.tap", havingValue = "true")
 public class PosHandler implements ParameterHandler {
 
     public static final String POS  = "POS";
     public static final String SIZE = "SIZE";
 
-    @Value("${ssap.tap.utype.POS:Char.SpatialAxis.Coverage.Support.Area}")
+    @Value("${ssap.tap.utype.pos:Char.SpatialAxis.Coverage.Support.Area}")
     String posUtype;
 
     String posColumn;

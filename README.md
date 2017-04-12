@@ -6,12 +6,19 @@ The server can either redirect the requests to a TAP service or go directly to t
 
 SSAPServer is at a very early stage of development and currently supports only queries with `POS`, `SIZE` amd `TIME`.
 
-
 ## Using TAP
 In this mode the server translates the incoming requests into ADQL and sends them to a TAP service.
 The tool assumes a specific schema is available on the TAP server. Unfortunately it is not possible to query directly ObsCore, 
 because the UCDs are different and some columns are missing. Therefore we defined a view that can be built on top of
 ObsCore to enable SSA access. You can find the definition of this view for SQLServer under TBD
+
+### Customization
+SSA leaves some freedom in the implementation of specific parameters, and some of them can be specific to the data or to the
+model that the server is exposing. It is therefore possible to customize how a given parameter is converted in a TAP query.
+Every parameter defined in the SSA standard is handled by a class that implements the interface `ParameterHandler`. There are 
+currently two implementations: `PosHandler` and `TimeHandler`. 
+If, for example, you want to override the default TIME implememntation, it is sufficient to declare a class named `MyTimeHandler`,
+ that implements ParameterHandler. You can find an example in the tests
 
 ## Direct DB queries
 Not yet implemented
@@ -45,7 +52,13 @@ ssap.use.tap = true // mandatory
 ssap.tap.url = // the URL of the TAP server, no default
 ssap.tap.timeout = 10 // timeout in seconds
 
+# utype configuration
+ssap.tap.utype.pos = Char.SpatialAxis.Coverage.Support.Area     // POS
+ssap.tap.utype.time.start = Char.TimeAxis.Coverage.Bounds.Start // TIME start 
+ssap.tap.utype.time.stop = Char.TimeAxis.Coverage.Bounds.Stop   // TIME stop
+
 # Spring Boot configuration options
 server.port = 9000 // the port where the server runs.
 ```
+
 

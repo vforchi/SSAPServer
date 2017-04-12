@@ -24,6 +24,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 import javax.naming.ConfigurationException;
@@ -41,14 +42,15 @@ import java.util.Map;
 @Component
 @Configurable
 @ConditionalOnMissingBean(name = "myTimeHandler")
+@ConditionalOnProperty(value="ssap.use.tap", havingValue = "true")
 public class TimeHandler implements ParameterHandler {
 
     public static final String TIME = "TIME";
 
-    @Value("${ssap.tap.utype.TIME.start:Char.TimeAxis.Coverage.Bounds.Start}")
+    @Value("${ssap.tap.utype.time.start:Char.TimeAxis.Coverage.Bounds.Start}")
     String timeStartUtype;
 
-    @Value("${ssap.tap.utype.TIME.end:Char.TimeAxis.Coverage.Bounds.Stop}")
+    @Value("${ssap.tap.utype.time.stop:Char.TimeAxis.Coverage.Bounds.Stop}")
     String timeStopUtype;
 
     String timeStartColumn, timeEndColumn;
