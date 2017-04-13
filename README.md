@@ -53,9 +53,11 @@ ssap.tap.url = // the URL of the TAP server, no default
 ssap.tap.timeout = 10 // timeout in seconds
 
 # utype configuration
-ssap.tap.utype.pos = Char.SpatialAxis.Coverage.Support.Area     // POS
-ssap.tap.utype.time.start = Char.TimeAxis.Coverage.Bounds.Start // TIME start 
-ssap.tap.utype.time.stop = Char.TimeAxis.Coverage.Bounds.Stop   // TIME stop
+ssap.tap.utype.pos = Char.SpatialAxis.Coverage.Support.Area      // POS
+ssap.tap.utype.time.start = Char.TimeAxis.Coverage.Bounds.Start  // TIME start 
+ssap.tap.utype.time.stop  = Char.TimeAxis.Coverage.Bounds.Stop   // TIME stop
+ssap.tap.utype.band.start = Char.SpectralAxis.Coverage.Bounds.Start // BAND start
+ssap.tap.utype.band.stop  = Char.SpectralAxis.Coverage.Bounds.Stop  // BAND start
 
 # Spring Boot configuration options
 server.port = 9000 // the port where the server runs.

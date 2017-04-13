@@ -44,10 +44,10 @@ public class BandHandler implements ParameterHandler {
 
     public static final String BAND = "BAND";
 
-    @Value("${ssap.tap.utype.time.start:Char.SpectralAxis.Coverage.Bounds.Start}")
+    @Value("${ssap.tap.utype.band.start:Char.SpectralAxis.Coverage.Bounds.Start}")
     String bandStartUtype;
 
-    @Value("${ssap.tap.utype.time.stop:Char.SpectralAxis.Coverage.Bounds.Stop}")
+    @Value("${ssap.tap.utype.band.stop:Char.SpectralAxis.Coverage.Bounds.Stop}")
     String bandStopUtype;
 
     String bandStartColumn, bandStopColumn;
