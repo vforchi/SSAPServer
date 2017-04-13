@@ -124,11 +124,12 @@ public class SSAPServiceTAPImpl implements SSAPService {
             params.remove(MAXREC);
         }
 
-        return Request.Get(tapRequest.toString())
+        String tapResult = Request.Get(tapRequest.toString())
                 .connectTimeout(timeoutSeconds*1000)
                 .socketTimeout(timeoutSeconds*1000)
                 .execute().returnContent().asString();
 
+        return VOTableUtils.convertTAPtoSSAP(tapResult);
     }
 
     protected String createADQLQuery(Map<String, String> params) throws ParseException, UnsupportedEncodingException {

@@ -1,5 +1,9 @@
 package org.eso.asp.ssap.util
 
+import groovy.xml.MarkupBuilder
+import groovy.xml.XmlUtil
+import org.eso.asp.ssap.domain.ParameterHandler
+
 /*
  * This file is part of SSAPServer.
  *
@@ -18,12 +22,7 @@ package org.eso.asp.ssap.util
  *
  * Copyright 2017 - European Southern Observatory (ESO)
  */
-
-import groovy.xml.MarkupBuilder
-import org.eso.asp.ssap.domain.ParameterHandler
-
 import java.text.ParseException
-
 /**
  * This class contains helper methods to deal with VOTable entity. It's in Groovy because
  * it has powerful XML libraries
@@ -40,13 +39,12 @@ public class VOTableUtils {
 	 */
     public static Map<String, String> getUtypeToColumnsMappingsFromVOTable(String xmlContent) throws ParseException {
         try {
-            def VOTABLE = new XmlParser().parseText(xmlContent)
+            def VOTABLE = new XmlSlurper().parseText(xmlContent)
 
             def fieldsWithUtype = VOTABLE.RESOURCE.TABLE.FIELD.findAll { it.@utype }
             return fieldsWithUtype.collectEntries {
-                [it.@utype.replaceFirst(".*:", ""), it.@name]
+                [it.@utype.text().replaceFirst(".*:", ""), it.@name.text()]
             }
-            
         } catch (Exception e) {
             throw new ParseException(e.getMessage(), 0)
         }
@@ -96,5 +94,15 @@ public class VOTableUtils {
             }
         }
         return writer.toString()
+    }
+
+    public static String convertTAPtoSSAP(String tapResult) {
+        def TAP = new XmlParser().parseText(tapResult)
+        TAP.RESOURCE[0].appendNode(
+                "INFO",
+                [name: "SERVICE_PROTOCOL", value: "1.1"],
+                "SSAP"
+        )
+        return XmlUtil.serialize(TAP)
     }
 }
