@@ -34,7 +34,7 @@ public interface SSAPService {
      * @return a String representation of a VOTable containing the metadata of
      * the service
      */
-    String getMetadata() throws IOException;
+    String getMetadata();
 
     /**
      * This method is invoked by any query for data

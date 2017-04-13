@@ -42,17 +42,11 @@ public class VOTableUtils {
         try {
             def VOTABLE = new XmlParser().parseText(xmlContent)
 
-            /* find indices of columns containing utype and column_name in the table */
-            NodeList fields = VOTABLE.RESOURCE.TABLE.FIELD
-            int idxName  = fields.findIndexOf { it.@name == 'column_name'}
-            int idxUtype = fields.findIndexOf { it.@name == 'utype'}
-
-            /* data of the table, containing the SSA columns */
-            NodeList columns = VOTABLE.RESOURCE.TABLE.DATA.TABLEDATA.TR
-
-            return columns.collectEntries {
-                [it.TD[idxUtype].text().replaceFirst(".*:", ""), it.TD[idxName].text()]
+            def fieldsWithUtype = VOTABLE.RESOURCE.TABLE.FIELD.findAll { it.@utype }
+            return fieldsWithUtype.collectEntries {
+                [it.@utype.replaceFirst(".*:", ""), it.@name]
             }
+            
         } catch (Exception e) {
             throw new ParseException(e.getMessage(), 0)
         }

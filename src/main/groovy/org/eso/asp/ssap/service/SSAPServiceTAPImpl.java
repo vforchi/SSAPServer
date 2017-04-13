@@ -40,7 +40,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.eso.asp.ssap.domain.SSAPConstants.*;
-import static org.eso.asp.ssap.util.VOTableUtils.*;
 
 /**
  * This class implements SSAPService by translating SSA requests into ADQL queries
@@ -73,6 +72,8 @@ public class SSAPServiceTAPImpl implements SSAPService {
     @Value("#{${ssap.tap.utype.to.columns:{:}}}")
     public Map<String, String> utypeToColumns;
 
+    private String ssaMetadata;
+
     private Collection<ParameterHandler> parHandlers;
 
     @PostConstruct
@@ -82,15 +83,16 @@ public class SSAPServiceTAPImpl implements SSAPService {
             if (utypeToColumns == null || utypeToColumns.size() == 0) {
                 StringBuffer tapRequest = getAdqlURL();
 
-                String query = "SELECT * FROM TAP_SCHEMA.columns WHERE table_name = '" + tapTable + "'";
+                String query = "SELECT * FROM " + tapTable + " WHERE 1=0";
                 tapRequest.append(URLEncoder.encode(query, "ISO-8859-1"));
 
-                String body = Request.Get(tapRequest.toString())
+                String tapResult = Request.Get(tapRequest.toString())
                         .connectTimeout(timeoutSeconds * 1000)
                         .socketTimeout(timeoutSeconds * 1000)
                         .execute().returnContent().asString();
 
-                utypeToColumns = getUtypeToColumnsMappingsFromVOTable(body);
+                utypeToColumns = VOTableUtils.getUtypeToColumnsMappingsFromVOTable(tapResult);
+                ssaMetadata    = VOTableUtils.getSSAMetadata(parHandlers, tapResult);
             }
             parHandlers = context.getBeansOfType(ParameterHandler.class).values();
             for (ParameterHandler handler: parHandlers)
@@ -102,18 +104,8 @@ public class SSAPServiceTAPImpl implements SSAPService {
     }
 
     @Override
-    public String getMetadata()throws IOException {
-        StringBuffer tapRequest = getAdqlURL();
-
-        String query = "SELECT * FROM " + tapTable + " WHERE 1 = 0";
-        tapRequest.append(URLEncoder.encode(query, "ISO-8859-1"));
-
-        String tapResult = Request.Get(tapRequest.toString())
-                .connectTimeout(timeoutSeconds * 1000)
-                .socketTimeout(timeoutSeconds * 1000)
-                .execute().returnContent().asString();
-
-        return VOTableUtils.getSSAMetadata(parHandlers, tapResult);
+    public String getMetadata() {
+        return ssaMetadata;
     }
 
     @Override
