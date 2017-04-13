@@ -60,11 +60,11 @@ class SSAPServerSpec extends Specification {
 
 		where:
 		name | query || condition
-		"POS"               | "POS=10.0,20.0"                       || "CONTAINS(s_region, CIRCLE('',10.0,20.0,1)) = 1"
+		"POS"               | "POS=10.0,20.0"                       || "CONTAINS(s_region, CIRCLE('',10.0,20.0,0.0033)) = 1"
 		"POS and SIZE"      | "POS=10.0,20.0&SIZE=0.1"              || "CONTAINS(s_region, CIRCLE('',10.0,20.0,0.1)) = 1"
 		"POS and VERSION"   | "POS=10.0,20.0&SIZE=0.1&VERSION=1.1"  || "CONTAINS(s_region, CIRCLE('',10.0,20.0,0.1)) = 1"
-		"POS and FORMAT 1"  | "POS=10.0,20.0&FORMAT=fits"           || "CONTAINS(s_region, CIRCLE('',10.0,20.0,1)) = 1"
-		"POS and FORMAT 2"  | "POS=10.0,20.0&FORMAT=FITS"           || "CONTAINS(s_region, CIRCLE('',10.0,20.0,1)) = 1"
+		"POS and FORMAT 1"  | "POS=10.0,20.0&FORMAT=fits"           || "CONTAINS(s_region, CIRCLE('',10.0,20.0,0.0033)) = 1"
+		"POS and FORMAT 2"  | "POS=10.0,20.0&FORMAT=FITS"           || "CONTAINS(s_region, CIRCLE('',10.0,20.0,0.0033)) = 1"
 
 		/* TIME */
 		"TIME yyyy"         | "TIME=2010"                           || "t_min <= 55562.0 AND t_max >= 55197.0"
