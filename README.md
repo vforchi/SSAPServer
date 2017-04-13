@@ -57,7 +57,7 @@ ssap.tap.utype.pos = Char.SpatialAxis.Coverage.Support.Area      // POS
 ssap.tap.utype.time.start = Char.TimeAxis.Coverage.Bounds.Start  // TIME start 
 ssap.tap.utype.time.stop  = Char.TimeAxis.Coverage.Bounds.Stop   // TIME stop
 ssap.tap.utype.band.start = Char.SpectralAxis.Coverage.Bounds.Start // BAND start
-ssap.tap.utype.band.stop  = Char.SpectralAxis.Coverage.Bounds.Stop  // BAND start
+ssap.tap.utype.band.stop  = Char.SpectralAxis.Coverage.Bounds.Stop  // BAND stop
 
 # Spring Boot configuration options
 server.port = 9000 // the port where the server runs.
