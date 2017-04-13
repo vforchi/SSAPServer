@@ -51,7 +51,7 @@ public class BandHandler implements ParameterHandler {
     String bandStopUtype;
 
     String bandStartColumn, bandStopColumn;
-
+    
     private final ParameterInfo bandParam = new ParameterInfo("BAND", "char", "");
 
     @Override
