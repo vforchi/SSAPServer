@@ -150,4 +150,14 @@ class VOTableUtilsSpec extends Specification {
 </VOTABLE>"""
 	}
 
+	def "Convert TAP result to SSAP"() {
+		setup:
+		def xml = this.class.getResource('/ssap_columns.vot').text
+
+		when:
+		def ssap = new XmlSlurper().parseText(VOTableUtils.getSSAMetadata([], xml))
+
+		then:
+		ssap.RESOURCE.INFO.find { it.@name == "SERVICE_PROTOCOL" }.text() == "SSAP"
+	}
 }
