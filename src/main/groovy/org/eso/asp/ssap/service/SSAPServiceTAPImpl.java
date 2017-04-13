@@ -80,6 +80,8 @@ public class SSAPServiceTAPImpl implements SSAPService {
     public void init() {
         /* if not initialized, map using the UCDs */
         try {
+            parHandlers = context.getBeansOfType(ParameterHandler.class).values();
+
             if (utypeToColumns == null || utypeToColumns.size() == 0) {
                 StringBuffer tapRequest = getAdqlURL();
 
@@ -92,9 +94,9 @@ public class SSAPServiceTAPImpl implements SSAPService {
                         .execute().returnContent().asString();
 
                 utypeToColumns = VOTableUtils.getUtypeToColumnsMappingsFromVOTable(tapResult);
-                ssaMetadata    = VOTableUtils.getSSAMetadata(parHandlers, tapResult);
+                ssaMetadata = VOTableUtils.getSSAMetadata(parHandlers, tapResult);
             }
-            parHandlers = context.getBeansOfType(ParameterHandler.class).values();
+
             for (ParameterHandler handler: parHandlers)
                 handler.configure(utypeToColumns);
         } catch (Exception e) {
