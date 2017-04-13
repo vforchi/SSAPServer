@@ -1,6 +1,5 @@
-package org.eso.asp.ssap.domain
+package org.eso.asp.ssap.domain;
 
-import spock.lang.Specification
 /*
  * This file is part of SSAPServer.
  *
@@ -19,22 +18,13 @@ import spock.lang.Specification
  *
  * Copyright 2017 - European Southern Observatory (ESO)
  */
+
 /**
  * @author Vincenzo Forch&igrave (ESO), vforchi@eso.org, vincenzo.forchi@gmail.com
  */
-class ParametersMappingsSpec extends Specification {
+public class SSAPConstants {
+    public static final String QUERY_DATA = "queryData";
 
-	def "Get column mappings from XML"() {
-		setup:
-		def xml = this.class.getResource('/ssap_columns.vot').text
-
-		when:
-		def mappings = ParameterMappings.getUtypeToColumnsMappingsFromVOTable(xml)
-
-		then:
-		mappings['Char.SpatialAxis.Coverage.Support.Area']  == "s_region"
-		mappings['Char.TimeAxis.Coverage.Bounds.Start'] == "t_min"
-		mappings['Char.TimeAxis.Coverage.Bounds.Stop']  == "t_max"
-	}
-
+    public static final String MAXREC = "MAXREC";
+    public static final String TOP    = "TOP";
 }

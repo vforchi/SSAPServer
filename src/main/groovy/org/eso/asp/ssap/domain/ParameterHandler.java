@@ -19,14 +19,18 @@ package org.eso.asp.ssap.domain;
  * Copyright 2017 - European Southern Observatory (ESO)
  */
 
+
 import javax.naming.ConfigurationException;
 import java.text.ParseException;
+import java.util.List;
 import java.util.Map;
 
 /**
  * @author Vincenzo Forch&igrave (ESO), vforchi@eso.org, vincenzo.forchi@gmail.com
  */
 public interface ParameterHandler {
+
+    List<ParameterInfo> getParameterInfos();
 
     void configure(Map<String, String> paramsToColumns) throws ConfigurationException;
 

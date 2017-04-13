@@ -24,6 +24,7 @@ import org.springframework.stereotype.Component;
 
 import javax.naming.ConfigurationException;
 import java.text.ParseException;
+import java.util.List;
 import java.util.Map;
 
 /*
@@ -32,6 +33,11 @@ import java.util.Map;
 @Profile("replacetime")
 @Component
 public class MyTimeHandler implements ParameterHandler {
+    @Override
+    public List<ParameterInfo> getParameterInfos() {
+        return null;
+    }
+
     @Override
     public void configure(Map<String, String> paramsToColumns) throws ConfigurationException {
 

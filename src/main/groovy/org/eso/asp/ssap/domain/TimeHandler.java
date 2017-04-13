@@ -33,6 +33,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -55,8 +56,12 @@ public class TimeHandler implements ParameterHandler {
 
     String timeStartColumn, timeEndColumn;
 
-    @Value("${ssap.size.default:1}")
-    private String defaultSize;
+    private final ParameterInfo timeParam  = new ParameterInfo("TIME", "char", "");
+
+    @Override
+    public List<ParameterInfo> getParameterInfos() {
+        return Arrays.asList(timeParam);
+    }
 
     @Override
     public void configure(Map<String, String> utypeToColumns) throws ConfigurationException {

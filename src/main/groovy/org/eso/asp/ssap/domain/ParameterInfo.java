@@ -1,5 +1,4 @@
-package org.eso.asp.ssap.service;
-
+package org.eso.asp.ssap.domain;
 /*
  * This file is part of SSAPServer.
  *
@@ -19,31 +18,30 @@ package org.eso.asp.ssap.service;
  * Copyright 2017 - European Southern Observatory (ESO)
  */
 
-import java.io.IOException;
-import java.text.ParseException;
-import java.util.Map;
-
 /**
  * @author Vincenzo Forch&igrave (ESO), vforchi@eso.org, vincenzo.forchi@gmail.com
  */
-public interface SSAPService {
+public class ParameterInfo {
 
-    /**
-     * This method is invoked when the request contains FORMAT=METADATA
-     *
-     * @return a String representation of a VOTable containing the metadata of
-     * the service
-     */
-    String getMetadata() throws IOException;
+    public ParameterInfo(String name, String value, String dataType, String arraySize, String description) {
+        this.name = name;
+        this.value = value;
+        this.dataType = dataType;
+        this.arraySize = arraySize;
+        this.description = description;
+    }
 
-    /**
-     * This method is invoked by any query for data
-     *
-     * @param params the query parameters
-     * @return a String representation of a VOTable containining the result of the query
-     * @throws IOException
-     * @throws ParseException
-     */
-    String queryData(Map<String, String> params) throws IOException, ParseException;
+    public ParameterInfo(String name, String dataType, String description) {
+        this.name = name;
+        this.value = "";
+        this.dataType = dataType;
+        this.arraySize = "*";
+        this.description = description;
+    }
 
+    public final String name;
+    public final String value;
+    public final String dataType;
+    public final String arraySize;
+    public final String description;
 }

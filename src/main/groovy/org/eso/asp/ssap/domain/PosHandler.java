@@ -27,6 +27,8 @@ import org.springframework.stereotype.Component;
 
 import javax.naming.ConfigurationException;
 import java.text.ParseException;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -48,6 +50,14 @@ public class PosHandler implements ParameterHandler {
 
     @Value("${ssap.size.default:1}")
     private String defaultSize;
+
+    private final ParameterInfo posParam  = new ParameterInfo("POS", "char", "");
+    private final ParameterInfo sizeParam = new ParameterInfo("SIZE", "char", "");
+
+    @Override
+    public List<ParameterInfo> getParameterInfos() {
+        return Arrays.asList(posParam, sizeParam);
+    }
 
     @Override
     public void configure(Map<String, String> utypeToColumns) throws ConfigurationException {

@@ -1,5 +1,6 @@
-package org.eso.asp.ssap.service;
+package org.eso.asp.ssap.util
 
+import spock.lang.Specification
 /*
  * This file is part of SSAPServer.
  *
@@ -18,32 +19,22 @@ package org.eso.asp.ssap.service;
  *
  * Copyright 2017 - European Southern Observatory (ESO)
  */
-
-import java.io.IOException;
-import java.text.ParseException;
-import java.util.Map;
-
 /**
  * @author Vincenzo Forch&igrave (ESO), vforchi@eso.org, vincenzo.forchi@gmail.com
  */
-public interface SSAPService {
+class VOTableUtilsSpec extends Specification {
 
-    /**
-     * This method is invoked when the request contains FORMAT=METADATA
-     *
-     * @return a String representation of a VOTable containing the metadata of
-     * the service
-     */
-    String getMetadata() throws IOException;
+	def "Get column mappings from XML"() {
+		setup:
+		def xml = this.class.getResource('/ssap_columns.vot').text
 
-    /**
-     * This method is invoked by any query for data
-     *
-     * @param params the query parameters
-     * @return a String representation of a VOTable containining the result of the query
-     * @throws IOException
-     * @throws ParseException
-     */
-    String queryData(Map<String, String> params) throws IOException, ParseException;
+		when:
+		def mappings = VOTableUtils.getUtypeToColumnsMappingsFromVOTable(xml)
+
+		then:
+		mappings['Char.SpatialAxis.Coverage.Support.Area']  == "s_region"
+		mappings['Char.TimeAxis.Coverage.Bounds.Start'] == "t_min"
+		mappings['Char.TimeAxis.Coverage.Bounds.Stop']  == "t_max"
+	}
 
 }

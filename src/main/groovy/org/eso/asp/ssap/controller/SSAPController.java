@@ -19,7 +19,6 @@ package org.eso.asp.ssap.controller;
  * Copyright 2017 - European Southern Observatory (ESO)
  */
 
-import org.eso.asp.ssap.domain.ParameterMappings;
 import org.eso.asp.ssap.service.SSAPService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,6 +31,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
+
+import static org.eso.asp.ssap.domain.SSAPConstants.QUERY_DATA;
 
 /**
  * Controller implementing the /ssa API of SSAP
@@ -69,17 +70,16 @@ public class SSAPController {
                 return ResponseEntity.badRequest().body("VERSION=" + version + " is not supported");
 
             if (format != null) {
-                if (format.toLowerCase() == "metadata") {
-                    return ResponseEntity.badRequest().body("FORMAT=" + format + " is not supported"); // TODO
+                if (format.toUpperCase().equals("METADATA")) {
+                    return ResponseEntity.ok(service.getMetadata());
                 } else if (!supportedFormats.contains(format.toLowerCase())) {
                     return ResponseEntity.badRequest().body("FORMAT=" + format + " is not supported");
                 }
             }
 
-            if (request.equals(ParameterMappings.QUERY_DATA)) {
-                Object body = service.queryData(allParams);
-                return ResponseEntity.ok(body);
-            } else
+            if (request.equals(QUERY_DATA))
+                return ResponseEntity.ok(service.queryData(allParams));
+            else
                 return ResponseEntity.badRequest().body("REQUEST=" + request + " is not implemented");
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());

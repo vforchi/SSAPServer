@@ -21,6 +21,7 @@ package org.eso.asp.ssap.service;
 
 import org.apache.http.client.fluent.Request;
 import org.eso.asp.ssap.domain.ParameterHandler;
+import org.eso.asp.ssap.util.VOTableUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,7 +39,8 @@ import java.text.ParseException;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static org.eso.asp.ssap.domain.ParameterMappings.*;
+import static org.eso.asp.ssap.domain.SSAPConstants.*;
+import static org.eso.asp.ssap.util.VOTableUtils.*;
 
 /**
  * This class implements SSAPService by translating SSA requests into ADQL queries
@@ -100,7 +102,22 @@ public class SSAPServiceTAPImpl implements SSAPService {
     }
 
     @Override
-    public Object queryData(Map<String, String> params) throws IOException, ParseException {
+    public String getMetadata()throws IOException {
+        StringBuffer tapRequest = getAdqlURL();
+
+        String query = "SELECT * FROM " + tapTable + " WHERE 1 = 0";
+        tapRequest.append(URLEncoder.encode(query, "ISO-8859-1"));
+
+        String tapResult = Request.Get(tapRequest.toString())
+                .connectTimeout(timeoutSeconds * 1000)
+                .socketTimeout(timeoutSeconds * 1000)
+                .execute().returnContent().asString();
+
+        return VOTableUtils.getSSAMetadata(parHandlers, tapResult);
+    }
+
+    @Override
+    public String queryData(Map<String, String> params) throws IOException, ParseException {
 
         StringBuffer tapRequest = getAdqlURL();
 
