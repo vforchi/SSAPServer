@@ -1,5 +1,6 @@
 package org.eso.asp.ssap.util
 
+import groovy.util.logging.Slf4j
 import groovy.xml.MarkupBuilder
 import groovy.xml.XmlUtil
 import org.eso.asp.ssap.domain.ParameterHandler
@@ -29,6 +30,7 @@ import java.text.ParseException
  * 
  * @author Vincenzo Forch&igrave (ESO), vforchi@eso.org, vincenzo.forchi@gmail.com
  */
+@Slf4j
 public class VOTableUtils {
 
 	/**
@@ -98,6 +100,14 @@ public class VOTableUtils {
 
     public static String convertTAPtoSSAP(String tapResult) {
         def TAP = new XmlParser().parseText(tapResult)
+
+        def queryStatus = TAP.RESOURCE.INFO.find { it.@name == "QUERY_STATUS" }.text()
+        if (queryStatus != "OK") {
+            // TODO do something
+            log.error("Error executing TAP query. Status = $queryStatus")
+        }
+
+        /* add SERVICE_PROTOCOL */
         TAP.RESOURCE[0].appendNode(
                 "INFO",
                 [name: "SERVICE_PROTOCOL", value: "1.1"],

@@ -155,7 +155,7 @@ class VOTableUtilsSpec extends Specification {
 		def xml = this.class.getResource('/ssap_columns.vot').text
 
 		when:
-		def ssap = new XmlSlurper().parseText(VOTableUtils.getSSAMetadata([], xml))
+		def ssap = new XmlSlurper().parseText(VOTableUtils.convertTAPtoSSAP(xml))
 
 		then:
 		ssap.RESOURCE.INFO.find { it.@name == "SERVICE_PROTOCOL" }.text() == "SSAP"
