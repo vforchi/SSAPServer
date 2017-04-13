@@ -89,7 +89,9 @@ public class VOTableUtils {
                         return [k, v]
                     }
                     attribs.value = ""
-                    PARAM(attribs)
+                    PARAM(attribs) {
+                        DESCRIPTION(field.DESCRIPTION.text())
+                    }
                 }
             }
         }
