@@ -101,7 +101,7 @@ public class VOTableUtils {
     public static String convertTAPtoSSAP(String tapResult) {
         def TAP = new XmlParser().parseText(tapResult)
 
-        def queryStatus = TAP.RESOURCE.INFO.find { it.@name == "QUERY_STATUS" }.text()
+        def queryStatus = TAP.RESOURCE.INFO.find { it.@name == "QUERY_STATUS" }.@value
         if (queryStatus != "OK") {
             // TODO do something
             log.error("Error executing TAP query. Status = $queryStatus")
