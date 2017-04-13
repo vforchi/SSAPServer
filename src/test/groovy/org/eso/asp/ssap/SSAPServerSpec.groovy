@@ -66,6 +66,7 @@ class SSAPServerSpec extends Specification {
 		"POS and FORMAT 1"  | "POS=10.0,20.0&FORMAT=fits"           || "CONTAINS(s_region, CIRCLE('',10.0,20.0,1)) = 1"
 		"POS and FORMAT 2"  | "POS=10.0,20.0&FORMAT=FITS"           || "CONTAINS(s_region, CIRCLE('',10.0,20.0,1)) = 1"
 
+		/* TIME */
 		"TIME yyyy"         | "TIME=2010"                           || "t_min <= 55562.0 AND t_max >= 55197.0"
 		"TIME yyyy-MM"      | "TIME=2010-06"                        || "t_min <= 55378.0 AND t_max >= 55348.0"
 		"TIME yyyy-MM-dd"   | "TIME=2010-05-01"                     || "t_min <= 55318.0 AND t_max >= 55317.0"
@@ -77,6 +78,14 @@ class SSAPServerSpec extends Specification {
 		"TIME yyyy-MM-dd/" | "TIME=2010-03-03/"     || "t_max >= 55258.0"
 
 		"TIME multiple ranges" | "TIME=/2010,2011"  || "t_min <= 55927.0 AND t_max >= 55562.0 OR t_min <= 55562.0"
+
+		/* BAND */
+		"BAND single WL" | "BAND=1E-7" || "em_min <= 1.0E-7 AND em_max >= 1.0E-7"
+		"BAND single WL and observer" | "BAND=1E-7;observer" || "em_min <= 1.0E-7 AND em_max >= 1.0E-7"
+		"BAND single range" | "BAND=1E-6/1E-7" || "em_min <= 1.0E-7 AND em_max >= 1.0E-6"
+		"BAND open range left" | "BAND=/1E-7" || "em_min <= 1.0E-7"
+		"BAND open range right" | "BAND=1E-6/" || "em_max >= 1.0E-6"
+		"BAND multiple range" | "BAND=1E-6/2E-6,4E-6/6E-6" || "em_min <= 2.0E-6 AND em_max >= 1.0E-6 OR em_min <= 6.0E-6 AND em_max >= 4.0E-6"
 	}
 
 	@Unroll
