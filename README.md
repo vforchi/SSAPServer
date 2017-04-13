@@ -4,7 +4,7 @@ The server is a Spring Boot application that implements the API defined in the s
 
 The server can either redirect the requests to a TAP service or go directly to the DB.
 
-SSAPServer is at a very early stage of development and currently supports only queries with `POS`, `SIZE` amd `TIME`.
+SSAPServer is at a very early stage of development and currently supports only queries with `POS`, `SIZE`, `TIME` and `BAND`.
 
 ## Using TAP
 In this mode the server translates the incoming requests into ADQL and sends them to a TAP service.
