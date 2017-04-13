@@ -54,10 +54,10 @@ class VOTableUtilsSpec extends Specification {
     <INFO name='QUERY_STATUS'>OK</INFO>
     <INFO name='SERVICE_PROTOCOL' value='1.1'>SSAP</INFO>
     <PARAM name='INPUT:POS' value='' datatype='char' arraysize='*'>
-      <DESCRIPTION></DESCRIPTION>
+      <DESCRIPTION>Search Position in the form ra,dec where ra and dec are given in decimal degrees in the (FK5 2000/ICRS) coordinate system. Currently the reference frame format modifier is not supported, nor are multiple sets of ra,dec values.</DESCRIPTION>
     </PARAM>
     <PARAM name='INPUT:SIZE' value='' datatype='char' arraysize='*'>
-      <DESCRIPTION></DESCRIPTION>
+      <DESCRIPTION>Search diameter in decimal degrees. Default = 0.033 degrees.</DESCRIPTION>
     </PARAM>
     <PARAM arraysize='*' datatype='char' name='OUTPUT:access_estsize' ucd='meta.code.mime' unit='kB' utype='ssa:Access.Size' value=''>
       <DESCRIPTION>The format of the downloaded file.</DESCRIPTION>
