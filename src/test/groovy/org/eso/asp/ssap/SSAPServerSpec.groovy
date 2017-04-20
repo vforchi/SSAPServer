@@ -92,7 +92,6 @@ class SSAPServerSpec extends Specification {
 	def "Error condition: #name"() {
 		when:
 		def res = restTemplate.getForObject("/ssa?$query", String.class)
-		println res
 		def VOTABLE = new XmlParser().parseText(res)
 
 		then:
@@ -108,9 +107,10 @@ class SSAPServerSpec extends Specification {
 	def "Reject unsupported version"() {
 		when:
 		def res = restTemplate.getForObject("/ssa?REQUEST=queryData&POS=10.0,20.0&VERSION=1.0", String.class)
+		def VOTABLE = new XmlParser().parseText(res)
 
 		then:
-		res == "VERSION=1.0 is not supported"
+		VOTABLE.RESOURCE.INFO[0].text() == "VERSION=1.0 is not supported"
 	}
 
 }
