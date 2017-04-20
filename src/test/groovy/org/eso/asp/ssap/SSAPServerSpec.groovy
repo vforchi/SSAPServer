@@ -92,9 +92,11 @@ class SSAPServerSpec extends Specification {
 	def "Error condition: #name"() {
 		when:
 		def res = restTemplate.getForObject("/ssa?$query", String.class)
+		println res
+		def VOTABLE = new XmlParser().parseText(res)
 
 		then:
-		res == message
+		VOTABLE.RESOURCE.INFO[0].text() == message
 
 		where:
 		name | query || message

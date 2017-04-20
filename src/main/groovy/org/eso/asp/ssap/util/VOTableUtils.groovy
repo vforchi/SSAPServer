@@ -1,10 +1,5 @@
 package org.eso.asp.ssap.util
 
-import groovy.util.logging.Slf4j
-import groovy.xml.MarkupBuilder
-import groovy.xml.XmlUtil
-import org.eso.asp.ssap.domain.ParameterHandler
-
 /*
  * This file is part of SSAPServer.
  *
@@ -23,7 +18,13 @@ import org.eso.asp.ssap.domain.ParameterHandler
  *
  * Copyright 2017 - European Southern Observatory (ESO)
  */
+
+import groovy.util.logging.Slf4j
+import groovy.xml.MarkupBuilder
+import groovy.xml.XmlUtil
+import org.eso.asp.ssap.domain.ParameterHandler
 import java.text.ParseException
+
 /**
  * This class contains helper methods to deal with VOTable entity. It's in Groovy because
  * it has powerful XML libraries
@@ -114,5 +115,19 @@ public class VOTableUtils {
                 "SSAP"
         )
         return XmlUtil.serialize(TAP)
+    }
+
+    public static String formatError(String error) {
+        def writer = new StringWriter()
+        def doc    = new MarkupBuilder(writer)
+
+        doc.VOTABLE(version: "1.3") {
+            RESOURCE(type: "results") {
+                INFO(name: "QUERY_STATUS", value: "ERROR", error)
+                INFO(name: "SERVICE_PROTOCOL", value: "1.1", "SSAP")
+                INFO(name: "REQUEST", value:"queryData")
+            }
+        }
+        return writer.toString()
     }
 }

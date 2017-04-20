@@ -52,7 +52,7 @@ public class PosHandler implements ParameterHandler {
     private String defaultSize;
 
     private final String posDoc = "Search Position in the form ra,dec where ra and dec are given in decimal degrees" +
-            " in the (FK5 2000/ICRS) coordinate system. Currently the reference frame format modifier is not " +
+            " in the (FK5 2000) coordinate system. Currently the reference frame format modifier is not " +
             "supported, nor are multiple sets of ra,dec values.";
     private final ParameterInfo posParam  = new ParameterInfo("POS", "char", posDoc);
     private final ParameterInfo sizeParam = new ParameterInfo("SIZE", "char", "Search diameter in decimal degrees. Default = 0.033 degrees.");

@@ -20,6 +20,7 @@ package org.eso.asp.ssap.controller;
  */
 
 import org.eso.asp.ssap.service.SSAPService;
+import org.eso.asp.ssap.util.VOTableUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,23 +67,31 @@ public class SSAPController {
         log.info("Incoming request: version={}, request={}, format={}, params={}", version, request, format, allParams);
 
         try {
-            if (version != null && !supportedVersions.contains(version))
-                return ResponseEntity.badRequest().body("VERSION=" + version + " is not supported");
+            if (version != null && !supportedVersions.contains(version)) {
+                String errorVOTable = VOTableUtils.formatError("VERSION=" + version + " is not supported");
+                return ResponseEntity.badRequest().body(errorVOTable);
+            }
 
             if (format != null) {
                 if (format.toUpperCase().equals("METADATA")) {
-                    return ResponseEntity.ok(service.getMetadata());
+                    String VOTable = service.getMetadata();
+                    return ResponseEntity.ok(VOTable);
                 } else if (!supportedFormats.contains(format.toLowerCase())) {
-                    return ResponseEntity.badRequest().body("FORMAT=" + format + " is not supported");
+                    String errorVOTable = VOTableUtils.formatError("FORMAT=" + format + " is not supported");
+                    return ResponseEntity.badRequest().body(errorVOTable);
                 }
             }
 
-            if (request.equals(QUERY_DATA))
-                return ResponseEntity.ok(service.queryData(allParams));
-            else
-                return ResponseEntity.badRequest().body("REQUEST=" + request + " is not implemented");
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            if (request.equals(QUERY_DATA)) {
+                String VOTable = service.queryData(allParams);
+                return ResponseEntity.ok(VOTable);
+            } else {
+                String errorVOTable = VOTableUtils.formatError("REQUEST=" + request + " is not implemented");
+                return ResponseEntity.badRequest().body(errorVOTable);
+            }
+        } catch (Throwable e) {
+            String errorVOTable = VOTableUtils.formatError(e.getMessage());
+            return ResponseEntity.badRequest().body(errorVOTable);
         }
     }
     

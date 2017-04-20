@@ -45,7 +45,7 @@ Here are all the available configuration options, with their default values. The
 ```
 # Generic configuration
 ssap.versions.supported = {1.1} // a list of the supported protocol versions
-ssap.size.default = 1 // default value of SIZE, if none is specified
+ssap.size.default = 0.033 // default value of SIZE, if none is specified
 
 # Configuration options specific to the TAP access
 ssap.use.tap = true // mandatory
