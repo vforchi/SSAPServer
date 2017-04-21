@@ -113,4 +113,29 @@ class SSAPServerSpec extends Specification {
 		VOTABLE.RESOURCE.INFO[0].text() == "VERSION=1.0 is not supported"
 	}
 
+	def "No MAXREC"() {
+		when:
+		restTemplate.getForObject("/ssa?REQUEST=queryData&TIME=1990/2000", String.class)
+
+		then:
+		tapService.requestParams.MAXREC == "1000"
+	}
+
+	def "With MAXREC"() {
+		when:
+		restTemplate.getForObject("/ssa?REQUEST=queryData&TIME=1990/2000&MAXREC=5000", String.class)
+
+		then:
+		tapService.requestParams.MAXREC == "5000"
+	}
+
+	def "MAXREC too big"() {
+		when:
+		def res = restTemplate.getForObject("/ssa?REQUEST=queryData&TIME=1990/2000&MAXREC=5000000", String.class)
+		def VOTABLE = new XmlParser().parseText(res)
+
+		then:
+		VOTABLE.RESOURCE.INFO[0].text() == "The maximum value for MAXREC is 1000000"
+	}
+
 }

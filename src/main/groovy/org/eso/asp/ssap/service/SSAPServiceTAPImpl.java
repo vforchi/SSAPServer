@@ -72,6 +72,12 @@ public class SSAPServiceTAPImpl implements SSAPService {
     @Value("#{${ssap.tap.utype.to.columns:{:}}}")
     public Map<String, String> utypeToColumns;
 
+    @Value("${ssap.maxrec.default:1000}")
+    private Integer defaultMaxrec;
+
+    @Value("${ssap.maxrec.max:1000000}")
+    private Integer maximumMaxrec;
+
     private String ssaMetadata;
 
     private Collection<ParameterHandler> parHandlers;
@@ -112,17 +118,18 @@ public class SSAPServiceTAPImpl implements SSAPService {
 
     @Override
     public String queryData(Map<String, String> params) throws IOException, ParseException {
-
         StringBuffer tapRequest = getAdqlURL();
 
         /* query */
         tapRequest.append(createADQLQuery(params));
 
         /* MAXREC */
-        if (params.containsKey(MAXREC)) {
-            tapRequest.append("&MAXREC=").append(params.get(MAXREC));
-            params.remove(MAXREC);
-        }
+        Integer maxrec = Integer.valueOf(params.getOrDefault(MAXREC, defaultMaxrec.toString()));
+        if (maxrec > maximumMaxrec)
+            throw new ParseException("The maximum value for MAXREC is " + maximumMaxrec, 0);
+        else
+            tapRequest.append("&MAXREC=").append(maxrec);
+        params.remove(MAXREC);
 
         String tapResult = Request.Get(tapRequest.toString())
                 .connectTimeout(timeoutSeconds*1000)
