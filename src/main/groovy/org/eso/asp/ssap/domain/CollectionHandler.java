@@ -25,6 +25,9 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
+import java.text.ParseException;
+import java.util.Map;
+
 /**
  * @author Vincenzo Forch&igrave (ESO), vforchi@eso.org, vincenzo.forchi@gmail.com
  */
@@ -32,7 +35,7 @@ import org.springframework.stereotype.Component;
 @Configurable
 @ConditionalOnMissingBean(name = "myCollectionHandler")
 @ConditionalOnProperty(value="ssap.use.tap", havingValue = "true")
-public class CollectionHandler extends ValueEqualsHandler {
+public class CollectionHandler extends AbstractHandler {
 
     @Value("${ssap.tap.utype.collection:DataID.Collection}")
     void setParamUtype(String paramUtype) {
@@ -41,5 +44,14 @@ public class CollectionHandler extends ValueEqualsHandler {
 
     public CollectionHandler() {
         super("COLLECTION", new ParameterInfo("COLLECTION", "char", ""));
+    }
+
+    @Override
+    public String validateAndGenerateQueryCondition(Map<String, String> params) throws ParseException {
+        if (!params.containsKey(paramName))
+            return null;
+
+        String value = params.get(paramName);
+        return paramColumn + " LIKE '%" + value + "%'";
     }
 }

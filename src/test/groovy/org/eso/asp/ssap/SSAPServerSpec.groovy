@@ -86,6 +86,9 @@ class SSAPServerSpec extends Specification {
 		"BAND open range left" | "BAND=/1E-7" || "em_min <= 1.0E-7"
 		"BAND open range right" | "BAND=1E-6/" || "em_max >= 1.0E-6"
 		"BAND multiple range" | "BAND=1E-6/2E-6,4E-6/6E-6" || "em_min <= 2.0E-6 AND em_max >= 1.0E-6 OR em_min <= 6.0E-6 AND em_max >= 4.0E-6"
+
+		/* COLLECTION */
+		"COLLECTION" | "COLLECTION=SOME" || "collection LIKE '%SOME%'"
 	}
 
 	@Unroll

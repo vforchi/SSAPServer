@@ -20,7 +20,6 @@ package org.eso.asp.ssap.domain;
  */
 
 import javax.naming.ConfigurationException;
-import java.text.ParseException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -28,7 +27,7 @@ import java.util.Map;
 /**
  * @author Vincenzo Forch&igrave (ESO), vforchi@eso.org, vincenzo.forchi@gmail.com
  */
-public abstract class ValueEqualsHandler implements ParameterHandler {
+public abstract class AbstractHandler implements ParameterHandler {
 
     public final String paramName;
 
@@ -38,7 +37,7 @@ public abstract class ValueEqualsHandler implements ParameterHandler {
 
     String paramColumn;
 
-    protected ValueEqualsHandler(String paramName, ParameterInfo paramInfo) {
+    protected AbstractHandler(String paramName, ParameterInfo paramInfo) {
         this.paramName = paramName;
         this.paramInfo = paramInfo;
     }
@@ -55,12 +54,4 @@ public abstract class ValueEqualsHandler implements ParameterHandler {
             throw new ConfigurationException("Couldn't find mapping for parameter " + paramName);
     }
 
-    @Override
-    public String validateAndGenerateQueryCondition(Map<String, String> params) throws ParseException {
-        if (!params.containsKey(paramName))
-            return null;
-
-        String value = params.get(paramName);
-        return paramColumn + " = '" + value + "'";
-    }
 }
