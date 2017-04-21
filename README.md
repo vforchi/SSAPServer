@@ -41,5 +41,5 @@ java -jar SSAPServer-<version>.jar --ssap.tap.url=http://<host>:<port>/yourtap
 ```
 
 ## Configuration
-The available configuration options are [here](`src/main/resources/application.properties`), together with their default values.
+The available configuration options are [here](src/main/resources/application.properties), together with their default values.
 They can be set in any way allowed by Spring Boot (see [here](https://docs.spring.io/spring-boot/docs/current/reference/html/boot-features-external-config.html))
