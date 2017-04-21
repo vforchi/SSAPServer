@@ -91,6 +91,9 @@ class SSAPServerSpec extends Specification {
 		"CREATORDID" | "CREATORDID=SOME" || "creatordid = 'SOME'"
 		"PUBDID"     | "PUBDID=SOME" || "pubdid = 'SOME'"
 		"SPATRES"    | "SPATRES=100" || "spatial_resolution > 100"
+		"SPECRP"     | "SPECRP=100" || "specrp > 100"
+		"SNR"        | "SNR=44" || "snr > 44"
+		"TARGETNAME" | "TARGETNAME=orion" || "targetname = 'orion'"
 	}
 
 	@Unroll
@@ -108,6 +111,8 @@ class SSAPServerSpec extends Specification {
 		"unsupported format"  | "REQUEST=queryData&POS=10.0,20.0&FORMAT=xml"  || "FORMAT=xml is not supported"
 		"empty TIME"    | "REQUEST=queryData&TIME=/" || "Invalid range /"
 		"wrong SPATRES" | "REQUEST=queryData&SPATRES=STR" || "Cannot convert STR to a float"
+		"wrong SPECRP" | "REQUEST=queryData&SPECRP=1.0r" || "Cannot convert 1.0r to a float"
+		"wrong SNR" | "REQUEST=queryData&SNR=1.0TT" || "Cannot convert 1.0TT to a float"
 	}
 
 	def "Reject unsupported version"() {

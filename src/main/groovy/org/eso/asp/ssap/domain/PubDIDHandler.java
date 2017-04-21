@@ -25,9 +25,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
-import java.text.ParseException;
-import java.util.Map;
-
 /**
  * @author Vincenzo Forch&igrave (ESO), vforchi@eso.org, vincenzo.forchi@gmail.com
  */
@@ -35,7 +32,7 @@ import java.util.Map;
 @Configurable
 @ConditionalOnMissingBean(name = "myPubDIDHandler")
 @ConditionalOnProperty(value="ssap.use.tap", havingValue = "true")
-public class PubDIDHandler extends AbstractHandler {
+public class PubDIDHandler extends SameValueHandler {
 
     @Value("${ssap.tap.utype.pubdid:Curation.PublisherDID}")
     void setParamUtype(String paramUtype) {
@@ -46,12 +43,4 @@ public class PubDIDHandler extends AbstractHandler {
         super("PUBDID", new ParameterInfo("PUBDID", "char", ""));
     }
 
-    @Override
-    public String validateAndGenerateQueryCondition(Map<String, String> params) throws ParseException {
-        if (!params.containsKey(paramName))
-            return null;
-
-        String value = params.get(paramName);
-        return paramColumn + " = '" + value + "'";
-    }
 }

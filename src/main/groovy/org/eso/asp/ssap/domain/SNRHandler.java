@@ -30,17 +30,17 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @Configurable
-@ConditionalOnMissingBean(name = "mySpatResHandler")
+@ConditionalOnMissingBean(name = "mySNRHandler")
 @ConditionalOnProperty(value="ssap.use.tap", havingValue = "true")
-public class SpatResHandler extends MinValueHandler {
+public class SNRHandler extends MinValueHandler {
 
-    @Value("${ssap.tap.utype.spatres:Char.SpatialAxis.Resolution}")
+    @Value("${ssap.tap.utype.snr:Derived.SNR}")
     void setParamUtype(String paramUtype) {
         this.paramUtype = paramUtype;
     }
 
-    public SpatResHandler() {
-        super("SPATRES", new ParameterInfo("SPATRES", "float", ""));
+    public SNRHandler() {
+        super("SNR", new ParameterInfo("SNR", "float", ""));
     }
 
 }
