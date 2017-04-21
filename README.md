@@ -4,7 +4,8 @@ The server is a Spring Boot application that implements the API defined in the s
 
 The server can either redirect the requests to a TAP service or go directly to the DB.
 
-SSAPServer is at a very early stage of development and currently supports only queries with `POS`, `SIZE`, `TIME` and `BAND`.
+SSAPServer is at a very early stage of development and currently supports the mandatory parameters `POS`, `SIZE`, `TIME`, `BAND` and `FORMAT`.
+In additional the following recommended and optional parameters are supported: `COLLECTION`.
 
 ## Using TAP
 In this mode the server translates the incoming requests into ADQL and sends them to a TAP service.
@@ -40,29 +41,5 @@ java -jar SSAPServer-<version>.jar --ssap.tap.url=http://<host>:<port>/yourtap
 ```
 
 ## Configuration
-Here are all the available configuration options, with their default values. They can be set in any way allowed by Spring Boot (see [here](https://docs.spring.io/spring-boot/docs/current/reference/html/boot-features-external-config.html))
-
-```
-# Generic configuration
-ssap.versions.supported = {1.1} // a list of the supported protocol versions
-ssap.size.default = 0.033 // default value of SIZE, if none is specified
-ssap.maxrec.default = 1000 // the default value for MAXREC, if not specified
-ssap.maxrec.max = 1000000 // the maximum value for MAXREC
-
-# Configuration options specific to the TAP access
-ssap.use.tap = true // mandatory
-ssap.tap.url = // the URL of the TAP server, no default
-ssap.tap.timeout = 10 // timeout in seconds
-
-# utype configuration
-ssap.tap.utype.pos = Char.SpatialAxis.Coverage.Support.Area      // POS
-ssap.tap.utype.time.start = Char.TimeAxis.Coverage.Bounds.Start  // TIME start 
-ssap.tap.utype.time.stop  = Char.TimeAxis.Coverage.Bounds.Stop   // TIME stop
-ssap.tap.utype.band.start = Char.SpectralAxis.Coverage.Bounds.Start // BAND start
-ssap.tap.utype.band.stop  = Char.SpectralAxis.Coverage.Bounds.Stop  // BAND stop
-
-# Spring Boot configuration options
-server.port = 9000 // the port where the server runs.
-```
-
-
+The available configuration options are in `src/main/resources/application.properties`, together with their default values.
+They can be set in any way allowed by Spring Boot (see [here](https://docs.spring.io/spring-boot/docs/current/reference/html/boot-features-external-config.html))

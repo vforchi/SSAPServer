@@ -131,10 +131,18 @@ public class SSAPServiceTAPImpl implements SSAPService {
             tapRequest.append("&MAXREC=").append(maxrec);
         params.remove(MAXREC);
 
+        log.info("Executing TAP request: {}", tapRequest);
+
+        long start = System.currentTimeMillis();
+
         String tapResult = Request.Get(tapRequest.toString())
                 .connectTimeout(timeoutSeconds*1000)
                 .socketTimeout(timeoutSeconds*1000)
                 .execute().returnContent().asString();
+
+        long elapsed = System.currentTimeMillis() - start;
+
+        log.info("TAP request executed in {}ms", elapsed);
 
         return VOTableUtils.convertTAPtoSSAP(tapResult);
     }
