@@ -67,13 +67,16 @@ public class SSAPController {
         log.info("Incoming request: version={}, request={}, format={}, params={}", version, request, format, allParams);
 
         try {
+            /* check VERSION */
             if (version != null && !supportedVersions.contains(version)) {
                 String errorVOTable = VOTableUtils.formatError("VERSION=" + version + " is not supported");
                 return ResponseEntity.badRequest().body(errorVOTable);
             }
 
+            /* check FORMAT */
             if (format != null) {
-                if (format.toUpperCase().equals("METADATA")) {
+                if (format.toLowerCase().equals("metadata")) {
+                    /* metadata query */
                     String VOTable = service.getMetadata();
                     return ResponseEntity.ok(VOTable);
                 } else if (!supportedFormats.contains(format.toLowerCase())) {
@@ -82,7 +85,9 @@ public class SSAPController {
                 }
             }
 
+            /* check REQUEST */
             if (request.equals(QUERY_DATA)) {
+                /* standard query */
                 String VOTable = service.queryData(allParams);
                 return ResponseEntity.ok(VOTable);
             } else {
