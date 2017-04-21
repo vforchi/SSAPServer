@@ -89,6 +89,7 @@ class SSAPServerSpec extends Specification {
 
 		"COLLECTION" | "COLLECTION=SOME" || "collection LIKE '%SOME%'"
 		"CREATORDID" | "CREATORDID=SOME" || "creatordid = 'SOME'"
+		"PUBDID" | "PUBDID=SOME" || "pubdid = 'SOME'"
 	}
 
 	@Unroll
