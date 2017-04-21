@@ -5,7 +5,7 @@ The server is a Spring Boot application that implements the API defined in the s
 The server can either redirect the requests to a TAP service or go directly to the DB.
 
 SSAPServer is at a very early stage of development and currently supports the mandatory parameters `POS`, `SIZE`, `TIME`, `BAND` and `FORMAT`.
-In additional the following recommended and optional parameters are supported: `COLLECTION`.
+In additional the following recommended and optional parameters are supported: `COLLECTION`, `CREATORDID`.
 
 ## Using TAP
 In this mode the server translates the incoming requests into ADQL and sends them to a TAP service.
