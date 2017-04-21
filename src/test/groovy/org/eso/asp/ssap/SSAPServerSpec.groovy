@@ -89,7 +89,8 @@ class SSAPServerSpec extends Specification {
 
 		"COLLECTION" | "COLLECTION=SOME" || "collection LIKE '%SOME%'"
 		"CREATORDID" | "CREATORDID=SOME" || "creatordid = 'SOME'"
-		"PUBDID" | "PUBDID=SOME" || "pubdid = 'SOME'"
+		"PUBDID"     | "PUBDID=SOME" || "pubdid = 'SOME'"
+		"SPATRES"    | "SPATRES=100" || "spatial_resolution > 100"
 	}
 
 	@Unroll
@@ -106,6 +107,7 @@ class SSAPServerSpec extends Specification {
 		"unsupported version" | "REQUEST=queryData&POS=10.0,20.0&VERSION=1.0" || "VERSION=1.0 is not supported"
 		"unsupported format"  | "REQUEST=queryData&POS=10.0,20.0&FORMAT=xml"  || "FORMAT=xml is not supported"
 		"empty TIME"    | "REQUEST=queryData&TIME=/" || "Invalid range /"
+		"wrong SPATRES" | "REQUEST=queryData&SPATRES=STR" || "Cannot convert STR to a float"
 	}
 
 	def "Reject unsupported version"() {
