@@ -123,12 +123,12 @@ public class RangeListParameter<T> {
      * This method converts a String into a range list parameter
      * @param par the input value
      * @param length the requested length of the list, if null any length is accepted
-     * @param f a function to convert the elements into output values
+     * @param function a function to convert the elements into output values
      * @param <S> the class of the elements in the parameter
      * @return a range list parameter
      * @throws ParseException
      */
-    public static <S> RangeListParameter<S> parse(String par, Integer length, Function<String, S> f) throws ParseException {
+    public static <S> RangeListParameter<S> parse(String par, Integer length, Function<String, S> function) throws ParseException {
 
         String qualifier = null;
         if (par.contains(";")) {
@@ -152,7 +152,7 @@ public class RangeListParameter<T> {
                     String[] tokens = entry.split("/", -1);
                     if (tokens.length == 2) {
                         try {
-                            List<S> items = Arrays.stream(tokens).map(f).collect(Collectors.toList());
+                            List<S> items = Arrays.stream(tokens).map(function).collect(Collectors.toList());
                             rangeEntries.add(new ImmutablePair<>(items.get(0), items.get(1)));
                         } catch (NumberFormatException e) {
                             throw new ParseException("", 0); // TODO
@@ -164,9 +164,9 @@ public class RangeListParameter<T> {
                     }
                 } else {
                     try {
-                        singleEntries.add(f.apply(entry));
+                        singleEntries.add(function.apply(entry));
                     } catch (NumberFormatException e) {
-                        throw new ParseException("", 0); // TODO
+                        throw new ParseException("Can't convert " + entry, 0);
                     }
                 }
             }

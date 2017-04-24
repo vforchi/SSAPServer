@@ -76,8 +76,12 @@ public class PosHandler extends AbstractHandler {
         RangeListParameter<Double> rlp = RangeListParameter.parse(posValue, 2, Double::valueOf);
         if (rlp.getSingleEntries().size() != 2)
             throw new ParseException("", 0); //TOOO
-        Double ra = rlp.getSingleEntries().get(0);
+        Double ra  = rlp.getSingleEntries().get(0);
+        if (ra < 0 || ra > 360)
+            throw new ParseException("RA in POS must be between 0 and 360", 0);
         Double dec = rlp.getSingleEntries().get(1);
+        if (dec < -90 || dec > 90)
+            throw new ParseException("Dec in POS must be between -90 and 90", 0);
 
         StringBuffer buf = new StringBuffer();
         buf.append("CONTAINS(");
