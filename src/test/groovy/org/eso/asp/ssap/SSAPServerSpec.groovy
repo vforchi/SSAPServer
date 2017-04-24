@@ -103,16 +103,26 @@ class SSAPServerSpec extends Specification {
 		def VOTABLE = new XmlParser().parseText(res)
 
 		then:
-		VOTABLE.RESOURCE.INFO[0].text() == message
+		message == VOTABLE.RESOURCE.INFO[0].text()
 
 		where:
 		name | query || message
-		"unsupported version" | "REQUEST=queryData&POS=10.0,20.0&VERSION=1.0" || "VERSION=1.0 is not supported"
-		"unsupported format"  | "REQUEST=queryData&POS=10.0,20.0&FORMAT=xml"  || "FORMAT=xml is not supported"
-		"empty TIME"    | "REQUEST=queryData&TIME=/" || "Invalid range /"
-		"wrong SPATRES" | "REQUEST=queryData&SPATRES=STR" || "Cannot convert STR to a float"
-		"wrong SPECRP" | "REQUEST=queryData&SPECRP=1.0r" || "Cannot convert 1.0r to a float"
-		"wrong SNR" | "REQUEST=queryData&SNR=1.0TT" || "Cannot convert 1.0TT to a float"
+		"no request"            | "POS=10.0,20.0&VERSION=1.0"                     || "Required String parameter 'REQUEST' is not present"
+		"unsupported request"   | "REQUEST=getData&POS=10.0,20.0&VERSION=1.0"     || "VERSION=1.0 is not supported"
+		"unsupported version"   | "REQUEST=queryData&POS=10.0,20.0&VERSION=1.0"   || "VERSION=1.0 is not supported"
+		"unsupported format"    | "REQUEST=queryData&POS=10.0,20.0&FORMAT=xml"    || "FORMAT=xml is not supported"
+		"empty TIME"            | "REQUEST=queryData&TIME=/"                      || "Invalid range /"
+		"wrong SPATRES"         | "REQUEST=queryData&SPATRES=STR"                 || "Cannot convert STR to a float"
+		"wrong SPECRP"          | "REQUEST=queryData&SPECRP=1.0r"                 || "Cannot convert 1.0r to a float"
+		"wrong SNR"             | "REQUEST=queryData&SNR=1.0TT"                   || "Cannot convert 1.0TT to a float"
+
+		/* wrong values out of range */
+		"wrong RA, <0"          | "REQUEST=queryData&POS=370,10"                  || "RA in POS must be between 0 and 360"
+		"wrong RA, >360"        | "REQUEST=queryData&POS=-50,10"                  || "RA in POS must be between 0 and 360"
+		"wrong RA, not float"   | "REQUEST=queryData&POS=xxx,10"                  || "Can't convert xxx"
+		"wrong DEC, >90"        | "REQUEST=queryData&POS=10,100"                  || "Dec in POS must be between -90 and 90"
+		"wrong DEC, <-90"       | "REQUEST=queryData&POS=10,-100"                 || "Dec in POS must be between -90 and 90"
+		"wrong DEC, not float"  | "REQUEST=queryData&POS=10,xxx"                  || "Can't convert xxx"
 	}
 
 	def "Reject unsupported version"() {
