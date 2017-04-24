@@ -27,16 +27,16 @@ import java.util.Map;
  */
 public abstract class SameValueHandler extends AbstractHandler {
 
-    protected SameValueHandler(String paramName, ParameterInfo paramInfo) {
-        super(paramName, paramInfo);
+    protected SameValueHandler(String paramName, String datatype) {
+        super(paramName, datatype);
     }
 
     @Override
     public String validateAndGenerateQueryCondition(Map<String, String> params) throws ParseException {
-        if (!params.containsKey(paramName))
+        if (!params.containsKey(parName))
             return null;
 
-        String value = params.get(paramName);
-        return paramColumn + " = '" + value + "'";
+        String value = params.get(parName);
+        return parColumn + " = '" + value + "'";
     }
 }

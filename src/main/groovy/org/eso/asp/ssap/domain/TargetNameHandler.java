@@ -36,11 +36,14 @@ public class TargetNameHandler extends SameValueHandler {
 
     @Value("${ssap.tap.utype.targetname:Target.Name}")
     void setParamUtype(String paramUtype) {
-        this.paramUtype = paramUtype;
+        this.parUtype = paramUtype;
     }
 
+    @Value("${ssap.tap.description.targetname:}")
+    void setDescription(String description) { this.parDescription = description; }
+
     public TargetNameHandler() {
-        super("TARGETNAME", new ParameterInfo("TARGETNAME", "char", ""));
+        super("TARGETNAME", "char");
     }
 
 }

@@ -36,11 +36,14 @@ public class PubDIDHandler extends SameValueHandler {
 
     @Value("${ssap.tap.utype.pubdid:Curation.PublisherDID}")
     void setParamUtype(String paramUtype) {
-        this.paramUtype = paramUtype;
+        this.parUtype = paramUtype;
     }
 
+    @Value("${ssap.tap.description.pubdid:}")
+    void setDescription(String description) { this.parDescription = description; }
+
     public PubDIDHandler() {
-        super("PUBDID", new ParameterInfo("PUBDID", "char", ""));
+        super("PUBDID", "char");
     }
 
 }

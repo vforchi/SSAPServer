@@ -36,11 +36,14 @@ public class SNRHandler extends MinValueHandler {
 
     @Value("${ssap.tap.utype.snr:Derived.SNR}")
     void setParamUtype(String paramUtype) {
-        this.paramUtype = paramUtype;
+        this.parUtype = paramUtype;
     }
 
+    @Value("${ssap.tap.description.snr:}")
+    void setDescription(String description) { this.parDescription = description; }
+
     public SNRHandler() {
-        super("SNR", new ParameterInfo("SNR", "float", ""));
+        super("SNR", "float");
     }
 
 }

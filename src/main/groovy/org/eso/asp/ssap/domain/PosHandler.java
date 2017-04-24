@@ -25,7 +25,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
-import javax.naming.ConfigurationException;
 import java.text.ParseException;
 import java.util.Arrays;
 import java.util.List;
@@ -38,43 +37,40 @@ import java.util.Map;
 @Configurable
 @ConditionalOnMissingBean(name = "myPosHandler")
 @ConditionalOnProperty(value="ssap.use.tap", havingValue = "true")
-public class PosHandler implements ParameterHandler {
+public class PosHandler extends AbstractHandler {
 
-    public static final String POS  = "POS";
     public static final String SIZE = "SIZE";
 
     @Value("${ssap.tap.utype.pos:Char.SpatialAxis.Coverage.Support.Area}")
-    String posUtype;
+    void setParamUtype(String paramUtype) {
+        this.parUtype = paramUtype;
+    }
 
-    String posColumn;
+    @Value("${ssap.tap.description.pos:}")
+    void setDescription(String description) { this.parDescription = description; }
 
     @Value("${ssap.size.default:0.033}")
     private String defaultSize;
 
-    private final String posDoc = "Search Position in the form ra,dec where ra and dec are given in decimal degrees" +
-            " in the (FK5 2000) coordinate system. Currently the reference frame format modifier is not " +
-            "supported, nor are multiple sets of ra,dec values.";
-    private final ParameterInfo posParam  = new ParameterInfo("POS", "char", posDoc);
-    private final ParameterInfo sizeParam = new ParameterInfo("SIZE", "char", "Search diameter in decimal degrees. Default = 0.033 degrees.");
+    @Value("${ssap.tap.description.size:}")
+    private String sizeDescription;
 
     @Override
     public List<ParameterInfo> getParameterInfos() {
-        return Arrays.asList(posParam, sizeParam);
+        ParameterInfo sizeParam = new ParameterInfo("SIZE", "char", sizeDescription);
+        return Arrays.asList(super.getParameterInfos().get(0), sizeParam);
     }
 
-    @Override
-    public void configure(Map<String, String> utypeToColumns) throws ConfigurationException {
-        posColumn = utypeToColumns.getOrDefault(posUtype, null);
-        if (posColumn == null)
-            throw new ConfigurationException("Couldn't find mapping for parameter POS");
+    public PosHandler() {
+        super("POS", "char");
     }
 
     @Override
     public String validateAndGenerateQueryCondition(Map<String, String> params) throws ParseException {
-        if (!params.containsKey(POS))
+        if (!params.containsKey(parName))
             return null;
         
-        String posValue = params.get(POS);
+        String posValue = params.get(parName);
         String size     = params.getOrDefault(SIZE, defaultSize);
 
         RangeListParameter<Double> rlp = RangeListParameter.parse(posValue, 2, Double::valueOf);
@@ -85,7 +81,7 @@ public class PosHandler implements ParameterHandler {
 
         StringBuffer buf = new StringBuffer();
         buf.append("CONTAINS(");
-        buf.append(posColumn);
+        buf.append(parColumn);
         buf.append(", CIRCLE('',");
         buf.append(ra);
         buf.append(",");

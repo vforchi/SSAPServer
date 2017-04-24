@@ -20,38 +20,27 @@ package org.eso.asp.ssap.domain;
  */
 
 import javax.naming.ConfigurationException;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 
 /**
  * @author Vincenzo Forch&igrave (ESO), vforchi@eso.org, vincenzo.forchi@gmail.com
  */
-public abstract class AbstractHandler implements ParameterHandler {
+public abstract class AbstractHandler extends ParameterHandler {
 
-    public final String paramName;
+    String parUtype;
 
-    private final ParameterInfo paramInfo;
+    String parColumn;
 
-    String paramUtype;
-
-    String paramColumn;
-
-    protected AbstractHandler(String paramName, ParameterInfo paramInfo) {
-        this.paramName = paramName;
-        this.paramInfo = paramInfo;
-    }
-
-    @Override
-    public List<ParameterInfo> getParameterInfos() {
-        return Arrays.asList(paramInfo);
+    protected AbstractHandler(String parName, String parDatatype) {
+        this.parName     = parName;
+        this.parDatatype = parDatatype;
     }
 
     @Override
     public void configure(Map<String, String> utypeToColumns) throws ConfigurationException {
-        paramColumn = utypeToColumns.getOrDefault(paramUtype, null);
-        if (paramColumn == null)
-            throw new ConfigurationException("Couldn't find mapping for parameter " + paramName);
+        parColumn = utypeToColumns.getOrDefault(parUtype, null);
+        if (parColumn == null)
+            throw new ConfigurationException("Couldn't find mapping for parameter " + parName);
     }
 
 }

@@ -27,22 +27,22 @@ import java.util.Map;
  */
 public abstract class MinValueHandler extends AbstractHandler {
 
-    protected MinValueHandler(String paramName, ParameterInfo paramInfo) {
-        super(paramName, paramInfo);
+    protected MinValueHandler(String paramName, String datatype) {
+        super(paramName, datatype);
     }
 
     @Override
     public String validateAndGenerateQueryCondition(Map<String, String> params) throws ParseException {
-        if (!params.containsKey(paramName))
+        if (!params.containsKey(parName))
             return null;
 
-        String value = params.get(paramName);
+        String value = params.get(parName);
         try {
             Double.valueOf(value);
         } catch (NumberFormatException e) {
             throw new ParseException("Cannot convert " + value + " to a float", 0);
         }
 
-        return paramColumn + " > " + value;
+        return parColumn + " > " + value;
     }
 }

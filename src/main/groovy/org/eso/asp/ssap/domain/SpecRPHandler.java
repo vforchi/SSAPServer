@@ -36,11 +36,14 @@ public class SpecRPHandler extends MinValueHandler {
 
     @Value("${ssap.tap.utype.specrp:Char.SpectralAxis.ResPower}")
     void setParamUtype(String paramUtype) {
-        this.paramUtype = paramUtype;
+        this.parUtype = paramUtype;
     }
 
+    @Value("${ssap.tap.description.specrp:}")
+    void setDescription(String description) { this.parDescription = description; }
+
     public SpecRPHandler() {
-        super("SPECRP", new ParameterInfo("SPECRP", "float", ""));
+        super("SPECRP", "float");
     }
 
 }

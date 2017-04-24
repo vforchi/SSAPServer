@@ -36,11 +36,14 @@ public class SpatResHandler extends MinValueHandler {
 
     @Value("${ssap.tap.utype.spatres:Char.SpatialAxis.Resolution}")
     void setParamUtype(String paramUtype) {
-        this.paramUtype = paramUtype;
+        this.parUtype = paramUtype;
     }
 
+    @Value("${ssap.tap.description.spatres:}")
+    void setDescription(String description) { this.parDescription = description; }
+
     public SpatResHandler() {
-        super("SPATRES", new ParameterInfo("SPATRES", "float", ""));
+        super("SPATRES", "float");
     }
 
 }

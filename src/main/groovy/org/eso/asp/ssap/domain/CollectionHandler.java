@@ -39,19 +39,22 @@ public class CollectionHandler extends AbstractHandler {
 
     @Value("${ssap.tap.utype.collection:DataID.Collection}")
     void setParamUtype(String paramUtype) {
-        this.paramUtype = paramUtype;
+        this.parUtype = paramUtype;
     }
 
+    @Value("${ssap.tap.description.collection:}")
+    void setDescription(String description) { this.parDescription = description; }
+
     public CollectionHandler() {
-        super("COLLECTION", new ParameterInfo("COLLECTION", "char", ""));
+        super("COLLECTION", "char");
     }
 
     @Override
     public String validateAndGenerateQueryCondition(Map<String, String> params) throws ParseException {
-        if (!params.containsKey(paramName))
+        if (!params.containsKey(parName))
             return null;
 
-        String value = params.get(paramName);
-        return paramColumn + " LIKE '%" + value + "%'";
+        String value = params.get(parName);
+        return parColumn + " LIKE '%" + value + "%'";
     }
 }

@@ -39,19 +39,22 @@ public class CreatorDIDHandler extends AbstractHandler {
 
     @Value("${ssap.tap.utype.creatordid:DataID.CreatorDID}")
     void setParamUtype(String paramUtype) {
-        this.paramUtype = paramUtype;
+        this.parUtype = paramUtype;
     }
 
+    @Value("${ssap.tap.description.creatordid:}")
+    void setDescription(String description) { this.parDescription = description; }
+
     public CreatorDIDHandler() {
-        super("CREATORDID", new ParameterInfo("CREATORDID", "char", ""));
+        super("CREATORDID", "char");
     }
 
     @Override
     public String validateAndGenerateQueryCondition(Map<String, String> params) throws ParseException {
-        if (!params.containsKey(paramName))
+        if (!params.containsKey(parName))
             return null;
 
-        String value = params.get(paramName);
-        return paramColumn + " = '" + value + "'";
+        String value = params.get(parName);
+        return parColumn + " = '" + value + "'";
     }
 }

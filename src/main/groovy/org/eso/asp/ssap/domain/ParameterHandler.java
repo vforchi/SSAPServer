@@ -22,18 +22,25 @@ package org.eso.asp.ssap.domain;
 
 import javax.naming.ConfigurationException;
 import java.text.ParseException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
 /**
  * @author Vincenzo Forch&igrave (ESO), vforchi@eso.org, vincenzo.forchi@gmail.com
  */
-public interface ParameterHandler {
+public abstract class ParameterHandler {
 
-    List<ParameterInfo> getParameterInfos();
+    protected String parName;
+    protected String parDatatype;
+    protected String parDescription;
 
-    void configure(Map<String, String> paramsToColumns) throws ConfigurationException;
+    public List<ParameterInfo> getParameterInfos() {
+        return Arrays.asList(new ParameterInfo(parName, parDatatype, parDescription));
+    }
 
-    String validateAndGenerateQueryCondition(Map<String, String> params) throws ParseException;
+    public abstract void configure(Map<String, String> paramsToColumns) throws ConfigurationException;
+
+    public abstract String validateAndGenerateQueryCondition(Map<String, String> params) throws ParseException;
 
 }

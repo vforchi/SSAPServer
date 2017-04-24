@@ -33,7 +33,6 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.*;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -44,9 +43,10 @@ import java.util.Map;
 @Configurable
 @ConditionalOnMissingBean(name = "myTimeHandler")
 @ConditionalOnProperty(value="ssap.use.tap", havingValue = "true")
-public class TimeHandler implements ParameterHandler {
+public class TimeHandler extends AbstractHandler {
 
-    public static final String TIME = "TIME";
+    @Value("${ssap.tap.description.time:}")
+    void setDescription(String description) { this.parDescription = description; }
 
     @Value("${ssap.tap.utype.time.start:Char.TimeAxis.Coverage.Bounds.Start}")
     String timeStartUtype;
@@ -56,11 +56,8 @@ public class TimeHandler implements ParameterHandler {
 
     String timeStartColumn, timeEndColumn;
 
-    private final ParameterInfo timeParam  = new ParameterInfo("TIME", "char", "");
-
-    @Override
-    public List<ParameterInfo> getParameterInfos() {
-        return Arrays.asList(timeParam);
+    public TimeHandler() {
+        super("TIME", "char");
     }
 
     @Override
@@ -73,10 +70,10 @@ public class TimeHandler implements ParameterHandler {
 
     @Override
     public String validateAndGenerateQueryCondition(Map<String, String> params) throws ParseException {
-        if (!params.containsKey(TIME))
+        if (!params.containsKey(parName))
             return null;
 
-        String timeValue = params.get(TIME);
+        String timeValue = params.get(parName);
 
         List<String> conditions = new ArrayList<>();
 

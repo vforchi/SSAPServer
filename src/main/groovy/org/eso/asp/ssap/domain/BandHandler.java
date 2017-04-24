@@ -29,7 +29,6 @@ import org.springframework.stereotype.Component;
 import javax.naming.ConfigurationException;
 import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -40,9 +39,10 @@ import java.util.Map;
 @Configurable
 @ConditionalOnMissingBean(name = "myBandHandler")
 @ConditionalOnProperty(value="ssap.use.tap", havingValue = "true")
-public class BandHandler implements ParameterHandler {
+public class BandHandler extends AbstractHandler {
 
-    public static final String BAND = "BAND";
+    @Value("${ssap.tap.description.band:}")
+    void setDescription(String description) { this.parDescription = description; }
 
     @Value("${ssap.tap.utype.band.start:Char.SpectralAxis.Coverage.Bounds.Start}")
     String bandStartUtype;
@@ -51,12 +51,9 @@ public class BandHandler implements ParameterHandler {
     String bandStopUtype;
 
     String bandStartColumn, bandStopColumn;
-    
-    private final ParameterInfo bandParam = new ParameterInfo("BAND", "char", "");
 
-    @Override
-    public List<ParameterInfo> getParameterInfos() {
-        return Arrays.asList(bandParam);
+    public BandHandler() {
+        super("BAND", "char");
     }
 
     @Override
@@ -69,10 +66,10 @@ public class BandHandler implements ParameterHandler {
 
     @Override
     public String validateAndGenerateQueryCondition(Map<String, String> params) throws ParseException {
-        if (!params.containsKey(BAND))
+        if (!params.containsKey(parName))
             return null;
 
-        String bandValue = params.get(BAND);
+        String bandValue = params.get(parName);
 
         List<String> conditions = new ArrayList<>();
 

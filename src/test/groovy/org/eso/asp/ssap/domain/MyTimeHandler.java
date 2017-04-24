@@ -32,7 +32,7 @@ import java.util.Map;
  */
 @Profile("replacetime")
 @Component
-public class MyTimeHandler implements ParameterHandler {
+public class MyTimeHandler extends ParameterHandler {
     @Override
     public List<ParameterInfo> getParameterInfos() {
         return null;
