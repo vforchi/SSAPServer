@@ -62,42 +62,43 @@ public class SSAPController {
             @RequestParam(value = "VERSION", required = false) String version,
             @RequestParam(value = "REQUEST")                   String request,
             @RequestParam(value = "FORMAT", required = false)  String format,
-            @RequestParam                                      Map<String, String> allParams) {
+            @RequestParam                                      Map<String, String> allParams) throws Exception {
 
         log.info("Incoming request: version={}, request={}, format={}, params={}", version, request, format, allParams);
 
-        try {
-            /* check VERSION */
-            if (version != null && !supportedVersions.contains(version)) {
-                String errorVOTable = VOTableUtils.formatError("VERSION=" + version + " is not supported");
-                return ResponseEntity.badRequest().body(errorVOTable);
-            }
+        /* check VERSION */
+        if (version != null && !supportedVersions.contains(version))
+            return toVOTable("VERSION=" + version + " is not supported");
 
-            /* check FORMAT */
-            if (format != null) {
-                if (format.toLowerCase().equals("metadata")) {
-                    /* metadata query */
-                    String VOTable = service.getMetadata();
-                    return ResponseEntity.ok(VOTable);
-                } else if (!supportedFormats.contains(format.toLowerCase())) {
-                    String errorVOTable = VOTableUtils.formatError("FORMAT=" + format + " is not supported");
-                    return ResponseEntity.badRequest().body(errorVOTable);
-                }
-            }
-
-            /* check REQUEST */
-            if (request.equals(QUERY_DATA)) {
-                /* standard query */
-                String VOTable = service.queryData(allParams);
-                return ResponseEntity.ok(VOTable);
-            } else {
-                String errorVOTable = VOTableUtils.formatError("REQUEST=" + request + " is not implemented");
-                return ResponseEntity.badRequest().body(errorVOTable);
-            }
-        } catch (Throwable e) {
-            String errorVOTable = VOTableUtils.formatError(e.getMessage());
-            return ResponseEntity.badRequest().body(errorVOTable);
+        /* check FORMAT */
+        if (format != null) {
+            if (format.toLowerCase().equals("metadata"))
+                return ResponseEntity.ok(service.getMetadata());    // metadata query
+            else if (!supportedFormats.contains(format.toLowerCase()))
+                return toVOTable("FORMAT=" + format + " is not supported");
         }
+
+        /* check REQUEST */
+        if (request.equals(QUERY_DATA))
+            return ResponseEntity.ok(service.queryData(allParams));     // standard query
+        else
+            return toVOTable("REQUEST=" + request + " is not implemented");
+    }
+
+    /**
+     * The SSAP standard requires the server return a VOTable in case of error as much as possible.
+     * This ExceptionHandler takes care of that
+     * @param e
+     * @return
+     */
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<?> toVOTable(Exception e) {
+        return toVOTable(e.getMessage());
+    }
+
+    public ResponseEntity<?> toVOTable(String message) {
+        String errorVOTable = VOTableUtils.formatError(message);
+        return ResponseEntity.badRequest().body(errorVOTable);
     }
     
 }
