@@ -39,6 +39,8 @@ in the project root directory, a standalone jar file will be created under `buil
 ```
 java -jar SSAPServer-<version>.jar --ssap.tap.url=http://<host>:<port>/yourtap
 ```
+Note: the first build might take a few minutes, because the script is going to download gradle and all dependencies. The 
+next builds will be faster
 
 ## Configuration
 The available configuration options are [here](src/main/resources/application.properties), together with their default values.
