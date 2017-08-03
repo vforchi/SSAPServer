@@ -22,9 +22,9 @@ package org.eso.asp.ssap
 import org.eso.asp.ssap.controller.MockTAPService
 import org.eso.asp.ssap.service.SSAPServiceTAPImpl
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.context.embedded.LocalServerPort
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.client.TestRestTemplate
+import org.springframework.boot.web.server.LocalServerPort
 import spock.lang.Specification
 import spock.lang.Unroll
 

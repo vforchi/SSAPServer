@@ -1,5 +1,5 @@
 apply plugin: 'org.springframework.boot'
-apply plugin: 'groovy'
+apply plugin: 'io.spring.dependency-management'
 
 dependencies {
 	compile 'org.codehaus.groovy:groovy-all:2.4.8'
@@ -8,13 +8,9 @@ dependencies {
 	compile 'org.apache.httpcomponents:fluent-hc:4.5.3'
 	compile 'org.apache.commons:commons-lang3:3.5'
 
-	testCompile 'org.spockframework:spock-core:1.1-groovy-2.4-rc-3'
-	testCompile 'org.spockframework:spock-spring:1.1-groovy-2.4-rc-3'
+	testCompile 'org.spockframework:spock-core:1.1-groovy-2.4'
+	testCompile 'org.spockframework:spock-spring:1.1-groovy-2.4'
 	testCompile 'org.springframework.boot:spring-boot-starter-test'
-}
-
-bootRepackage {
-	mainClass = 'org.eso.asp.ssap.SSAPServer'
 }
 
 bootRun {
@@ -22,3 +18,5 @@ bootRun {
 		args project.args.split('\\s+')
 	}
 }
+
+bootJar.launchScript.included = true

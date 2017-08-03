@@ -2,10 +2,11 @@ import org.apache.tools.ant.filters.ReplaceTokens
 
 buildscript {
 	ext {
-		springBootVersion = '1.5.4.RELEASE'
+		springBootVersion = '2.0.0-M3'
 	}
 	repositories {
 		mavenCentral()
+		maven { url "https://repo.spring.io/milestone" }
 	}
 	dependencies {
 		classpath "org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}"
