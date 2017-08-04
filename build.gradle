@@ -24,11 +24,19 @@ repositories {
  * In that case we use only SSAPServer.gradle
  */
 apply from: 'SSAPServer.gradle'
+apply plugin: 'org.springframework.boot'
+apply plugin: 'io.spring.dependency-management'
 
 version = '0.0.1'
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
+
+dependencies {
+	testCompile 'org.spockframework:spock-core:1.1-groovy-2.4'
+	testCompile 'org.spockframework:spock-spring:1.1-groovy-2.4'
+	testCompile 'org.springframework.boot:spring-boot-starter-test'
+}
 
 processResources {
 	filter ReplaceTokens, tokens: [
