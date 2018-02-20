@@ -20,6 +20,7 @@ package org.eso.asp.ssap
  */
 
 import org.eso.asp.ssap.controller.MockTAPService
+import org.eso.asp.ssap.controller.SSAPController
 import org.eso.asp.ssap.service.SSAPServiceTAPImpl
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -53,7 +54,7 @@ class SSAPServerSpec extends Specification {
 	@Unroll
 	def "Query with #name"() {
 		when:
-		restTemplate.getForObject("/ssa?REQUEST=queryData&$query", String.class)
+		restTemplate.getForObject("$SSAPController.prefix?REQUEST=queryData&$query", String.class)
 
 		then:
 		tapService.requestParams.QUERY == "SELECT * FROM $service.tapTable WHERE $condition"
@@ -99,7 +100,7 @@ class SSAPServerSpec extends Specification {
 	@Unroll
 	def "Error condition: #name"() {
 		when:
-		def res = restTemplate.getForObject("/ssa?$query", String.class)
+		def res = restTemplate.getForObject("$SSAPController.prefix?$query", String.class)
 		def VOTABLE = new XmlParser().parseText(res)
 
 		then:
@@ -127,7 +128,7 @@ class SSAPServerSpec extends Specification {
 
 	def "Reject unsupported version"() {
 		when:
-		def res = restTemplate.getForObject("/ssa?REQUEST=queryData&POS=10.0,20.0&VERSION=1.0", String.class)
+		def res = restTemplate.getForObject("$SSAPController.prefix?REQUEST=queryData&POS=10.0,20.0&VERSION=1.0", String.class)
 		def VOTABLE = new XmlParser().parseText(res)
 
 		then:
@@ -136,7 +137,7 @@ class SSAPServerSpec extends Specification {
 
 	def "No MAXREC"() {
 		when:
-		restTemplate.getForObject("/ssa?REQUEST=queryData&TIME=1990/2000", String.class)
+		restTemplate.getForObject("$SSAPController.prefix?REQUEST=queryData&TIME=1990/2000", String.class)
 
 		then:
 		tapService.requestParams.MAXREC == "1000"
@@ -144,7 +145,7 @@ class SSAPServerSpec extends Specification {
 
 	def "With MAXREC"() {
 		when:
-		restTemplate.getForObject("/ssa?REQUEST=queryData&TIME=1990/2000&MAXREC=5000", String.class)
+		restTemplate.getForObject("$SSAPController.prefix?REQUEST=queryData&TIME=1990/2000&MAXREC=5000", String.class)
 
 		then:
 		tapService.requestParams.MAXREC == "5000"
@@ -152,7 +153,7 @@ class SSAPServerSpec extends Specification {
 
 	def "MAXREC too big"() {
 		when:
-		def res = restTemplate.getForObject("/ssa?REQUEST=queryData&TIME=1990/2000&MAXREC=5000000", String.class)
+		def res = restTemplate.getForObject("$SSAPController.prefix?REQUEST=queryData&TIME=1990/2000&MAXREC=5000000", String.class)
 		def VOTABLE = new XmlParser().parseText(res)
 
 		then:

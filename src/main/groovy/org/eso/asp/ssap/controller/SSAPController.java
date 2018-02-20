@@ -36,16 +36,18 @@ import java.util.Map;
 import static org.eso.asp.ssap.domain.SSAPConstants.QUERY_DATA;
 
 /**
- * Controller implementing the /ssa API of SSAP
+ * Controller implementing SSAP
  *
  * @author Vincenzo Forch&igrave (ESO), vforchi@eso.org, vincenzo.forchi@gmail.com
  */
 @RestController
 @Configurable
-@RequestMapping("/ssa")
+@RequestMapping(SSAPController.prefix)
 public class SSAPController {
 
     private static final Logger log = LoggerFactory.getLogger(SSAPController.class);
+
+    public static final String prefix = "/ssap";
 
     @Autowired
     SSAPService service;
