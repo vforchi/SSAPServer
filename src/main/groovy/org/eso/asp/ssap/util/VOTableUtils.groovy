@@ -65,6 +65,7 @@ public class VOTableUtils {
 
         def writer = new StringWriter()
         def doc    = new MarkupBuilder(writer)
+        doc.setDoubleQuotes(true)
 
         doc.VOTABLE(version: "1.3", "xmlns:ssa": "http://www.ivoa.net/xml/DalSsap/v1.1",
                 "xmlns:xsi": "http://www.w3.org/2001/XMLSchema-instance",
@@ -120,6 +121,7 @@ public class VOTableUtils {
     public static String formatError(String error) {
         def writer = new StringWriter()
         def doc    = new MarkupBuilder(writer)
+        doc.setDoubleQuotes(true)
 
         doc.VOTABLE(version: "1.3") {
             RESOURCE(type: "results") {
