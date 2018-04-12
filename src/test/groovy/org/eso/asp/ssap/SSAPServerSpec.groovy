@@ -160,4 +160,21 @@ class SSAPServerSpec extends Specification {
 		VOTABLE.RESOURCE.INFO[0].text() == "The maximum value for MAXREC is 1000000"
 	}
 
+	@Unroll
+	def "Parameter names are case insensitive"() {
+		when:
+		restTemplate.getForObject("$SSAPController.prefix?REQUEST=queryData&$query1", String.class)
+		def q1 = tapService.requestParams.QUERY
+		restTemplate.getForObject("$SSAPController.prefix?REQUEST=queryData&$query2", String.class)
+		def q2 = tapService.requestParams.QUERY
+
+		then:
+		q1 == q2
+
+		where:
+		query1 | query2
+		"POS=10.0,20.0"   | "pos=10.0,20.0"
+		"TIME=2010-05-01" | "tImE=2010-05-01"
+	}
+
 }
