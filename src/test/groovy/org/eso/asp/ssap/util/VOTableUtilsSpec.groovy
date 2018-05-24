@@ -46,13 +46,12 @@ class VOTableUtilsSpec extends Specification {
 		handler.sizeDescription = "SIZE DESC"
 
 		when:
-		def votable = VOTableUtils.getSSAMetadata([handler], xml)
+		def votable = VOTableUtils.getSSAMetadata([handler], xml, "my description")
 
 		then:
 		votable == """<VOTABLE version="1.3" xmlns:ssa="http://www.ivoa.net/xml/DalSsap/v1.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.ivoa.net/xml/VOTable/v1.3" xsi:schemaLocation="http://www.ivoa.net/xml/VOTable/v1.3 http://www.ivoa.net/xml/VOTable/VOTable-1.3.xsd">
-  <DESCRIPTION>Lorem ipsum</DESCRIPTION>
   <RESOURCE type="results">
-    <DESCRIPTION>Lorem ipsum</DESCRIPTION>
+    <DESCRIPTION>my description</DESCRIPTION>
     <INFO name="QUERY_STATUS">OK</INFO>
     <INFO name="SERVICE_PROTOCOL" value="1.1">SSAP</INFO>
     <PARAM name="INPUT:POS" value="" datatype="char" arraysize="*">

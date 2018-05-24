@@ -78,6 +78,9 @@ public class SSAPServiceTAPImpl implements SSAPService {
     @Value("${ssap.maxrec.max:1000000}")
     private Integer maximumMaxrec;
 
+    @Value("${ssap.description:}")
+    private String description;
+
     private String ssaMetadata;
 
     private Collection<ParameterHandler> parHandlers;
@@ -100,7 +103,7 @@ public class SSAPServiceTAPImpl implements SSAPService {
                         .execute().returnContent().asString();
 
                 utypeToColumns = VOTableUtils.getUtypeToColumnsMappingsFromVOTable(tapResult);
-                ssaMetadata = VOTableUtils.getSSAMetadata(parHandlers, tapResult);
+                ssaMetadata = VOTableUtils.getSSAMetadata(parHandlers, tapResult, description);
             }
 
             for (ParameterHandler handler: parHandlers)

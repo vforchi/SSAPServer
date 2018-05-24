@@ -59,7 +59,7 @@ public class VOTableUtils {
 	 * @param xmlContent a VOTable containing the column metadata of the table containing the SSA schema
 	 * @return a VOTable 
 	 */
-    public static String getSSAMetadata(Collection<ParameterHandler> handlers, String xmlContent) {
+    public static String getSSAMetadata(Collection<ParameterHandler> handlers, String xmlContent, String description) {
 
         def OUTPUT = new XmlParser().parseText(xmlContent)
 
@@ -71,9 +71,8 @@ public class VOTableUtils {
                 "xmlns:xsi": "http://www.w3.org/2001/XMLSchema-instance",
                 "xmlns": "http://www.ivoa.net/xml/VOTable/v1.3",
                 "xsi:schemaLocation": "http://www.ivoa.net/xml/VOTable/v1.3 http://www.ivoa.net/xml/VOTable/VOTable-1.3.xsd") {
-            DESCRIPTION("Lorem ipsum")
             RESOURCE(type: "results") {
-                DESCRIPTION("Lorem ipsum")
+                DESCRIPTION(description)
                 INFO(name: "QUERY_STATUS", "OK")
                 INFO(name: "SERVICE_PROTOCOL", value: "1.1", "SSAP")
                 handlers.each { handler ->
