@@ -20,6 +20,7 @@ package org.eso.asp.ssap.service;
  */
 
 import org.apache.http.client.fluent.Request;
+import org.apache.http.client.fluent.Response;
 import org.eso.asp.ssap.domain.ParameterHandler;
 import org.eso.asp.ssap.util.VOTableUtils;
 import org.slf4j.Logger;
@@ -97,10 +98,10 @@ public class SSAPServiceTAPImpl implements SSAPService {
                 String query = "SELECT * FROM " + tapTable + " WHERE 1=0";
                 tapRequest.append(URLEncoder.encode(query, "ISO-8859-1"));
 
-                String tapResult = Request.Get(tapRequest.toString())
+                String tapResult = retry(Request.Get(tapRequest.toString())
                         .connectTimeout(timeoutSeconds * 1000)
-                        .socketTimeout(timeoutSeconds * 1000)
-                        .execute().returnContent().asString();
+                        .socketTimeout(timeoutSeconds * 1000), 5, 5)
+                        .returnContent().asString();
 
                 utypeToColumns = VOTableUtils.getUtypeToColumnsMappingsFromVOTable(tapResult);
                 ssaMetadata = VOTableUtils.getSSAMetadata(parHandlers, tapResult, description);
@@ -186,6 +187,20 @@ public class SSAPServiceTAPImpl implements SSAPService {
            .append("&QUERY=");
 
         return buf;
+    }
+
+    private Response retry(Request request, int retries, int waitSecs) throws InterruptedException {
+        int counter = 0;
+        while(counter++ < retries) {
+            log.info("Connection to TAPServer failed. Retrying in {} seconds... Attempt {}/{}", waitSecs, counter, retries);
+            try{
+                Response response = request.execute();
+                if (response != null)
+                    return response;
+            } catch(Exception swallow) {}
+            Thread.sleep(waitSecs * 1000);
+        }
+        throw new RuntimeException("All retries completed. Application exiting as dependent TAP service is not found");
     }
 
 }
