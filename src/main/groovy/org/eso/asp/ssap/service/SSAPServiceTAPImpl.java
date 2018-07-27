@@ -85,7 +85,7 @@ public class SSAPServiceTAPImpl implements SSAPService {
     private String ssaMetadata;
 
     private Collection<ParameterHandler> parHandlers;
-
+ 
     @PostConstruct
     public void init() {
         /* if not initialized, map using the UCDs */
@@ -97,11 +97,11 @@ public class SSAPServiceTAPImpl implements SSAPService {
 
                 String query = "SELECT * FROM " + tapTable + " WHERE 1=0";
                 tapRequest.append(URLEncoder.encode(query, "ISO-8859-1"));
-
-                String tapResult = retry(Request.Get(tapRequest.toString())
+             
+                String tapResult = retries(Request.Get(tapRequest.toString())
                         .connectTimeout(timeoutSeconds * 1000)
-                        .socketTimeout(timeoutSeconds * 1000), 5, 5)
-                        .returnContent().asString();
+                        .socketTimeout(timeoutSeconds * 1000)
+                        ,4 ,20).returnContent().asString();
 
                 utypeToColumns = VOTableUtils.getUtypeToColumnsMappingsFromVOTable(tapResult);
                 ssaMetadata = VOTableUtils.getSSAMetadata(parHandlers, tapResult, description);
@@ -189,18 +189,19 @@ public class SSAPServiceTAPImpl implements SSAPService {
         return buf;
     }
 
-    private Response retry(Request request, int retries, int waitSecs) throws InterruptedException {
+    private Response retries(Request request, int retries, int waitSecs) throws InterruptedException {
         int counter = 0;
-        while(counter++ < retries) {
-            log.info("Connection to TAPServer failed. Retrying in {} seconds... Attempt {}/{}", waitSecs, counter, retries);
-            try{
+        while (counter++ < retries) {
+     	    log.info("Connection to TAPServer failed. Retrying in {} seconds... Attempt {}/{}", waitSecs, counter, retries);
+     	    try {
                 Response response = request.execute();
-                if (response != null)
-                    return response;
-            } catch(Exception swallow) {}
-            Thread.sleep(waitSecs * 1000);
+     		if (response != null)
+        	    return response;
+     	   } catch (Exception swallow) {
+           }
+     	   Thread.sleep(waitSecs * 1000);
         }
-        throw new RuntimeException("All retries completed. Application exiting as dependent TAP service is not found");
+        throw new RuntimeException("Cannot connect to TAP server");
     }
-
 }
+
