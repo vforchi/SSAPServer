@@ -1,15 +1,9 @@
-buildscript {
-	ext {
-		springBootVersion = '2.0.3.RELEASE'
-	}
-	repositories {
-		mavenCentral()
-		maven { url "https://repo.spring.io/milestone" }
-	}
-	dependencies {
-		classpath "org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}"
-	}
+plugins {
+	id 'groovy'
+	id 'org.springframework.boot' version '2.1.1.RELEASE'
+	id "io.spring.dependency-management" version "1.0.6.RELEASE"
 }
+
 
 repositories {
 	mavenLocal()
@@ -17,17 +11,12 @@ repositories {
 	jcenter()
 }
 
-wrapper {
-  version = '4.7'
-}
+wrapper.gradleVersion = 5.0
 
 /*
  * The build system is split in two files because we also include it as part of the build of a bigger project.
  * In that case we use only SSAPServer.gradle
  */
-apply plugin: 'groovy'
-apply plugin: 'org.springframework.boot'
-apply plugin: 'io.spring.dependency-management'
 apply from: 'SSAPServer.gradle'
 
 version = '0.0.1'
@@ -36,10 +25,10 @@ sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
 dependencies {
-	compile 'org.codehaus.groovy:groovy-all:2.4.12'
+	compile 'org.codehaus.groovy:groovy-all:2.5.4'
 
-	testCompile 'org.spockframework:spock-core:1.1-groovy-2.4'
-	testCompile 'org.spockframework:spock-spring:1.1-groovy-2.4'
+	testCompile 'org.spockframework:spock-core:1.2-groovy-2.5'
+	testCompile 'org.spockframework:spock-spring:1.2-groovy-2.5'
 	testCompile 'org.springframework.boot:spring-boot-starter-test'
 }
 
