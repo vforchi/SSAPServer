@@ -55,13 +55,13 @@ class Availability {
 		def downAt
 
 		if (!available)
-			backAt = currentDownInterval[1]
+			backAt = currentDownInterval.stop
 		else {
 			def nextDownInterval = downtimes.find {
 				now.isBefore(it.start)
 			}
 			if (nextDownInterval)
-				downAt = nextDownInterval[0]
+				downAt = nextDownInterval.start
 		}
 
 		def writer = new StringWriter()

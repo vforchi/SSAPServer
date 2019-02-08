@@ -30,34 +30,33 @@ class AvailabilitySpec extends Specification {
 	void "Convert Availability"() {
 		when:
 		def av = new Availability()
-		av.notes = ["service is accepting queries", "everything ok"]
 
 		then:
 		av.toXML() == """<vosi:availability xmlns:vosi="http://www.ivoa.net/xml/VOSIAvailability/v1.0">
   <vosi:available>true</vosi:available>
-  <vosi:note>service is accepting queries</vosi:note>
-  <vosi:note>everything ok</vosi:note>
 </vosi:availability>"""
 
 		when:
 		av = new Availability()
 		def now = Instant.now()
-		av.downtimes << [now - 1000, now + 1000]
+		av.downtimes << new Downtime(start: now - 1000, stop: now + 1000, note: "one")
 
 		then:
 		av.toXML() == """<vosi:availability xmlns:vosi="http://www.ivoa.net/xml/VOSIAvailability/v1.0">
   <vosi:available>false</vosi:available>
   <vosi:backAt>${now+1000}</vosi:backAt>
+  <vosi:note>one</vosi:note>
 </vosi:availability>"""
 
 		when:
 		av = new Availability()
-		av.downtimes << [now + 1001, now + 2000]
+		av.downtimes << new Downtime(start: now + 1001, stop: now + 2000, note: "two")
 
 		then:
 		av.toXML() == """<vosi:availability xmlns:vosi="http://www.ivoa.net/xml/VOSIAvailability/v1.0">
   <vosi:available>true</vosi:available>
   <vosi:downAt>${now+1001}</vosi:downAt>
+  <vosi:note>two</vosi:note>
 </vosi:availability>"""
 
 	}
