@@ -22,9 +22,16 @@
 
 package org.eso.asp.ssap.controller;
 
+import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.util.Date;
+import java.util.Map;
+
 import org.eso.asp.ssap.domain.Availability;
 import org.eso.asp.ssap.domain.Downtime;
 import org.eso.asp.ssap.service.AvailabilityService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.endpoint.annotation.Endpoint;
 import org.springframework.boot.actuate.endpoint.annotation.ReadOperation;
@@ -32,13 +39,14 @@ import org.springframework.boot.actuate.endpoint.annotation.Selector;
 import org.springframework.boot.actuate.endpoint.annotation.WriteOperation;
 import org.springframework.stereotype.Component;
 
-import java.util.Map;
-
 @Component
 @Endpoint(id = "availability")
 public class AvailabilityEndpoint {
+	private static final Logger log = LoggerFactory.getLogger(AvailabilityEndpoint.class);
+	private static final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS";
+	private static final SimpleDateFormat in = new SimpleDateFormat(DATE_FORMAT);
 
-    @Autowired
+	@Autowired
     AvailabilityService availabilityService;
 
     @ReadOperation
@@ -49,17 +57,28 @@ public class AvailabilityEndpoint {
     @ReadOperation
     public Availability availability(@Selector String arg0) {
         try {
+        	log.debug("availability by {}", arg0);
             return availabilityService.getAvailability(AvailabilityService.VOService.valueOf(arg0));
         } catch (Exception e) {
+        	log.error("error while returning availability: {}", e.getMessage(), e);
             return null;
         }
     }
  
     @WriteOperation
-    public void configureFeature(@Selector String arg0, String arg1) {
+    public void configureAvailability(@Selector String arg0, String start, String stop, String note) {
+    	log.debug("configureAvailability by arg0={}, start={}, stop={}, note={}", arg0, start, stop, note);
         Availability av = availabilityService.getAvailability(AvailabilityService.VOService.valueOf(arg0));
-        av.getDowntimes().add(Downtime.fromJson(arg1));
+        av.getDowntimes().add(new Downtime(stringToInstant(start), stringToInstant(stop), note));
     }
-
+    
+    private Instant stringToInstant(String dateStr) {
+		try {
+			Date date = in.parse(dateStr);
+			return Instant.ofEpochMilli(date.getTime());
+		} catch(Exception p) {
+			throw new IllegalArgumentException("Fail to parse Instant from '"+dateStr+"'. Expected date format "+DATE_FORMAT);
+		}
+	}
  
 }

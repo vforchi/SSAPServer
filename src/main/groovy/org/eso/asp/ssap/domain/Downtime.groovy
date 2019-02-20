@@ -31,6 +31,11 @@ class Downtime {
 	Instant stop
 	String  note
 
+	public Downtime(Instant start, Instant stop, String note) {
+		this.start = start
+		this.stop = stop
+		this.note = note
+	}
 	static Downtime fromJson(String json) {
 		def down = new JsonSlurper().parseText(json) as Downtime
 		return down
