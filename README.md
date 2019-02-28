@@ -11,7 +11,7 @@ In addition, the following recommended and optional parameters are supported: `C
 In this mode the server translates the incoming requests into ADQL and sends them to a TAP service.
 The tool assumes a specific schema is available on the TAP server. Unfortunately it is not possible to query directly ObsCore, 
 because the UCDs are different and some columns are missing. Therefore we defined a view that can be built on top of
-ObsCore to enable SSA access. You can find the definition of this view for SQLServer under TBD.
+ObsCore to enable SSA access. You can find an example definition of this view for SQLServer [here](https://github.com/vforchi/SSAPServer/blob/master/sql/create_view_ssa.sql).
 
 ### Customization
 SSA leaves some freedom in the implementation of specific parameters, and some of them can be specific to the data or to the
