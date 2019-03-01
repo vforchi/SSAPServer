@@ -22,19 +22,18 @@
 
 package org.eso.asp.ssap.domain
 
-import groovy.json.JsonSlurper
-
 import java.time.Instant
+
+import groovy.json.JsonSlurper
+import groovy.transform.TupleConstructor
 
 class Downtime {
 	Instant start
 	Instant stop
 	String  note
 
-	public Downtime(Instant start, Instant stop, String note) {
-		this.start = start
-		this.stop = stop
-		this.note = note
+	static Downtime getInstance(Instant start, Instant stop, String note) {
+		return new Downtime(start: start, stop: stop, note: note)
 	}
 	static Downtime fromJson(String json) {
 		def down = new JsonSlurper().parseText(json) as Downtime

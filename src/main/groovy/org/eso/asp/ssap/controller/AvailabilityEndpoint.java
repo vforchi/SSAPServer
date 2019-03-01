@@ -68,8 +68,9 @@ public class AvailabilityEndpoint {
     @WriteOperation
     public void configureAvailability(@Selector String arg0, String start, String stop, String note) {
     	log.debug("configureAvailability by arg0={}, start={}, stop={}, note={}", arg0, start, stop, note);
+    	
         Availability av = availabilityService.getAvailability(AvailabilityService.VOService.valueOf(arg0));
-        av.getDowntimes().add(new Downtime(stringToInstant(start), stringToInstant(stop), note));
+        av.getDowntimes().add(Downtime.getInstance(stringToInstant(start), stringToInstant(stop), note));
     }
     
     private Instant stringToInstant(String dateStr) {

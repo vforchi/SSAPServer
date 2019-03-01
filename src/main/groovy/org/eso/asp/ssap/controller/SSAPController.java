@@ -1,5 +1,8 @@
 package org.eso.asp.ssap.controller;
 
+import org.eso.asp.ssap.domain.Availability;
+import org.eso.asp.ssap.service.AvailabilityService;
+
 /*
  * This file is part of SSAPServer.
  *
@@ -26,6 +29,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.actuate.endpoint.annotation.ReadOperation;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -51,6 +56,9 @@ public class SSAPController {
 
     @Autowired
     SSAPService service;
+    
+    @Autowired
+    AvailabilityService availabilityService;
 
     @Value("#{${ssap.versions.supported:{'1.1'}}}")
     List<String> supportedVersions;
@@ -98,6 +106,12 @@ public class SSAPController {
         return toVOTable(e.getMessage());
     }
 
+    @ResponseStatus(HttpStatus.SERVICE_UNAVAILABLE)   
+    @ExceptionHandler(org.apache.http.conn.HttpHostConnectException.class)
+    public ResponseEntity<?> tapServerDown(Exception e) {
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(availabilityService.getAvailabilities());
+    }
+    
     public ResponseEntity<?> toVOTable(String message) {
         String errorVOTable = VOTableUtils.formatError(message);
         return ResponseEntity.badRequest().body(errorVOTable);
