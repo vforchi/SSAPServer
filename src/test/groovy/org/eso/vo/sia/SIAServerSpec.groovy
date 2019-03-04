@@ -1,12 +1,12 @@
-package org.eso.vo.siap
+package org.eso.vo.sia
 
-import org.eso.vo.siap.controller.SIAPController
-import org.eso.vo.siap.service.SIAPServiceObsTAPImpl
+import org.eso.vo.sia.service.SIAServiceObsTAPImpl
 import org.eso.vo.ssap.controller.MockTAPService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.client.TestRestTemplate
 import org.springframework.boot.web.server.LocalServerPort
+import org.springframework.web.util.UriComponentsBuilder
 
 /*
  * This file is part of SIAPServer.
@@ -27,10 +27,8 @@ import org.springframework.boot.web.server.LocalServerPort
  * Copyright 2019 - European Southern Observatory (ESO)
  */
 
-import org.springframework.web.util.UriComponentsBuilder
 import spock.lang.Specification
 import spock.lang.Unroll
-
 /**
  * @author Vincenzo Forch&igrave (ESO), vforchi@eso.org, vincenzo.forchi@gmail.com
  */
@@ -41,7 +39,7 @@ class SIAPServerSpec extends Specification {
 	TestRestTemplate restTemplate
 
 	@Autowired
-	SIAPServiceObsTAPImpl service
+	SIAServiceObsTAPImpl service
 
 	@Autowired
 	MockTAPService tapService
