@@ -20,11 +20,11 @@
  * @author Vincenzo Forch&igrave (ESO), vforchi@eso.org, vincenzo.forchi@gmail.com
  */
 
-package org.eso.vo.dali.controller;
+package org.eso.vo.vosi.controller;
 
-import org.eso.vo.dali.domain.Availability;
-import org.eso.vo.dali.domain.Downtime;
-import org.eso.vo.dali.service.AvailabilityService;
+import org.eso.vo.vosi.domain.Availability;
+import org.eso.vo.vosi.domain.Downtime;
+import org.eso.vo.vosi.service.AvailabilityService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.endpoint.annotation.Endpoint;
 import org.springframework.boot.actuate.endpoint.annotation.ReadOperation;

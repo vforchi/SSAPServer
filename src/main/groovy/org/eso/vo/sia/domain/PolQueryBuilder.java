@@ -1,6 +1,6 @@
-package org.eso.vo.siap.domain;
+package org.eso.vo.sia.domain;
 
-import org.eso.vo.ssap.util.QueryUtils;
+import org.eso.vo.sia.util.SIAUtils;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -18,7 +18,7 @@ public class PolQueryBuilder implements  ParameterQueryBuilder {
                 .map(p -> buildQuery(p))
                 .collect(Collectors.joining(" OR "));
 
-        return QueryUtils.withinParentheses(query);
+        return SIAUtils.withinParentheses(query);
     }
 
     @Override

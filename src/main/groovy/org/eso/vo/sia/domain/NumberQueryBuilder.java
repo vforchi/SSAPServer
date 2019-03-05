@@ -1,6 +1,6 @@
-package org.eso.vo.siap.domain;
+package org.eso.vo.sia.domain;
 
-import org.eso.vo.ssap.util.QueryUtils;
+import org.eso.vo.sia.util.SIAUtils;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -19,7 +19,7 @@ public class NumberQueryBuilder implements  ParameterQueryBuilder {
                 .map(p -> buildQuery(p))
                 .collect(Collectors.joining(" OR "));
 
-        return QueryUtils.withinParentheses(query);
+        return SIAUtils.withinParentheses(query);
     }
 
     @Override
@@ -49,7 +49,7 @@ public class NumberQueryBuilder implements  ParameterQueryBuilder {
         buf.append(column_max);
         buf.append(" >= ");
         buf.append(border);
-        return QueryUtils.withinParentheses(buf.toString());
+        return SIAUtils.withinParentheses(buf.toString());
     }
 
     private String buildRangeQueryFragment(String column, String min, String max) {
@@ -99,7 +99,7 @@ public class NumberQueryBuilder implements  ParameterQueryBuilder {
             buf.append(max);
             buf.append(" >= ");
             buf.append(column_min);
-            query = QueryUtils.withinParentheses(buf.toString());
+            query = SIAUtils.withinParentheses(buf.toString());
         }
 
         return query;

@@ -1,8 +1,5 @@
-package org.eso.vo.ssa.util
+package org.eso.vo.ssap.util
 
-
-import org.eso.vo.ssa.domain.PosHandler
-import spock.lang.Specification
 /*
  * This file is part of SSAPServer.
  *
@@ -24,6 +21,10 @@ import spock.lang.Specification
 /**
  * @author Vincenzo Forch&igrave (ESO), vforchi@eso.org, vincenzo.forchi@gmail.com
  */
+
+import org.eso.vo.ssap.domain.PosHandler
+import spock.lang.Specification
+
 class VOTableUtilsSpec extends Specification {
 
 	def "Get column mappings from VOTable"() {

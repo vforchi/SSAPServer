@@ -1,4 +1,4 @@
-package org.eso.vo.ssa.domain
+package org.eso.vo.ssap.domain
 
 /*
  * This file is part of SSAPServer.

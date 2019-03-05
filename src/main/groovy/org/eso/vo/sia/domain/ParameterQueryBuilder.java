@@ -1,4 +1,4 @@
-package org.eso.vo.siap.domain;
+package org.eso.vo.sia.domain;
 
 import java.util.List;
 

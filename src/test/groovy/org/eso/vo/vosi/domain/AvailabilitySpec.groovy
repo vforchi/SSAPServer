@@ -20,10 +20,9 @@
  * @author Vincenzo Forch&igrave (ESO), vforchi@eso.org, vincenzo.forchi@gmail.com
  */
 
-package org.eso.vo.dali.domain
+package org.eso.vo.vosi.domain
 
-import org.eso.vo.dali.domain.Availability
-import org.eso.vo.dali.domain.Downtime
+
 import spock.lang.Specification
 
 import java.time.Instant

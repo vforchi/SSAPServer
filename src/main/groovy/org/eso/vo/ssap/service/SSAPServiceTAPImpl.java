@@ -1,4 +1,4 @@
-package org.eso.vo.ssa.service;
+package org.eso.vo.ssap.service;
 
 /*
  * This file is part of SSAPServer.
@@ -21,15 +21,15 @@ package org.eso.vo.ssa.service;
 
 import org.apache.http.client.fluent.Request;
 import org.apache.http.client.fluent.Response;
-import org.eso.vo.ssa.domain.ParameterHandler;
-import org.eso.vo.ssa.util.VOTableUtils;
-import org.eso.vo.ssa.domain.SSAPConstants;
+import org.eso.vo.ssap.domain.ParameterHandler;
+import org.eso.vo.ssap.domain.SSAPConstants;
+import org.eso.vo.ssap.util.VOTableUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
@@ -49,7 +49,7 @@ import java.util.stream.Collectors;
  */
 @Service
 @Configurable
-@ConditionalOnProperty(value="ssap.use.tap", havingValue = "true")
+@ConditionalOnExpression("${ssap.enabled:true} && ${ssap.use.tap:true}")
 public class SSAPServiceTAPImpl implements SSAPService {
 
     private static final Logger log = LoggerFactory.getLogger(SSAPServiceTAPImpl.class);

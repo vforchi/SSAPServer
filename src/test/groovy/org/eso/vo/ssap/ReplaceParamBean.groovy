@@ -1,4 +1,7 @@
-package org.eso.vo.ssa
+package org.eso.vo.ssap
+
+import org.eso.vo.ssap.domain.MyTimeHandler
+import org.springframework.beans.factory.annotation.Autowired
 
 /*
  * This file is part of SSAPServer.
@@ -19,8 +22,6 @@ package org.eso.vo.ssa
  * Copyright 2017 - European Southern Observatory (ESO)
  */
 
-import org.eso.vo.ssa.domain.MyTimeHandler
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.context.ApplicationContext
 import org.springframework.test.context.ActiveProfiles
@@ -30,7 +31,7 @@ import spock.lang.Specification
  * @author Vincenzo Forch&igrave (ESO), vforchi@eso.org, vincenzo.forchi@gmail.com
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@ActiveProfiles("replacetime")
+@ActiveProfiles(["replacetime", "ssap"])
 class ReplaceParamBean extends Specification {
 
 	@Autowired

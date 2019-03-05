@@ -1,4 +1,4 @@
-package org.eso.vo.ssap;
+package org.eso.vo;
 
 /*
  * This file is part of SSAPServer.

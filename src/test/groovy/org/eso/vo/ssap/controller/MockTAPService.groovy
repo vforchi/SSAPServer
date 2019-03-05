@@ -1,4 +1,6 @@
-package org.eso.vo.ssa.controller
+package org.eso.vo.ssap.controller
+
+import org.springframework.web.bind.annotation.*
 
 /*
  * This file is part of SSAPServer.
@@ -18,12 +20,6 @@ package org.eso.vo.ssa.controller
  *
  * Copyright 2017 - European Southern Observatory (ESO)
  */
-
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestMethod
-import org.springframework.web.bind.annotation.RequestParam
-import org.springframework.web.bind.annotation.RestController
-
 /**
  * @author Vincenzo Forch&igrave (ESO), vforchi@eso.org, vincenzo.forchi@gmail.com
  */
@@ -33,8 +29,8 @@ class MockTAPService {
 
 	Map requestParams
 
-	@RequestMapping(method = RequestMethod.GET)
-	void mockSync(@RequestParam Map<String, String> allParams) {
+	@GetMapping
+	void mockSyncGet(@RequestParam Map<String, String> allParams) {
 		requestParams = allParams
 	}
 

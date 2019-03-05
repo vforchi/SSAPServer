@@ -1,4 +1,4 @@
-package org.eso.vo.siap.service;
+package org.eso.vo.sia.service;
 
 /*
  * This file is part of SSAPServer.
@@ -19,10 +19,13 @@ package org.eso.vo.siap.service;
  * Copyright 2019 - European Southern Observatory (ESO)
  */
 
+import org.apache.http.client.fluent.Content;
 import org.apache.http.client.fluent.Request;
+import org.apache.http.entity.ContentType;
+import org.apache.http.util.EntityUtils;
 import org.eso.vo.dali.domain.DALIConstants;
-import org.eso.vo.siap.domain.ParameterQueryBuilder;
-import org.eso.vo.siap.domain.ParameterQueryBuilderFactory;
+import org.eso.vo.sia.domain.ParameterQueryBuilder;
+import org.eso.vo.sia.domain.ParameterQueryBuilderFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Configurable;
@@ -40,29 +43,32 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
- * This class implements SIAPService by translating SIA requests into ADQL queries
- * and send them to a TAP service. It is instantiated if siap.use.tap=true
+ * This class implements SIAService by translating SIA requests into ADQL queries
+ * and send them to a TAP service. It is instantiated if sia.use.tap=true
  *
  * @author Vincenzo Forch&igrave (ESO), vforchi@eso.org, vincenzo.forchi@gmail.com
  */
 @Service
 @Configurable
-@ConditionalOnProperty(value="siap.enabled", havingValue = "true")
-public class SIAPServiceObsTAPImpl implements SIAPService {
+@ConditionalOnProperty(value="sia.enabled", havingValue = "true")
+public class SIAServiceObsTAPImpl implements SIAService {
 
-    private static final Logger log = LoggerFactory.getLogger(SIAPServiceObsTAPImpl.class);
+    private static final Logger log = LoggerFactory.getLogger(SIAServiceObsTAPImpl.class);
 
-    @Value("${siap.tap.timeout:10}")
+    @Value("${sia.tap.timeout:10}")
     private Integer timeoutSeconds;
 
-    @Value("${siap.tap.url}")
+    @Value("${sia.tap.url}")
     private String tapURL;
 
-    @Value("${siap.maxrec.default:1000}")
+    @Value("${sia.maxrec.default:1000}")
     private Integer defaultMaxrec;
 
-    @Value("${siap.maxrec.max:1000000}")
+    @Value("${sia.maxrec.max:1000000}")
     private Integer maximumMaxrec;
+
+    @Value("${sia.base.query}")
+    private String baseQuery;
 
     @Override
     public String query(MultiValueMap<String, String> params) throws IOException, ParseException {
@@ -86,7 +92,10 @@ public class SIAPServiceObsTAPImpl implements SIAPService {
         String tapResult = Request.Get(tapRequest.toString())
                 .connectTimeout(timeoutSeconds*1000)
                 .socketTimeout(timeoutSeconds*1000)
-                .execute().returnContent().asString();
+                .execute()
+                .handleResponse(r -> {
+                    return new Content(EntityUtils.toByteArray(r.getEntity()), ContentType.getOrDefault(r.getEntity()));
+                }).toString();
 
         long elapsed = System.currentTimeMillis() - start;
 
@@ -108,7 +117,7 @@ public class SIAPServiceObsTAPImpl implements SIAPService {
 
     protected String createADQLQuery(MultiValueMap<String, String> params) throws UnsupportedEncodingException {
 
-        StringBuffer adqlQuery = new StringBuffer("SELECT * FROM ivoa.ObsCore WHERE dataproduct_type IN ( 'image', 'cube' )");
+        StringBuffer adqlQuery = new StringBuffer(baseQuery);
 
         String where = params.keySet().stream()
                 .map( p -> {

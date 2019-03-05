@@ -1,4 +1,4 @@
-package org.eso.vo.siap.service;
+package org.eso.vo.sia.service;
 
 /*
  * This file is part of SSAPServer.
@@ -27,7 +27,7 @@ import java.text.ParseException;
 /**
  * @author Vincenzo Forch&igrave (ESO), vforchi@eso.org, vincenzo.forchi@gmail.com
  */
-public interface SIAPService {
+public interface SIAService {
 
     /**
      * This method is invoked by any query for data

@@ -1,4 +1,4 @@
-package org.eso.vo.ssa.controller;
+package org.eso.vo.ssap.controller;
 
 /*
  * This file is part of SSAPServer.
@@ -19,14 +19,15 @@ package org.eso.vo.ssa.controller;
  * Copyright 2017 - European Southern Observatory (ESO)
  */
 
-import org.eso.vo.ssa.service.SSAPService;
-import org.eso.vo.ssa.util.VOTableUtils;
-import org.eso.vo.ssa.domain.SSAPConstants;
+import org.eso.vo.ssap.domain.SSAPConstants;
+import org.eso.vo.ssap.service.SSAPService;
+import org.eso.vo.ssap.util.VOTableUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -41,6 +42,7 @@ import java.util.Map;
  */
 @RestController
 @Configurable
+@ConditionalOnProperty(value="ssap.enabled", havingValue = "true")
 @RequestMapping(SSAPController.prefix)
 public class SSAPController {
 

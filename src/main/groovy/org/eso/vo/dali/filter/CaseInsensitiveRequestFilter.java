@@ -1,4 +1,4 @@
-package org.eso.vo.vosi.filter;
+package org.eso.vo.dali.filter;
 
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedCaseInsensitiveMap;

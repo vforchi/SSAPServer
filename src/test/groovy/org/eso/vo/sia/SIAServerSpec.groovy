@@ -1,12 +1,16 @@
 package org.eso.vo.sia
 
+import org.eso.vo.sia.controller.SIAController
 import org.eso.vo.sia.service.SIAServiceObsTAPImpl
 import org.eso.vo.ssap.controller.MockTAPService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.client.TestRestTemplate
 import org.springframework.boot.web.server.LocalServerPort
+import org.springframework.test.context.ActiveProfiles
 import org.springframework.web.util.UriComponentsBuilder
+import spock.lang.Specification
+import spock.lang.Unroll
 
 /*
  * This file is part of SIAPServer.
@@ -26,14 +30,12 @@ import org.springframework.web.util.UriComponentsBuilder
  *
  * Copyright 2019 - European Southern Observatory (ESO)
  */
-
-import spock.lang.Specification
-import spock.lang.Unroll
 /**
  * @author Vincenzo Forch&igrave (ESO), vforchi@eso.org, vincenzo.forchi@gmail.com
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-class SIAPServerSpec extends Specification {
+@ActiveProfiles("sia")
+class SIAServerSpec extends Specification {
 
 	@Autowired
 	TestRestTemplate restTemplate
@@ -55,29 +57,29 @@ class SIAPServerSpec extends Specification {
 	def "Query with #name"() {
 		when:
 		def encodedQuery = query.replaceAll(" ", "%20").replaceAll("\\+", "%2B")
-		def builder = UriComponentsBuilder.fromUriString(SIAPController.prefix).query(encodedQuery)
+		def builder = UriComponentsBuilder.fromUriString(SIAController.prefix).query(encodedQuery)
 		def uri = builder.build(true).toUri()
 
 		tapService.requestParams = [:]
 		restTemplate.getForObject(uri, String.class)
 
 		then:
-		tapService.requestParams.QUERY == "SELECT * FROM ivoa.ObsCore WHERE dataproduct_type IN ( 'image', 'cube' ) AND ($condition)"
+		tapService.requestParams.QUERY == "$service.baseQuery AND ($condition)"
 
 		when:
 		tapService.requestParams = [:]
 		restTemplate.postForObject(uri, encodedQuery, String.class)
 
 		then:
-		tapService.requestParams.QUERY == "SELECT * FROM ivoa.ObsCore WHERE dataproduct_type IN ( 'image', 'cube' ) AND ($condition)"
+		tapService.requestParams.QUERY == "$service.baseQuery AND ($condition)"
 
 		where:
 		name | query || condition
-		"POS: CIRCLE"       | "POS=CIRCLE 10.0 20.0 1"              || "CONTAINS(s_region, CIRCLE('',10.0,20.0,0.033)) = 1"
-		"POS: RANGE"        | "POS=RANGE 12.0 12.5 34.0 36.0"              || "CONTAINS(s_region, CIRCLE('',10.0,20.0,0.1)) = 1"
-		"POS: POLYGON"      | "POS=POLYGON 12.0 34.0 14.0 35.0 14. 36.0 12.0 35.0"  || "CONTAINS(s_region, CIRCLE('',10.0,20.0,0.1)) = 1"
-		"POS: pole"         | "POS=RANGE 0 360.0 89.0 +Inf"           || "CONTAINS(s_region, CIRCLE('',10.0,20.0,0.033)) = 1"
-		"POS: all sky"      | "POS=RANGE -Inf +Inf -Inf +Inf"         || "s_region"
+		"POS: CIRCLE"       | "POS=CIRCLE 10.0 20.0 1"                              || "INTERSECTS(s_region, CIRCLE('', 10.0, 20.0, 1)) = 1"
+		"POS: RANGE"        | "POS=RANGE 12.0 12.5 34.0 36.0"                       || "(s_ra BETWEEN 12.0 AND 12.5 AND s_dec BETWEEN 34.0 AND 36.0)"
+		"POS: POLYGON"      | "POS=POLYGON 12.0 34.0 14.0 35.0 14. 36.0 12.0 35.0"  || "INTERSECTS(s_region, POLYGON('', 12.0, 34.0, 14.0, 35.0, 14., 36.0, 12.0, 35.0)) = 1"
+		"POS: pole"         | "POS=RANGE 0 360.0 89.0 +Inf"                         || "(s_ra BETWEEN 0 AND 360.0 AND s_dec BETWEEN 89.0 AND 90)"
+		//"POS: all sky"      | "POS=RANGE -Inf +Inf -Inf +Inf"                       || ""
 
 		"BAND 1" | "BAND=500e-9 550e-9" || "(500e-9 <= em_max AND 550e-9 >= em_min)"
 		"BAND 2" | "BAND=300 +Inf"      || "em_max >= 300"
@@ -100,7 +102,7 @@ class SIAPServerSpec extends Specification {
 
 		// SINGLE VALUE
 		"CALIB"      | "CALIB=1"         || "calib_level = 1"
-		"2 CALIB"    | "CALIB=1&CALIB=2" || "calib_level IN (1, 2)"
+		"2 CALIB"    | "CALIB=1&CALIB=2" || "calib_level = 1 OR calib_level = 2"
 
 		// RANGE
 		"FOV"        | "FOV=1.0 2.0"     || "s_fov BETWEEN 1.0 AND 2.0"
@@ -112,7 +114,8 @@ class SIAPServerSpec extends Specification {
 	@Unroll
 	def "Error condition: #name"() {
 		when:
-		def res = restTemplate.getForObject("$SIAPController.prefix?$query", String.class)
+		def encodedQuery = query.replaceAll(" ", "%20").replaceAll("\\+", "%2B")
+		def res = restTemplate.getForObject("$SIAController.prefix?$encodedQuery", String.class)
 		def VOTABLE = new XmlParser().parseText(res)
 
 		then:
@@ -120,27 +123,25 @@ class SIAPServerSpec extends Specification {
 
 		where:
 		name | query || message
-		"no request"            | "POS=10.0,20.0&VERSION=1.0"                     || "Required String parameter 'REQUEST' is not present"
-		"unsupported request"   | "REQUEST=getData&POS=10.0,20.0&VERSION=1.0"     || "VERSION=1.0 is not supported"
-		"unsupported version"   | "REQUEST=queryData&POS=10.0,20.0&VERSION=1.0"   || "VERSION=1.0 is not supported"
-		"unsupported format"    | "REQUEST=queryData&POS=10.0,20.0&FORMAT=xml"    || "FORMAT=xml is not supported"
-		"empty TIME"            | "REQUEST=queryData&TIME=/"                      || "Invalid range /"
-		"wrong SPATRES"         | "REQUEST=queryData&SPATRES=STR"                 || "Cannot convert STR to a float"
-		"wrong SPECRP"          | "REQUEST=queryData&SPECRP=1.0r"                 || "Cannot convert 1.0r to a float"
-		"wrong SNR"             | "REQUEST=queryData&SNR=1.0TT"                   || "Cannot convert 1.0TT to a float"
+		"unsupported version"   | "POS=CIRCLE 10.0 20.0 1&VERSION=1.0"    || "VERSION=1.0 is not supported"
+		"unsupported format"    | "POS=CIRCLE 10.0 20.0 1&FORMAT=xml"     || "FORMAT=xml is not supported"
+		"empty TIME"            | "POS=CIRCLE queryData&TIME=/"                      || "Invalid range /"
+		"wrong SPATRES"         | "POS=CIRCLE queryData&SPATRES=STR"                 || "Cannot convert STR to a float"
+		"wrong SPECRP"          | "POS=CIRCLE queryData&SPECRP=1.0r"                 || "Cannot convert 1.0r to a float"
+		"wrong SNR"             | "POS=CIRCLE queryData&SNR=1.0TT"                   || "Cannot convert 1.0TT to a float"
 
 		/* wrong values out of range */
-		"wrong RA, <0"          | "REQUEST=queryData&POS=370,10"                  || "RA in POS must be between 0 and 360"
-		"wrong RA, >360"        | "REQUEST=queryData&POS=-50,10"                  || "RA in POS must be between 0 and 360"
-		"wrong RA, not float"   | "REQUEST=queryData&POS=xxx,10"                  || "Can't convert xxx"
-		"wrong DEC, >90"        | "REQUEST=queryData&POS=10,100"                  || "Dec in POS must be between -90 and 90"
-		"wrong DEC, <-90"       | "REQUEST=queryData&POS=10,-100"                 || "Dec in POS must be between -90 and 90"
-		"wrong DEC, not float"  | "REQUEST=queryData&POS=10,xxx"                  || "Can't convert xxx"
+		"wrong RA, <0"          | "POS=CIRCLE 370 10"                  || "RA in POS must be between 0 and 360"
+		"wrong RA, >360"        | "POS=CIRCLE -50 10"                  || "RA in POS must be between 0 and 360"
+		"wrong RA, not float"   | "POS=CIRCLE xxx 10"                  || "Can't convert xxx"
+		"wrong DEC, >90"        | "POS=CIRCLE 10 100"                  || "Dec in POS must be between -90 and 90"
+		"wrong DEC, <-90"       | "POS=CIRCLE 10 -100"                 || "Dec in POS must be between -90 and 90"
+		"wrong DEC, not float"  | "POS=CIRCLE POS=CIRCLE 10 xxx"                  || "Can't convert xxx"
 	}
 
 	def "Reject unsupported version"() {
 		when:
-		def res = restTemplate.getForObject("$SIAPController.prefix?REQUEST=queryData&POS=10.0,20.0&VERSION=1.0", String.class)
+		def res = restTemplate.getForObject("$SIAController.prefix?REQUEST=queryData&POS=10.0,20.0&VERSION=1.0", String.class)
 		def VOTABLE = new XmlParser().parseText(res)
 
 		then:
@@ -149,7 +150,7 @@ class SIAPServerSpec extends Specification {
 
 	def "No MAXREC"() {
 		when:
-		restTemplate.getForObject("$SIAPController.prefix?REQUEST=queryData&TIME=1990/2000", String.class)
+		restTemplate.getForObject("$SIAController.prefix?REQUEST=queryData&TIME=1990/2000", String.class)
 
 		then:
 		tapService.requestParams.MAXREC == "1000"
@@ -157,7 +158,7 @@ class SIAPServerSpec extends Specification {
 
 	def "With MAXREC"() {
 		when:
-		restTemplate.getForObject("$SIAPController.prefix?REQUEST=queryData&TIME=1990/2000&MAXREC=5000", String.class)
+		restTemplate.getForObject("$SIAController.prefix?REQUEST=queryData&TIME=1990/2000&MAXREC=5000", String.class)
 
 		then:
 		tapService.requestParams.MAXREC == "5000"
@@ -165,7 +166,7 @@ class SIAPServerSpec extends Specification {
 
 	def "MAXREC too big"() {
 		when:
-		def res = restTemplate.getForObject("$SIAPController.prefix?REQUEST=queryData&TIME=1990/2000&MAXREC=5000000", String.class)
+		def res = restTemplate.getForObject("$SIAController.prefix?REQUEST=queryData&TIME=1990/2000&MAXREC=5000000", String.class)
 		def VOTABLE = new XmlParser().parseText(res)
 
 		then:
@@ -175,9 +176,9 @@ class SIAPServerSpec extends Specification {
 	@Unroll
 	def "Parameter names are case insensitive"() {
 		when:
-		restTemplate.getForObject("$SIAPController.prefix?REQUEST=queryData&$query1", String.class)
+		restTemplate.getForObject("$SIAController.prefix?REQUEST=queryData&$query1", String.class)
 		def q1 = tapService.requestParams.QUERY
-		restTemplate.getForObject("$SIAPController.prefix?REQUEST=queryData&$query2", String.class)
+		restTemplate.getForObject("$SIAController.prefix?REQUEST=queryData&$query2", String.class)
 		def q2 = tapService.requestParams.QUERY
 
 		then:

@@ -1,4 +1,4 @@
-package org.eso.vo.siap.controller;
+package org.eso.vo.sia.controller;
 
 /*
  * This file is part of SSAPServer.
@@ -20,8 +20,8 @@ package org.eso.vo.siap.controller;
  */
 
 import org.eso.vo.dali.domain.DALIConstants;
-import org.eso.vo.siap.service.SIAPService;
-import org.eso.vo.ssap.util.VOTableUtils;
+import org.eso.vo.sia.service.SIAService;
+import org.eso.vo.sia.util.SIAUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,18 +43,18 @@ import java.util.List;
  */
 @RestController
 @Configurable
-@ConditionalOnProperty(value="siap.enabled", havingValue = "true")
-@RequestMapping(SIAPController.prefix)
-public class SIAPController {
+@ConditionalOnProperty(value="sia.enabled", havingValue = "true")
+@RequestMapping(SIAController.prefix)
+public class SIAController {
 
-    private static final Logger log = LoggerFactory.getLogger(SIAPController.class);
+    private static final Logger log = LoggerFactory.getLogger(SIAController.class);
 
-    public static final String prefix = "/siap";
+    public static final String prefix = "/sia";
 
     @Autowired
-    SIAPService siapService;
+    SIAService SIAService;
 
-    @Value("#{${siap.versions.supported:{'2.0'}}}")
+    @Value("#{${sia.versions.supported:{'2', '2.0'}}}")
     List<String> supportedVersions;
 
     List<String> supportedResponseformats = Arrays.asList("application/x-votable+xml", "votable");
@@ -76,7 +76,7 @@ public class SIAPController {
         if (responseformat != null && !supportedResponseformats.contains(responseformat.toLowerCase()))
             return toVOTable("RESPONSEFORMAT=" + responseformat + " is not supported");
         
-        return ResponseEntity.ok(siapService.query(allParams));     // standard query
+        return ResponseEntity.ok(SIAService.query(allParams));     // standard query
     }
     
     /**
@@ -91,7 +91,7 @@ public class SIAPController {
     }
 
     public ResponseEntity<?> toVOTable(String message) {
-        String errorVOTable = VOTableUtils.formatError(message);
+        String errorVOTable = SIAUtils.formatError(message);
         return ResponseEntity.badRequest().body(errorVOTable);
     }
     

@@ -1,14 +1,14 @@
-package org.eso.vo.siap.domain;
+package org.eso.vo.sia.domain;
 
 import org.apache.commons.lang3.EnumUtils;
 
 public class ParameterQueryBuilderFactory {
 
     public static ParameterQueryBuilder getBuilder(String name) {
-        return getBuilder(EnumUtils.getEnum(SIAPParameter.class, name));
+        return getBuilder(EnumUtils.getEnum(SIAParameter.class, name));
     }
 
-    public static ParameterQueryBuilder getBuilder(SIAPParameter parameter) {
+    public static ParameterQueryBuilder getBuilder(SIAParameter parameter) {
         if (parameter == null)
             return null;
 

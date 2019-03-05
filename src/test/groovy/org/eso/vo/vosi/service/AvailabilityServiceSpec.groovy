@@ -20,12 +20,12 @@
  * @author Vincenzo Forch&igrave (ESO), vforchi@eso.org, vincenzo.forchi@gmail.com
  */
 
-package org.eso.vo.dali.service
+package org.eso.vo.vosi.service
 
-import org.eso.vo.dali.service.AvailabilityService
-import org.eso.vo.ssa.domain.Availability
-import org.eso.vo.ssa.domain.Downtime
+import org.eso.vo.vosi.domain.Availability
+import org.eso.vo.vosi.domain.Downtime
 import spock.lang.Specification
+
 import java.time.Instant
 
 class AvailabilityServiceSpec extends Specification {
@@ -33,7 +33,7 @@ class AvailabilityServiceSpec extends Specification {
 	static final Instant now   = Instant.now()
 	static final Instant start = now + 100
 	static final Instant stop  = now + 200
-	static final String json = """{"SSA":{"downtimes":[{"start":{"epochSecond":$start.epochSecond,"nano":$start.nano},"note":"one","stop":{"epochSecond":$stop.epochSecond,"nano":$stop.nano}}]}}"""
+	static final String json = """{"SSAP":{"downtimes":[{"start":{"epochSecond":$start.epochSecond,"nano":$start.nano},"note":"one","stop":{"epochSecond":$stop.epochSecond,"nano":$stop.nano}}]}}"""
 
 	def "Save Availability"() {
 		setup:
@@ -45,7 +45,7 @@ class AvailabilityServiceSpec extends Specification {
 									    stop: stop,
 										note: "one")
 		
-		availabilityService.availabilities[AvailabilityService.VOService.SSA] = ssaAv
+		availabilityService.availabilities[AvailabilityService.VOService.SSAP] = ssaAv
 
 		when:
 		availabilityService.persistAvailability()
@@ -63,7 +63,7 @@ class AvailabilityServiceSpec extends Specification {
 		availabilityService.restoreAvailability()
 
 		then:
-		def ssaAv = availabilityService.availabilities[AvailabilityService.VOService.SSA]
+		def ssaAv = availabilityService.availabilities[AvailabilityService.VOService.SSAP]
 		ssaAv.downtimes[0].start == start
 		ssaAv.downtimes[0].stop  == stop
 		ssaAv.downtimes[0].note  == "one"

@@ -1,8 +1,8 @@
-package org.eso.vo.siap.domain;
+package org.eso.vo.sia.domain;
 
 import org.apache.commons.lang3.EnumUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.eso.vo.ssap.util.QueryUtils;
+import org.eso.vo.sia.util.SIAUtils;
 
 import java.util.Arrays;
 import java.util.List;
@@ -26,7 +26,7 @@ public class PosQueryBuilder implements  ParameterQueryBuilder {
                 .map(p -> buildQuery(p))
                 .collect(Collectors.joining(" OR "));
 
-        return QueryUtils.withinParentheses(query);
+        return SIAUtils.withinParentheses(query);
     }
 
     @Override
@@ -57,8 +57,12 @@ public class PosQueryBuilder implements  ParameterQueryBuilder {
     }
 
     private String buildPolygon(List<String> tokens) {
-        if (tokens.size() % 2 != 0)
-            throw new RuntimeException("Invalid syntax for POLYGON: expected 3 parameters (lon, lat, radius), got " + tokens.size());
+        if (tokens.size() < 6 || tokens.size() % 2 != 0)
+            throw new RuntimeException("Invalid syntax for POLYGON: expected an even number of parameters (lon1, lat1, lon2, lat2, lon3, lat3...), got " + tokens.size());
+        StringBuffer buf = new StringBuffer("INTERSECTS(s_region, POLYGON('', ")
+                        .append(tokens.stream().collect(Collectors.joining(", ")))
+                        .append(")) = 1");
+        return buf.toString();
     }
 
     private String buildRange(List<String> tokens) {
@@ -73,7 +77,7 @@ public class PosQueryBuilder implements  ParameterQueryBuilder {
                 .append(sanitizeDec(tokens.get(2)))
                 .append(" AND ")
                 .append(sanitizeDec(tokens.get(3)));
-        return QueryUtils.withinParentheses(buf.toString());
+        return SIAUtils.withinParentheses(buf.toString());
     }
     
     private String sanitizeDec(String dec) {

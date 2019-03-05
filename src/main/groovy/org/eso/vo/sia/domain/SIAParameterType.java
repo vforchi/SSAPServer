@@ -1,6 +1,6 @@
-package org.eso.vo.siap.domain;
+package org.eso.vo.sia.domain;
 
-public enum SIAPParameterType {
+public enum SIAParameterType {
 
     NUMBER,
     STRING,

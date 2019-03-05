@@ -20,12 +20,12 @@
  * @author Vincenzo Forch&igrave (ESO), vforchi@eso.org, vincenzo.forchi@gmail.com
  */
 
-package org.eso.vo.dali.service
+package org.eso.vo.vosi.service
 
 import groovy.json.JsonGenerator
 import groovy.json.JsonSlurper
-import org.eso.vo.dali.domain.Availability
-import org.eso.vo.dali.domain.Downtime
+import org.eso.vo.vosi.domain.Availability
+import org.eso.vo.vosi.domain.Downtime
 import org.springframework.stereotype.Service
 
 import javax.annotation.PostConstruct
@@ -38,7 +38,7 @@ class AvailabilityService {
     static final File SCHEDULE_DT_FILE = new File("scheduled_downtimes.json")
 
     enum VOService {
-        SSA
+        SSAP, SIA
     }
 
     Map<VOService, Availability> availabilities = [:]

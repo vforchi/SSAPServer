@@ -1,6 +1,6 @@
-package org.eso.vo.siap.domain;
+package org.eso.vo.sia.domain;
 
-import org.eso.vo.ssap.util.QueryUtils;
+import org.eso.vo.sia.util.SIAUtils;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -25,7 +25,7 @@ public class StringQueryBuilder implements  ParameterQueryBuilder {
                             .map(p -> "'" + p + "'")
                             .collect(Collectors.joining(", "))
                     + ")";
-            query = QueryUtils.withinParentheses(query);
+            query = SIAUtils.withinParentheses(query);
         }
 
         return query;
@@ -33,7 +33,7 @@ public class StringQueryBuilder implements  ParameterQueryBuilder {
 
     @Override
     public String buildQuery(String parameter) {
-        return QueryUtils.withinParentheses(column + " = '" + parameter + "'");
+        return SIAUtils.withinParentheses(column + " = '" + parameter + "'");
     }
 
 }

@@ -20,7 +20,7 @@
  * @author Vincenzo Forch&igrave (ESO), vforchi@eso.org, vincenzo.forchi@gmail.com
  */
 
-package org.eso.vo.dali.domain
+package org.eso.vo.vosi.domain
 
 import groovy.json.JsonSlurper
 

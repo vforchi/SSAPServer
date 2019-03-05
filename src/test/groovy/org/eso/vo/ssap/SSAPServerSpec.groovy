@@ -1,4 +1,7 @@
-package org.eso.vo.ssa
+package org.eso.vo.ssap
+
+import org.eso.vo.ssap.controller.MockTAPService
+import org.eso.vo.ssap.controller.SSAPController
 
 /*
  * This file is part of SSAPServer.
@@ -19,20 +22,19 @@ package org.eso.vo.ssa
  * Copyright 2017 - European Southern Observatory (ESO)
  */
 
-import org.eso.vo.ssa.controller.MockTAPService
-import org.eso.vo.ssa.controller.SSAPController
-import org.eso.vo.ssa.service.SSAPServiceTAPImpl
+import org.eso.vo.ssap.service.SSAPServiceTAPImpl
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.client.TestRestTemplate
 import org.springframework.boot.web.server.LocalServerPort
+import org.springframework.test.context.ActiveProfiles
 import spock.lang.Specification
 import spock.lang.Unroll
-
 /**
  * @author Vincenzo Forch&igrave (ESO), vforchi@eso.org, vincenzo.forchi@gmail.com
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@ActiveProfiles("ssap")
 class SSAPServerSpec extends Specification {
 
 	@Autowired
@@ -129,6 +131,7 @@ class SSAPServerSpec extends Specification {
 	def "Reject unsupported version"() {
 		when:
 		def res = restTemplate.getForObject("$SSAPController.prefix?REQUEST=queryData&POS=10.0,20.0&VERSION=1.0", String.class)
+		println res
 		def VOTABLE = new XmlParser().parseText(res)
 
 		then:

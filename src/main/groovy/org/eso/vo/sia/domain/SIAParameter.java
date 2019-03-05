@@ -1,34 +1,34 @@
-package org.eso.vo.siap.domain;
+package org.eso.vo.sia.domain;
 
-public enum SIAPParameter {
+public enum SIAParameter {
 
-    POS(SIAPParameterType.POS, "s_region"),
-    BAND(SIAPParameterType.NUMBER, "em_min", "em_max"),
-    TIME(SIAPParameterType.NUMBER, "t_min", "t_max"),
-    POL(SIAPParameterType.POL, "pol_states"),
-    FOV(SIAPParameterType.NUMBER, "s_fov"),
-    SPATRES(SIAPParameterType.NUMBER, "s_resolution"),
-    SPECRP(SIAPParameterType.NUMBER, "em_res_power"),
-    EXPTIME(SIAPParameterType.NUMBER, "t_exptime"),
-    TIMERES(SIAPParameterType.NUMBER, "t_resolution"),
-    ID(SIAPParameterType.STRING, "obs_publisher_did"),
-    COLLECTION(SIAPParameterType.STRING, "obs_collection"),
-    FACILITY(SIAPParameterType.STRING, "facility_name"),
-    INSTRUMENT(SIAPParameterType.STRING, "instrument_name"),
-    DPTYPE(SIAPParameterType.STRING, "dataproduct_type"),
-    CALIB(SIAPParameterType.NUMBER, "calib_level"),
-    TARGET(SIAPParameterType.STRING, "target_name"),
-    FORMAT(SIAPParameterType.STRING, "access_format");
+    POS(SIAParameterType.POS, "s_region"),
+    BAND(SIAParameterType.NUMBER, "em_min", "em_max"),
+    TIME(SIAParameterType.NUMBER, "t_min", "t_max"),
+    POL(SIAParameterType.POL, "pol_states"),
+    FOV(SIAParameterType.NUMBER, "s_fov"),
+    SPATRES(SIAParameterType.NUMBER, "s_resolution"),
+    SPECRP(SIAParameterType.NUMBER, "em_res_power"),
+    EXPTIME(SIAParameterType.NUMBER, "t_exptime"),
+    TIMERES(SIAParameterType.NUMBER, "t_resolution"),
+    ID(SIAParameterType.STRING, "obs_publisher_did"),
+    COLLECTION(SIAParameterType.STRING, "obs_collection"),
+    FACILITY(SIAParameterType.STRING, "facility_name"),
+    INSTRUMENT(SIAParameterType.STRING, "instrument_name"),
+    DPTYPE(SIAParameterType.STRING, "dataproduct_type"),
+    CALIB(SIAParameterType.NUMBER, "calib_level"),
+    TARGET(SIAParameterType.STRING, "target_name"),
+    FORMAT(SIAParameterType.STRING, "access_format");
 
-    private SIAPParameterType type;
+    private SIAParameterType type;
     private String[] columns;
 
-    SIAPParameter(SIAPParameterType type, String... columns) {
+    SIAParameter(SIAParameterType type, String... columns) {
         this.type = type;
         this.columns = columns;
     }
 
-    public SIAPParameterType getType() {
+    public SIAParameterType getType() {
         return type;
     }
 

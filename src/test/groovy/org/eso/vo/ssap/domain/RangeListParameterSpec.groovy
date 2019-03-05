@@ -1,4 +1,4 @@
-package org.eso.vo.ssa.domain
+package org.eso.vo.ssap.domain
 
 import org.apache.commons.lang3.tuple.ImmutablePair
 import spock.lang.Specification
