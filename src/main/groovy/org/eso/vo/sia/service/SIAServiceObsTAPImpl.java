@@ -135,7 +135,11 @@ public class SIAServiceObsTAPImpl implements SIAService {
             adqlQuery.append(where);
         }
 
-        return URLEncoder.encode(adqlQuery.toString(), "ISO-8859-1");
+        String queryString = adqlQuery.toString();
+
+        log.info("Executing query {}", queryString);
+
+        return URLEncoder.encode(queryString, "ISO-8859-1");
 
     }
 
