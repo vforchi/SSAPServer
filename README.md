@@ -1,11 +1,11 @@
 # SSAPServer
 An implementation of the [Simple Spectral Access Protocol](http://www.ivoa.net/documents/SSA/20120210/REC-SSA-1.1-20120210.pdf) and of the [Simple Image Access](http://www.ivoa.net/documents/SIA/20151223/REC-SIA-2.0-20151223.html) of the IVOA.
 The server is a Spring Boot application that implements the APIs defined in the standard.
-
-SSA requests can either be redirected to a TAP service or go directly to the DB.
-SIA requests are converted to ObsTAP queries.
+SSA and SIA can be enabled independently.
 
 ## SSA
+SSA requests can either be redirected to a TAP service or go directly to the DB.
+
 ### Using TAP
 In this mode the server translates the incoming SSA requests into ADQL and sends them to a TAP service.
 The tool assumes a specific schema is available on the TAP server. Unfortunately it is not possible to query directly ObsCore, 
@@ -19,7 +19,10 @@ Every parameter defined in the SSA standard is handled by a class that implement
 If, for example, you want to override the default TIME implementation, it is sufficient to declare a class named `MyTimeHandler`, that implements ParameterHandler. You can find an example in the tests.
 
 ### Direct DB queries
-Not yet implemented
+Not implemented.
+
+## SIA
+SIA requests are converted to ObsTAP queries.
 
 ## Run the server
 Execute:
