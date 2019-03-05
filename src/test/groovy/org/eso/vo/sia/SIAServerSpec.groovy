@@ -111,47 +111,22 @@ class SIAServerSpec extends Specification {
 		"FOV"        | "FOV=-Inf 2.0"    || "s_fov <= 2.0"
 
 	}
-//
-//	@Unroll
-//	def "Error condition: #name"() {
-//		when:
-//		def encodedQuery = query.replaceAll(" ", "%20").replaceAll("\\+", "%2B")
-//		def res = restTemplate.getForObject("$SIAController.prefix/query?$encodedQuery", String.class)
-//		def VOTABLE = new XmlParser().parseText(res)
-//
-//		then:
-//		message == VOTABLE.RESOURCE.INFO[0].text()
-//
-//		where:
-//		name | query || message
-//		"unsupported version"   | "POS=CIRCLE 10.0 20.0 1&VERSION=1.0"    || "VERSION=1.0 is not supported"
-//		"unsupported format"    | "POS=CIRCLE 10.0 20.0 1&FORMAT=xml"     || "FORMAT=xml is not supported"
-//		"empty TIME"            | "POS=CIRCLE queryData&TIME=/"                      || "Invalid range /"
-//		"wrong SPATRES"         | "POS=CIRCLE queryData&SPATRES=STR"                 || "Cannot convert STR to a float"
-//		"wrong SPECRP"          | "POS=CIRCLE queryData&SPECRP=1.0r"                 || "Cannot convert 1.0r to a float"
-//		"wrong SNR"             | "POS=CIRCLE queryData&SNR=1.0TT"                   || "Cannot convert 1.0TT to a float"
-//
-//		/* wrong values out of range */
-//		"wrong RA, <0"          | "POS=CIRCLE 370 10"                  || "RA in POS must be between 0 and 360"
-//		"wrong RA, >360"        | "POS=CIRCLE -50 10"                  || "RA in POS must be between 0 and 360"
-//		"wrong RA, not float"   | "POS=CIRCLE xxx 10"                  || "Can't convert xxx"
-//		"wrong DEC, >90"        | "POS=CIRCLE 10 100"                  || "Dec in POS must be between -90 and 90"
-//		"wrong DEC, <-90"       | "POS=CIRCLE 10 -100"                 || "Dec in POS must be between -90 and 90"
-//		"wrong DEC, not float"  | "POS=CIRCLE POS=CIRCLE 10 xxx"                  || "Can't convert xxx"
-//	}
 
-	def "Reject unsupported version"() {
+	def "Unsupported version"() {
 		when:
-		def res = restTemplate.getForObject("$SIAController.prefix/query?REQUEST=queryData&POS=10.0,20.0&VERSION=1.0", String.class)
+		def encodedQuery = "POS=CIRCLE 10.0 20.0 1&VERSION=1.0".replaceAll(" ", "%20")
+		def builder = UriComponentsBuilder.fromUriString("$SIAController.prefix/query").query(encodedQuery)
+		def uri = builder.build(true).toUri()
+		def res = restTemplate.getForObject(uri, String.class)
 		def VOTABLE = new XmlParser().parseText(res)
 
 		then:
-		VOTABLE.RESOURCE.INFO[0].text() == "VERSION=1.0 is not supported"
+		"VERSION=1.0 is not supported" == VOTABLE.RESOURCE.INFO[0].text()
 	}
 
 	def "No MAXREC"() {
 		when:
-		restTemplate.getForObject("$SIAController.prefix/query?REQUEST=queryData&TIME=1990/2000", String.class)
+		restTemplate.getForObject("$SIAController.prefix/query?CALIB=0", String.class)
 
 		then:
 		tapService.requestParams.MAXREC == "1000"
@@ -159,7 +134,7 @@ class SIAServerSpec extends Specification {
 
 	def "With MAXREC"() {
 		when:
-		restTemplate.getForObject("$SIAController.prefix/query?REQUEST=queryData&TIME=1990/2000&MAXREC=5000", String.class)
+		restTemplate.getForObject("$SIAController.prefix/query?CALIB=0&MAXREC=5000", String.class)
 
 		then:
 		tapService.requestParams.MAXREC == "5000"
@@ -167,7 +142,7 @@ class SIAServerSpec extends Specification {
 
 	def "MAXREC too big"() {
 		when:
-		def res = restTemplate.getForObject("$SIAController.prefix/query?REQUEST=queryData&TIME=1990/2000&MAXREC=5000000", String.class)
+		def res = restTemplate.getForObject("$SIAController.prefix/query?CALIB=0&MAXREC=5000000", String.class)
 		def VOTABLE = new XmlParser().parseText(res)
 
 		then:
@@ -187,8 +162,8 @@ class SIAServerSpec extends Specification {
 
 		where:
 		query1 | query2
-		"POS=10.0,20.0"   | "pos=10.0,20.0"
-		"TIME=2010-05-01" | "tImE=2010-05-01"
+		"POS=CIRCLE 10.0 20.0 1"   | "pos=CIRCLE 10.0 20.0 1"
+		"TIME=10000" | "tImE=10000"
 	}
 
 }
