@@ -1,3 +1,5 @@
+package org.eso.vo.vosi.domain
+
 /*
  * This file is part of SSAPServer.
  *
@@ -16,11 +18,10 @@
  *
  * Copyright 2019 - European Southern Observatory (ESO)
  */
+
 /**
  * @author Vincenzo Forch&igrave (ESO), vforchi@eso.org, vincenzo.forchi@gmail.com
  */
-
-package org.eso.vo.vosi.domain
 
 import groovy.xml.MarkupBuilder
 

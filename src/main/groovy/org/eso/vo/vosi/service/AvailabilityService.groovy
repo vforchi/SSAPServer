@@ -1,3 +1,5 @@
+package org.eso.vo.vosi.service
+
 /*
  * This file is part of SSAPServer.
  *
@@ -16,11 +18,6 @@
  *
  * Copyright 2019 - European Southern Observatory (ESO)
  */
-/**
- * @author Vincenzo Forch&igrave (ESO), vforchi@eso.org, vincenzo.forchi@gmail.com
- */
-
-package org.eso.vo.vosi.service
 
 import groovy.json.JsonGenerator
 import groovy.json.JsonSlurper
@@ -32,6 +29,9 @@ import javax.annotation.PostConstruct
 import javax.annotation.PreDestroy
 import java.time.Instant
 
+/**
+ * @author Vincenzo Forch&igrave (ESO), vforchi@eso.org, vincenzo.forchi@gmail.com
+ */
 @Service
 class AvailabilityService {
 

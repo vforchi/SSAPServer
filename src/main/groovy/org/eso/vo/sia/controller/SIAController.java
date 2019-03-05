@@ -60,7 +60,7 @@ public class SIAController {
     List<String> supportedResponseformats = Arrays.asList("application/x-votable+xml", "votable");
     
     @ResponseBody
-    @RequestMapping(method = { RequestMethod.GET, RequestMethod.POST }, produces = { MediaType.TEXT_XML_VALUE })
+    @RequestMapping(path = "query", method = { RequestMethod.GET, RequestMethod.POST }, produces = { MediaType.TEXT_XML_VALUE })
     ResponseEntity<?> query(
             @RequestParam(value = DALIConstants.VERSION, required = false) String version,
             @RequestParam(value = DALIConstants.RESPONSEFORMAT, required = false)  String responseformat,

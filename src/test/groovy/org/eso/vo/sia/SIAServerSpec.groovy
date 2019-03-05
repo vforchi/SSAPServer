@@ -1,17 +1,5 @@
 package org.eso.vo.sia
 
-import org.eso.vo.sia.controller.SIAController
-import org.eso.vo.sia.service.SIAServiceObsTAPImpl
-import org.eso.vo.ssap.controller.MockTAPService
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.boot.test.web.client.TestRestTemplate
-import org.springframework.boot.web.server.LocalServerPort
-import org.springframework.test.context.ActiveProfiles
-import org.springframework.web.util.UriComponentsBuilder
-import spock.lang.Specification
-import spock.lang.Unroll
-
 /*
  * This file is part of SIAPServer.
  *
@@ -30,6 +18,19 @@ import spock.lang.Unroll
  *
  * Copyright 2019 - European Southern Observatory (ESO)
  */
+
+import org.eso.vo.sia.controller.SIAController
+import org.eso.vo.sia.service.SIAServiceObsTAPImpl
+import org.eso.vo.ssap.controller.MockTAPService
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.boot.test.web.client.TestRestTemplate
+import org.springframework.boot.web.server.LocalServerPort
+import org.springframework.test.context.ActiveProfiles
+import org.springframework.web.util.UriComponentsBuilder
+import spock.lang.Specification
+import spock.lang.Unroll
+
 /**
  * @author Vincenzo Forch&igrave (ESO), vforchi@eso.org, vincenzo.forchi@gmail.com
  */
@@ -57,7 +58,7 @@ class SIAServerSpec extends Specification {
 	def "Query with #name"() {
 		when:
 		def encodedQuery = query.replaceAll(" ", "%20").replaceAll("\\+", "%2B")
-		def builder = UriComponentsBuilder.fromUriString(SIAController.prefix).query(encodedQuery)
+		def builder = UriComponentsBuilder.fromUriString(SIAController.prefix/query).query(encodedQuery)
 		def uri = builder.build(true).toUri()
 
 		tapService.requestParams = [:]
@@ -115,7 +116,7 @@ class SIAServerSpec extends Specification {
 	def "Error condition: #name"() {
 		when:
 		def encodedQuery = query.replaceAll(" ", "%20").replaceAll("\\+", "%2B")
-		def res = restTemplate.getForObject("$SIAController.prefix?$encodedQuery", String.class)
+		def res = restTemplate.getForObject("$SIAController.prefix/query?$encodedQuery", String.class)
 		def VOTABLE = new XmlParser().parseText(res)
 
 		then:
@@ -141,7 +142,7 @@ class SIAServerSpec extends Specification {
 
 	def "Reject unsupported version"() {
 		when:
-		def res = restTemplate.getForObject("$SIAController.prefix?REQUEST=queryData&POS=10.0,20.0&VERSION=1.0", String.class)
+		def res = restTemplate.getForObject("$SIAController.prefix/query?REQUEST=queryData&POS=10.0,20.0&VERSION=1.0", String.class)
 		def VOTABLE = new XmlParser().parseText(res)
 
 		then:
@@ -150,7 +151,7 @@ class SIAServerSpec extends Specification {
 
 	def "No MAXREC"() {
 		when:
-		restTemplate.getForObject("$SIAController.prefix?REQUEST=queryData&TIME=1990/2000", String.class)
+		restTemplate.getForObject("$SIAController.prefix/query?REQUEST=queryData&TIME=1990/2000", String.class)
 
 		then:
 		tapService.requestParams.MAXREC == "1000"
@@ -158,7 +159,7 @@ class SIAServerSpec extends Specification {
 
 	def "With MAXREC"() {
 		when:
-		restTemplate.getForObject("$SIAController.prefix?REQUEST=queryData&TIME=1990/2000&MAXREC=5000", String.class)
+		restTemplate.getForObject("$SIAController.prefix/query?REQUEST=queryData&TIME=1990/2000&MAXREC=5000", String.class)
 
 		then:
 		tapService.requestParams.MAXREC == "5000"
@@ -166,7 +167,7 @@ class SIAServerSpec extends Specification {
 
 	def "MAXREC too big"() {
 		when:
-		def res = restTemplate.getForObject("$SIAController.prefix?REQUEST=queryData&TIME=1990/2000&MAXREC=5000000", String.class)
+		def res = restTemplate.getForObject("$SIAController.prefix/query?REQUEST=queryData&TIME=1990/2000&MAXREC=5000000", String.class)
 		def VOTABLE = new XmlParser().parseText(res)
 
 		then:
@@ -176,9 +177,9 @@ class SIAServerSpec extends Specification {
 	@Unroll
 	def "Parameter names are case insensitive"() {
 		when:
-		restTemplate.getForObject("$SIAController.prefix?REQUEST=queryData&$query1", String.class)
+		restTemplate.getForObject("$SIAController.prefix/query?REQUEST=queryData&$query1", String.class)
 		def q1 = tapService.requestParams.QUERY
-		restTemplate.getForObject("$SIAController.prefix?REQUEST=queryData&$query2", String.class)
+		restTemplate.getForObject("$SIAController.prefix/query?REQUEST=queryData&$query2", String.class)
 		def q2 = tapService.requestParams.QUERY
 
 		then:
