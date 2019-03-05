@@ -82,13 +82,22 @@ public class SIAServiceObsTAPImpl implements SIAService {
         if (maxrec > maximumMaxrec)
             throw new ParseException("The maximum value for MAXREC is " + maximumMaxrec, 0);
         else
-            tapRequest.append("&MAXREC=").append(maxrec);
+            tapRequest.append("&")
+                    .append(DALIConstants.MAXREC)
+                    .append("=")
+                    .append(maxrec);
         params.remove(DALIConstants.MAXREC);
+
+        /* RESPONSEFORMAT */
+        if (params.containsKey(DALIConstants.RESPONSEFORMAT)) {
+            tapRequest.append("&FORMAT=")
+                    .append(params.getFirst(DALIConstants.RESPONSEFORMAT));
+            params.remove(DALIConstants.RESPONSEFORMAT);
+        }
 
         log.info("Executing TAP request: {}", tapRequest);
 
         long start = System.currentTimeMillis();
-
         String tapResult = Request.Get(tapRequest.toString())
                 .connectTimeout(timeoutSeconds*1000)
                 .socketTimeout(timeoutSeconds*1000)
@@ -96,7 +105,6 @@ public class SIAServiceObsTAPImpl implements SIAService {
                 .handleResponse(r -> {
                     return new Content(EntityUtils.toByteArray(r.getEntity()), ContentType.getOrDefault(r.getEntity()));
                 }).toString();
-
         long elapsed = System.currentTimeMillis() - start;
 
         log.info("TAP request executed in {}ms", elapsed);
@@ -105,13 +113,10 @@ public class SIAServiceObsTAPImpl implements SIAService {
     }
 
     protected StringBuffer getAdqlURL() {
-        StringBuffer buf = new StringBuffer(tapURL);
-
-        buf.append("/sync?LANG=ADQL")
-                .append("&FORMAT=votable%2Ftd")
+        StringBuffer buf = new StringBuffer(tapURL)
+                .append("/sync?LANG=ADQL")
                 .append("&REQUEST=doQuery")
                 .append("&QUERY=");
-
         return buf;
     }
 

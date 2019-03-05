@@ -33,7 +33,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -57,8 +56,6 @@ public class SIAController {
     @Value("#{${sia.versions.supported:{'2', '2.0'}}}")
     List<String> supportedVersions;
 
-    List<String> supportedResponseformats = Arrays.asList("application/x-votable+xml", "votable");
-    
     @ResponseBody
     @RequestMapping(path = "query", method = { RequestMethod.GET, RequestMethod.POST }, produces = { MediaType.TEXT_XML_VALUE })
     ResponseEntity<?> query(
@@ -72,10 +69,6 @@ public class SIAController {
         if (version != null && !supportedVersions.contains(version))
             return toVOTable("VERSION=" + version + " is not supported");
 
-        /* check RESPONSEFORMAT */
-        if (responseformat != null && !supportedResponseformats.contains(responseformat.toLowerCase()))
-            return toVOTable("RESPONSEFORMAT=" + responseformat + " is not supported");
-        
         return ResponseEntity.ok(SIAService.query(allParams));     // standard query
     }
     
