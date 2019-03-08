@@ -19,8 +19,13 @@ package org.eso.asp.ssap
  * Copyright 2017 - European Southern Observatory (ESO)
  */
 
+import java.time.Instant
+
 import org.eso.asp.ssap.controller.MockTAPService
 import org.eso.asp.ssap.controller.SSAPController
+import org.eso.asp.ssap.domain.Availability
+import org.eso.asp.ssap.domain.Downtime
+import org.eso.asp.ssap.service.AvailabilityService
 import org.eso.asp.ssap.service.SSAPServiceTAPImpl
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -28,7 +33,7 @@ import org.springframework.boot.test.web.client.TestRestTemplate
 import org.springframework.boot.web.server.LocalServerPort
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpMethod
-import org.springframework.http.ResponseEntity
+import org.springframework.http.HttpStatus
 
 import spock.lang.Specification
 
@@ -43,24 +48,41 @@ class SSAPServerServiceDownSpec extends Specification {
 
 	@Autowired
 	SSAPServiceTAPImpl service
-
+	
+	@Autowired
+	MockTAPService tapService
+	
 	@LocalServerPort
 	int port
-
-	def setup() {
-		service.tapURL = "http://localhost:${port+1}" //non-existing port
-	}
-
-
-	def "TAP service down check"() {
-		when:
-		ResponseEntity<String> res = restTemplate.exchange("$SSAPController.prefix?REQUEST=queryData&POS=10.0,20.0",HttpMethod.GET, new HttpEntity<Object>(),String.class);
-
-		then:
-		res.statusCode == org.springframework.http.HttpStatus.SERVICE_UNAVAILABLE
-		res.body == '{"SSA":{"downtimes":[],"available":true}}'
-	}
-
 	
+	@Autowired
+	AvailabilityService availabilityService;
+	
+	def setup() {
+		service.tapURL = "http://localhost:${port}"
+	}
 
+	def "service down test"() {
+			setup:
+			def ssaAv = new Availability()
+			def now = Instant.now()
+			ssaAv.downtimes << new Downtime(start: now - 1000, stop: now + 1000, note: "one") //server is NOT available
+			availabilityService.availabilities[AvailabilityService.VOService.SSA] = ssaAv
+			availabilityService.persistAvailability()
+
+			when:
+			def res = restTemplate.exchange("$SSAPController.prefix?REQUEST=queryData&POS=10.0,20.0",HttpMethod.GET, new HttpEntity<Object>(),String.class);
+	
+			then:
+			res.status == HttpStatus.SERVICE_UNAVAILABLE.value() 
+			res.body == """<vosi:availability xmlns:vosi="http://www.ivoa.net/xml/VOSIAvailability/v1.0">
+  <vosi:available>false</vosi:available>
+  <vosi:backAt>${now+1000}</vosi:backAt>
+  <vosi:note>one</vosi:note>
+</vosi:availability>"""
+			
+			cleanup:
+			availabilityService.SCHEDULE_DT_FILE.delete()
+	}
+	
 }

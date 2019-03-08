@@ -19,8 +19,12 @@ package org.eso.asp.ssap
  * Copyright 2017 - European Southern Observatory (ESO)
  */
 
+import java.time.Instant
 import org.eso.asp.ssap.controller.MockTAPService
 import org.eso.asp.ssap.controller.SSAPController
+import org.eso.asp.ssap.domain.Availability
+import org.eso.asp.ssap.domain.Downtime
+import org.eso.asp.ssap.service.AvailabilityService
 import org.eso.asp.ssap.service.SSAPServiceTAPImpl
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -44,11 +48,20 @@ class SSAPServerSpec extends Specification {
 	@Autowired
 	MockTAPService tapService
 
+	@Autowired
+	AvailabilityService availabilityService;
+	
 	@LocalServerPort
 	int port
-
+	
 	def setup() {
 		service.tapURL = "http://localhost:$port"
+		/* assign valid availability so that all test can run */
+		def ssaAv = new Availability()
+		def now = Instant.now()
+		ssaAv.downtimes << new Downtime(start: now + 1000, stop: now + 1000, note: "one") //server is available
+		availabilityService.availabilities[AvailabilityService.VOService.SSA] = ssaAv
+		availabilityService.persistAvailability()
 	}
 
 	@Unroll

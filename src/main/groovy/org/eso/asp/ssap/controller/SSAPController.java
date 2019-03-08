@@ -1,7 +1,13 @@
 package org.eso.asp.ssap.controller;
 
+import static org.eso.asp.ssap.domain.SSAPConstants.QUERY_DATA;
+
+import java.util.List;
+import java.util.Map;
+
 import org.eso.asp.ssap.domain.Availability;
 import org.eso.asp.ssap.service.AvailabilityService;
+import org.eso.asp.ssap.service.AvailabilityService.VOService;
 
 /*
  * This file is part of SSAPServer.
@@ -29,16 +35,15 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.actuate.endpoint.annotation.ReadOperation;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
-import java.util.Map;
-
-import static org.eso.asp.ssap.domain.SSAPConstants.QUERY_DATA;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  * Controller implementing SSAP
@@ -75,7 +80,12 @@ public class SSAPController {
             @RequestParam                                      Map<String, String> allParams) throws Exception {
 
         log.info("Incoming request: version={}, request={}, format={}, params={}", version, request, format, allParams);
-
+        
+        /* check AVAILABLITY*/
+        Availability ssaAvailability = availabilityService.getAvailability(VOService.SSA);
+		if(!ssaAvailability.isAvailable())
+			return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(ssaAvailability.toXML());
+        
         /* check VERSION */
         if (version != null && !supportedVersions.contains(version))
             return toVOTable("VERSION=" + version + " is not supported");
@@ -106,12 +116,6 @@ public class SSAPController {
         return toVOTable(e.getMessage());
     }
 
-    @ResponseStatus(HttpStatus.SERVICE_UNAVAILABLE)   
-    @ExceptionHandler(org.apache.http.conn.HttpHostConnectException.class)
-    public ResponseEntity<?> tapServerDown(Exception e) {
-        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(availabilityService.getAvailabilities());
-    }
-    
     public ResponseEntity<?> toVOTable(String message) {
         String errorVOTable = VOTableUtils.formatError(message);
         return ResponseEntity.badRequest().body(errorVOTable);
