@@ -44,7 +44,7 @@ import java.util.Map;
 @Endpoint(id = "availability")
 public class AvailabilityEndpoint {
 	private static final Logger log = LoggerFactory.getLogger(AvailabilityEndpoint.class);
-	private static final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS";
+	private static final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss";
 	private static final SimpleDateFormat in = new SimpleDateFormat(DATE_FORMAT);
 
 	@Autowired
@@ -59,7 +59,7 @@ public class AvailabilityEndpoint {
     public Availability availability(@Selector String arg0) {
         try {
         	log.debug("availability by {}", arg0);
-            return availabilityService.getAvailability(VOService.valueOf(arg0));
+            return availabilityService.getAvailability(VOService.valueOf(arg0.toUpperCase()));
         } catch (Exception e) {
         	log.error("error while returning availability: {}", e.getMessage(), e);
             return null;
@@ -70,7 +70,7 @@ public class AvailabilityEndpoint {
     public void configureAvailability(@Selector String arg0, String start, String stop, String note) {
     	log.debug("configureAvailability by arg0={}, start={}, stop={}, note={}", arg0, start, stop, note);
     	
-        Availability av = availabilityService.getAvailability(VOService.valueOf(arg0));
+        Availability av = availabilityService.getAvailability(VOService.valueOf(arg0.toUpperCase()));
         av.getDowntimes().add(Downtime.getInstance(stringToInstant(start), stringToInstant(stop), note));
     }
     

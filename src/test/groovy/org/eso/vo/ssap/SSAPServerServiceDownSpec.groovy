@@ -1,22 +1,19 @@
 package org.eso.vo.ssap
 
+import groovy.json.JsonOutput
 import org.eso.vo.ssap.controller.MockTAPService
 import org.eso.vo.ssap.controller.SSAPController
 import org.eso.vo.ssap.service.SSAPServiceTAPImpl
-import org.eso.vo.vosi.domain.Availability
-import org.eso.vo.vosi.domain.Downtime
-import org.eso.vo.vosi.domain.VOService
 import org.eso.vo.vosi.service.AvailabilityService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.client.TestRestTemplate
 import org.springframework.boot.web.server.LocalServerPort
-import org.springframework.http.HttpEntity
-import org.springframework.http.HttpMethod
-import org.springframework.http.HttpStatus
+import org.springframework.http.*
 import org.springframework.test.context.ActiveProfiles
 import spock.lang.Specification
 
+import java.text.SimpleDateFormat
 import java.time.Instant
 
 /*
@@ -58,32 +55,57 @@ class SSAPServerServiceDownSpec extends Specification {
 	
 	@Autowired
 	AvailabilityService availabilityService;
+
+	def setupSpec() {
+		TimeZone.setDefault(TimeZone.getTimeZone("GMT"))
+		AvailabilityService.SCHEDULE_DT_FILE.delete()
+	}
 	
 	def setup() {
 		service.tapURL = "http://localhost:${port}"
 	}
 
-	def "service down test"() {
-			setup:
-			def ssaAv = new Availability()
-			def now = Instant.now()
-			ssaAv.downtimes << new Downtime(start: now - 1000, stop: now + 1000, note: "one") //server is NOT available
-			availabilityService.availabilities[VOService.SSAP] = ssaAv
-			availabilityService.persistAvailability()
+	def "Make server unavailable and verify that it comes back online"() {
 
-			when:
-			def res = restTemplate.exchange("$SSAPController.prefix?REQUEST=POS=10+20+0.1",HttpMethod.GET, new HttpEntity<Object>(),String.class)
-	
-			then:
-			res.status == HttpStatus.SERVICE_UNAVAILABLE.value() 
-			res.body == """<vosi:availability xmlns:vosi="http://www.ivoa.net/xml/VOSIAvailability/v1.0">
+		setup:
+		def now = Instant.now()
+		def start = now - 10
+		def stop = now + 2
+		def formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss")
+		def requestJson = JsonOutput.toJson([start: formatter.format(start.toDate()), stop: formatter.format(stop.toDate()), note: "one"])
+		def headers = new HttpHeaders()
+		headers.setContentType(MediaType.APPLICATION_JSON)
+
+		def entity = new HttpEntity<String>(requestJson,headers);
+		restTemplate.postForObject("/actuator/availability/ssap", entity, String.class)
+
+		when:
+		def res = restTemplate.exchange("$SSAPController.prefix?REQUEST=queryData", HttpMethod.GET, new HttpEntity<Object>(), String.class)
+
+		then:
+		res.status == HttpStatus.SERVICE_UNAVAILABLE.value()
+		res.body == """<vosi:availability xmlns:vosi="http://www.ivoa.net/xml/VOSIAvailability/v1.0">
   <vosi:available>false</vosi:available>
-  <vosi:backAt>${now+1000}</vosi:backAt>
+  <vosi:backAt>${formatter.format(stop.toDate())}Z</vosi:backAt>
   <vosi:note>one</vosi:note>
 </vosi:availability>"""
-			
-			cleanup:
-			availabilityService.SCHEDULE_DT_FILE.delete()
+
+		when:
+		Thread.sleep(2000)
+		res = restTemplate.exchange("$SSAPController.prefix?REQUEST=queryData", HttpMethod.GET, new HttpEntity<Object>(), String.class)
+
+		then:
+		res.status == HttpStatus.BAD_REQUEST.value()
+		res.body == """<VOTABLE version="1.3">
+  <RESOURCE type="results">
+    <INFO name="QUERY_STATUS" value="ERROR">Premature end of file.</INFO>
+    <INFO name="SERVICE_PROTOCOL" value="1.1">SSAP</INFO>
+    <INFO name="REQUEST" value="queryData" />
+  </RESOURCE>
+</VOTABLE>"""
+
+		cleanup:
+		availabilityService.SCHEDULE_DT_FILE.delete()
 	}
-	
+
 }
