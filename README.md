@@ -29,7 +29,7 @@ Execute:
 ```
 ./gradlew bootRun -Pargs="--ssap.tap.url=http://<host>:<port>/yourtap --sia.tap.url=http://<host>:<port>/yourtap"
 ```
-in the project root directory: the server will start at `http://localhost:9000/ssa`
+in the project root directory: the server will start at `http://localhost:9000`
 ## Build
 Execute:
 ```
