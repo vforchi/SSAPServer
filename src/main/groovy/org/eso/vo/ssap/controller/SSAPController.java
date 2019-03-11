@@ -1,5 +1,24 @@
 package org.eso.vo.ssap.controller;
 
+import org.eso.vo.ssap.domain.SSAPConstants;
+import org.eso.vo.ssap.service.SSAPService;
+import org.eso.vo.ssap.util.VOTableUtils;
+import org.eso.vo.vosi.domain.Availability;
+import org.eso.vo.vosi.service.AvailabilityService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Configurable;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Map;
+
 /*
  * This file is part of SSAPServer.
  *
@@ -19,22 +38,6 @@ package org.eso.vo.ssap.controller;
  * Copyright 2017 - European Southern Observatory (ESO)
  */
 
-import org.eso.vo.ssap.domain.SSAPConstants;
-import org.eso.vo.ssap.service.SSAPService;
-import org.eso.vo.ssap.util.VOTableUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Configurable;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
-import java.util.Map;
-
 /**
  * Controller implementing SSAP
  *
@@ -52,6 +55,9 @@ public class SSAPController {
 
     @Autowired
     SSAPService service;
+    
+    @Autowired
+    AvailabilityService availabilityService;
 
     @Value("#{${ssap.versions.supported:{'1.1'}}}")
     List<String> supportedVersions;
@@ -68,7 +74,12 @@ public class SSAPController {
             @RequestParam                                      Map<String, String> allParams) throws Exception {
 
         log.info("Incoming request: version={}, request={}, format={}, params={}", version, request, format, allParams);
-
+        
+        /* check AVAILABLITY*/
+        Availability ssaAvailability = availabilityService.getAvailability(AvailabilityService.VOService.SSAP);
+		if(!ssaAvailability.isAvailable())
+			return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(ssaAvailability.toXML());
+        
         /* check VERSION */
         if (version != null && !supportedVersions.contains(version))
             return toVOTable("VERSION=" + version + " is not supported");

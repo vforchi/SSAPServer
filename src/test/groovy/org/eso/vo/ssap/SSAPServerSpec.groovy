@@ -2,6 +2,15 @@ package org.eso.vo.ssap
 
 import org.eso.vo.ssap.controller.MockTAPService
 import org.eso.vo.ssap.controller.SSAPController
+import org.eso.vo.ssap.service.SSAPServiceTAPImpl
+import org.eso.vo.vosi.domain.Availability
+import org.eso.vo.vosi.domain.Downtime
+import org.eso.vo.vosi.service.AvailabilityService
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.boot.test.web.client.TestRestTemplate
+import org.springframework.boot.web.server.LocalServerPort
+import org.springframework.test.context.ActiveProfiles
 
 /*
  * This file is part of SSAPServer.
@@ -22,14 +31,11 @@ import org.eso.vo.ssap.controller.SSAPController
  * Copyright 2017 - European Southern Observatory (ESO)
  */
 
-import org.eso.vo.ssap.service.SSAPServiceTAPImpl
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.boot.test.web.client.TestRestTemplate
-import org.springframework.boot.web.server.LocalServerPort
-import org.springframework.test.context.ActiveProfiles
 import spock.lang.Specification
 import spock.lang.Unroll
+
+import java.time.Instant
+
 /**
  * @author Vincenzo Forch&igrave (ESO), vforchi@eso.org, vincenzo.forchi@gmail.com
  */
@@ -46,11 +52,20 @@ class SSAPServerSpec extends Specification {
 	@Autowired
 	MockTAPService tapService
 
+	@Autowired
+	AvailabilityService availabilityService;
+	
 	@LocalServerPort
 	int port
-
+	
 	def setup() {
 		service.tapURL = "http://localhost:$port"
+		/* assign valid availability so that all test can run */
+		def ssaAv = new Availability()
+		def now = Instant.now()
+		ssaAv.downtimes << new Downtime(start: now + 1000, stop: now + 1000, note: "one") //server is available
+		availabilityService.availabilities[AvailabilityService.VOService.SSAP] = ssaAv
+		availabilityService.persistAvailability()
 	}
 
 	@Unroll
