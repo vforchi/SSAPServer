@@ -1,5 +1,8 @@
 package org.eso.vo.sia
 
+import org.eso.vo.sia.controller.SIAController
+import org.eso.vo.sia.service.SIAServiceObsTAPImpl
+
 /*
  * This file is part of SIAPServer.
  *
@@ -19,8 +22,6 @@ package org.eso.vo.sia
  * Copyright 2019 - European Southern Observatory (ESO)
  */
 
-import org.eso.vo.sia.controller.SIAController
-import org.eso.vo.sia.service.SIAServiceObsTAPImpl
 import org.eso.vo.ssap.controller.MockTAPService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -30,7 +31,6 @@ import org.springframework.test.context.ActiveProfiles
 import org.springframework.web.util.UriComponentsBuilder
 import spock.lang.Specification
 import spock.lang.Unroll
-
 /**
  * @author Vincenzo Forch&igrave (ESO), vforchi@eso.org, vincenzo.forchi@gmail.com
  */
@@ -164,6 +164,31 @@ class SIAServerSpec extends Specification {
 		query1 | query2
 		"POS=CIRCLE 10.0 20.0 1"   | "pos=CIRCLE 10.0 20.0 1"
 		"TIME=10000" | "tImE=10000"
+	}
+
+	def "Retrieve capabilities"() {
+		when:
+		def capabilities = restTemplate.getForObject("$SIAController.prefix/capabilities", String.class)
+
+		then:
+		capabilities == """<?xml version="1.0" encoding="UTF-8"?>
+<vosi:capabilities xmlns:vosi="http://www.ivoa.net/xml/VOSICapabilities/v1.0" xmlns:vs="http://www.ivoa.net/xml/VODataService/v1.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <capability standardID="ivo://ivoa.net/std/VOSI#capabilities">
+    <interface xsi:type="vs:ParamHTTP">
+      <accessURL use="full">http://localhost:$port/sia/capabilities</accessURL>
+    </interface>
+  </capability>
+  <capability standardID="ivo://ivoa.net/std/VOSI#availability">
+    <interface xsi:type="vs:ParamHTTP">
+      <accessURL use="full">http://localhost:$port/sia/availability</accessURL>
+    </interface>
+  </capability>
+  <capability standardID="ivo://ivoa.net/std/SIA#query-2.0">
+    <interface xsi:type="vs:ParamHTTP" role="std" version="2.0">
+      <accessURL use="base">http://localhost:$port/sia/query</accessURL>
+    </interface>
+  </capability>
+</vosi:capabilities>"""
 	}
 
 }

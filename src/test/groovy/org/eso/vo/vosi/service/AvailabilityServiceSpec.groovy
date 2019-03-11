@@ -24,6 +24,7 @@ package org.eso.vo.vosi.service
 
 import org.eso.vo.vosi.domain.Availability
 import org.eso.vo.vosi.domain.Downtime
+import org.eso.vo.vosi.domain.VOService
 import spock.lang.Specification
 
 import java.time.Instant
@@ -45,7 +46,7 @@ class AvailabilityServiceSpec extends Specification {
 									    stop: stop,
 										note: "one")
 		
-		availabilityService.availabilities[AvailabilityService.VOService.SSAP] = ssaAv
+		availabilityService.availabilities[VOService.SSAP] = ssaAv
 
 		when:
 		availabilityService.persistAvailability()
@@ -63,7 +64,7 @@ class AvailabilityServiceSpec extends Specification {
 		availabilityService.restoreAvailability()
 
 		then:
-		def ssaAv = availabilityService.availabilities[AvailabilityService.VOService.SSAP]
+		def ssaAv = availabilityService.availabilities[VOService.SSAP]
 		ssaAv.downtimes[0].start == start
 		ssaAv.downtimes[0].stop  == stop
 		ssaAv.downtimes[0].note  == "one"

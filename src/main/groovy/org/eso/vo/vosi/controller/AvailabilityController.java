@@ -22,6 +22,7 @@
 
 package org.eso.vo.vosi.controller;
 
+import org.eso.vo.vosi.domain.VOService;
 import org.eso.vo.vosi.service.AvailabilityService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
@@ -39,7 +40,7 @@ public class AvailabilityController {
 
     @GetMapping(path = "/{service}/availability", produces = "application/xml")
     public @ResponseBody String getAvailability(@PathVariable("service") String service) {
-        AvailabilityService.VOService voService = AvailabilityService.VOService.valueOf(service.toUpperCase());
+        VOService voService = VOService.valueOf(service.toUpperCase());
         return availabilityService.getAvailability(voService).toXML();
     }
 

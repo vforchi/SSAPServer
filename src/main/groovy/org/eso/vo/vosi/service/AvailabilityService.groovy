@@ -21,8 +21,7 @@ package org.eso.vo.vosi.service
 
 import groovy.json.JsonGenerator
 import groovy.json.JsonSlurper
-import org.eso.vo.vosi.domain.Availability
-import org.eso.vo.vosi.domain.Downtime
+import org.eso.vo.vosi.domain.*
 import org.springframework.stereotype.Service
 
 import javax.annotation.PostConstruct
@@ -36,10 +35,6 @@ import java.time.Instant
 class AvailabilityService {
 
     static final File SCHEDULE_DT_FILE = new File("scheduled_downtimes.json")
-
-    enum VOService {
-        SSAP, SIA
-    }
 
     Map<VOService, Availability> availabilities = [:]
 

@@ -24,6 +24,7 @@ package org.eso.vo.vosi.controller;
 
 import org.eso.vo.vosi.domain.Availability;
 import org.eso.vo.vosi.domain.Downtime;
+import org.eso.vo.vosi.domain.VOService;
 import org.eso.vo.vosi.service.AvailabilityService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,7 +51,7 @@ public class AvailabilityEndpoint {
     AvailabilityService availabilityService;
 
     @ReadOperation
-    public Map<AvailabilityService.VOService, Availability> availabilities() {
+    public Map<VOService, Availability> availabilities() {
         return availabilityService.getAvailabilities();
     }
  
@@ -58,7 +59,7 @@ public class AvailabilityEndpoint {
     public Availability availability(@Selector String arg0) {
         try {
         	log.debug("availability by {}", arg0);
-            return availabilityService.getAvailability(AvailabilityService.VOService.valueOf(arg0));
+            return availabilityService.getAvailability(VOService.valueOf(arg0));
         } catch (Exception e) {
         	log.error("error while returning availability: {}", e.getMessage(), e);
             return null;
@@ -69,7 +70,7 @@ public class AvailabilityEndpoint {
     public void configureAvailability(@Selector String arg0, String start, String stop, String note) {
     	log.debug("configureAvailability by arg0={}, start={}, stop={}, note={}", arg0, start, stop, note);
     	
-        Availability av = availabilityService.getAvailability(AvailabilityService.VOService.valueOf(arg0));
+        Availability av = availabilityService.getAvailability(VOService.valueOf(arg0));
         av.getDowntimes().add(Downtime.getInstance(stringToInstant(start), stringToInstant(stop), note));
     }
     

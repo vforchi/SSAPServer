@@ -22,17 +22,23 @@ package org.eso.vo.sia.controller;
 import org.eso.vo.dali.domain.DALIConstants;
 import org.eso.vo.sia.service.SIAService;
 import org.eso.vo.sia.util.SIAUtils;
+import org.eso.vo.vosi.domain.Availability;
+import org.eso.vo.vosi.domain.VOService;
+import org.eso.vo.vosi.service.AvailabilityService;
+import org.eso.vo.vosi.service.CapabilitiesService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 /**
@@ -53,8 +59,17 @@ public class SIAController {
     @Autowired
     SIAService SIAService;
 
+    @Autowired
+    AvailabilityService availabilityService;
+
+    @Autowired
+    CapabilitiesService capabilitiesService;
+
     @Value("#{${sia.versions.supported:{'2', '2.0'}}}")
     List<String> supportedVersions;
+
+    @Value("${base.url:}")
+    String baseUrl;
 
     @ResponseBody
     @RequestMapping(path = "query", method = { RequestMethod.GET, RequestMethod.POST }, produces = { MediaType.TEXT_XML_VALUE })
@@ -65,11 +80,28 @@ public class SIAController {
 
         log.info("Incoming request: version={}, format={}, params={}", version, responseformat, allParams);
 
+        /* check AVAILABLITY */
+        Availability ssaAvailability = availabilityService.getAvailability(VOService.SIA);
+        if(!ssaAvailability.isAvailable())
+            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(ssaAvailability.toXML());
+
         /* check VERSION */
         if (version != null && !supportedVersions.contains(version))
             return toVOTable("VERSION=" + version + " is not supported");
 
-        return ResponseEntity.ok(SIAService.query(allParams));     // standard query
+        return ResponseEntity.ok(SIAService.query(allParams));
+    }
+
+    @ResponseBody
+    @RequestMapping(path = "capabilities", method = RequestMethod.GET, produces = { MediaType.TEXT_XML_VALUE })
+    ResponseEntity<?> capabilities(HttpServletRequest request) {
+        String url = baseUrl;
+        if (url.isEmpty()) {
+            url = request.getScheme() + "://" + request.getServerName();
+            if (request.getServerPort() != 80)
+                url += ":" + request.getServerPort();
+        }
+        return ResponseEntity.ok(capabilitiesService.getSIACapabilities(url));
     }
     
     /**

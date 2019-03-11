@@ -5,6 +5,7 @@ import org.eso.vo.ssap.controller.SSAPController
 import org.eso.vo.ssap.service.SSAPServiceTAPImpl
 import org.eso.vo.vosi.domain.Availability
 import org.eso.vo.vosi.domain.Downtime
+import org.eso.vo.vosi.domain.VOService
 import org.eso.vo.vosi.service.AvailabilityService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -67,7 +68,7 @@ class SSAPServerServiceDownSpec extends Specification {
 			def ssaAv = new Availability()
 			def now = Instant.now()
 			ssaAv.downtimes << new Downtime(start: now - 1000, stop: now + 1000, note: "one") //server is NOT available
-			availabilityService.availabilities[AvailabilityService.VOService.SSAP] = ssaAv
+			availabilityService.availabilities[VOService.SSAP] = ssaAv
 			availabilityService.persistAvailability()
 
 			when:

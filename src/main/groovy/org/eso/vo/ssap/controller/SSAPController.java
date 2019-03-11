@@ -4,6 +4,7 @@ import org.eso.vo.ssap.domain.SSAPConstants;
 import org.eso.vo.ssap.service.SSAPService;
 import org.eso.vo.ssap.util.VOTableUtils;
 import org.eso.vo.vosi.domain.Availability;
+import org.eso.vo.vosi.domain.VOService;
 import org.eso.vo.vosi.service.AvailabilityService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -76,7 +77,7 @@ public class SSAPController {
         log.info("Incoming request: version={}, request={}, format={}, params={}", version, request, format, allParams);
         
         /* check AVAILABLITY*/
-        Availability ssaAvailability = availabilityService.getAvailability(AvailabilityService.VOService.SSAP);
+        Availability ssaAvailability = availabilityService.getAvailability(VOService.SSAP);
 		if(!ssaAvailability.isAvailable())
 			return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(ssaAvailability.toXML());
         
