@@ -1,4 +1,22 @@
-package org.eso.asp.ssap
+package org.eso.vo.ssap
+
+import org.eso.vo.ssap.controller.MockTAPService
+import org.eso.vo.ssap.controller.SSAPController
+import org.eso.vo.ssap.service.SSAPServiceTAPImpl
+import org.eso.vo.vosi.domain.Availability
+import org.eso.vo.vosi.domain.Downtime
+import org.eso.vo.vosi.service.AvailabilityService
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.boot.test.web.client.TestRestTemplate
+import org.springframework.boot.web.server.LocalServerPort
+import org.springframework.http.HttpEntity
+import org.springframework.http.HttpMethod
+import org.springframework.http.HttpStatus
+import org.springframework.test.context.ActiveProfiles
+import spock.lang.Specification
+
+import java.time.Instant
 
 /*
  * This file is part of SSAPServer.
@@ -18,29 +36,11 @@ package org.eso.asp.ssap
  *
  * Copyright 2017 - European Southern Observatory (ESO)
  */
-
-import java.time.Instant
-
-import org.eso.asp.ssap.controller.MockTAPService
-import org.eso.asp.ssap.controller.SSAPController
-import org.eso.asp.ssap.domain.Availability
-import org.eso.asp.ssap.domain.Downtime
-import org.eso.asp.ssap.service.AvailabilityService
-import org.eso.asp.ssap.service.SSAPServiceTAPImpl
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.boot.test.web.client.TestRestTemplate
-import org.springframework.boot.web.server.LocalServerPort
-import org.springframework.http.HttpEntity
-import org.springframework.http.HttpMethod
-import org.springframework.http.HttpStatus
-
-import spock.lang.Specification
-
 /**
  * @author Vincenzo Forch&igrave (ESO), vforchi@eso.org, vincenzo.forchi@gmail.com
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@ActiveProfiles("ssap")
 class SSAPServerServiceDownSpec extends Specification {
 
 	@Autowired
@@ -67,11 +67,11 @@ class SSAPServerServiceDownSpec extends Specification {
 			def ssaAv = new Availability()
 			def now = Instant.now()
 			ssaAv.downtimes << new Downtime(start: now - 1000, stop: now + 1000, note: "one") //server is NOT available
-			availabilityService.availabilities[AvailabilityService.VOService.SSA] = ssaAv
+			availabilityService.availabilities[AvailabilityService.VOService.SSAP] = ssaAv
 			availabilityService.persistAvailability()
 
 			when:
-			def res = restTemplate.exchange("$SSAPController.prefix?REQUEST=queryData&POS=10.0,20.0",HttpMethod.GET, new HttpEntity<Object>(),String.class);
+			def res = restTemplate.exchange("$SSAPController.prefix?REQUEST=POS=10+20+0.1",HttpMethod.GET, new HttpEntity<Object>(),String.class)
 	
 			then:
 			res.status == HttpStatus.SERVICE_UNAVAILABLE.value() 
