@@ -32,6 +32,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -39,6 +40,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.net.URI;
 import java.util.List;
 
 /**
@@ -57,7 +59,7 @@ public class SIAController {
     public static final String prefix = "/sia";
 
     @Autowired
-    SIAService SIAService;
+    SIAService siaService;
 
     @Autowired
     AvailabilityService availabilityService;
@@ -75,10 +77,9 @@ public class SIAController {
     @RequestMapping(path = "query", method = { RequestMethod.GET, RequestMethod.POST }, produces = { MediaType.TEXT_XML_VALUE })
     ResponseEntity<?> query(
             @RequestParam(value = DALIConstants.VERSION, required = false) String version,
-            @RequestParam(value = DALIConstants.RESPONSEFORMAT, required = false)  String responseformat,
             @RequestParam MultiValueMap allParams) throws Exception {
 
-        log.info("Incoming request: version={}, format={}, params={}", version, responseformat, allParams);
+        log.info("Incoming request: version={}, params={}", version, allParams);
 
         /* check AVAILABLITY */
         Availability ssaAvailability = availabilityService.getAvailability(VOService.SIA);
@@ -89,7 +90,9 @@ public class SIAController {
         if (version != null && !supportedVersions.contains(version))
             return toVOTable("VERSION=" + version + " is not supported");
 
-        return ResponseEntity.ok(SIAService.query(allParams));
+        HttpHeaders headers = new HttpHeaders();
+        headers.setLocation(URI.create(siaService.getRedirectURL(allParams)));
+        return new ResponseEntity<>(headers, HttpStatus.SEE_OTHER);
     }
 
     @ResponseBody

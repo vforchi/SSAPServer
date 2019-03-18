@@ -19,10 +19,6 @@ package org.eso.vo.sia.service;
  * Copyright 2019 - European Southern Observatory (ESO)
  */
 
-import org.apache.http.client.fluent.Content;
-import org.apache.http.client.fluent.Request;
-import org.apache.http.entity.ContentType;
-import org.apache.http.util.EntityUtils;
 import org.eso.vo.dali.domain.DALIConstants;
 import org.eso.vo.sia.domain.ParameterQueryBuilder;
 import org.eso.vo.sia.domain.ParameterQueryBuilderFactory;
@@ -55,9 +51,6 @@ public class SIAServiceObsTAPImpl implements SIAService {
 
     private static final Logger log = LoggerFactory.getLogger(SIAServiceObsTAPImpl.class);
 
-    @Value("${sia.tap.timeout:10}")
-    private Integer timeoutSeconds;
-
     @Value("${sia.tap.url}")
     private String tapURL;
 
@@ -71,7 +64,7 @@ public class SIAServiceObsTAPImpl implements SIAService {
     private String baseQuery;
 
     @Override
-    public String query(MultiValueMap<String, String> params) throws IOException, ParseException {
+    public String getRedirectURL(MultiValueMap<String, String> params) throws IOException, ParseException {
         StringBuffer tapRequest = getAdqlURL();
 
         /* query */
@@ -95,21 +88,7 @@ public class SIAServiceObsTAPImpl implements SIAService {
             params.remove(DALIConstants.RESPONSEFORMAT);
         }
 
-        log.info("Executing TAP request: {}", tapRequest);
-
-        long start = System.currentTimeMillis();
-        String tapResult = Request.Get(tapRequest.toString())
-                .connectTimeout(timeoutSeconds*1000)
-                .socketTimeout(timeoutSeconds*1000)
-                .execute()
-                .handleResponse(r -> {
-                    return new Content(EntityUtils.toByteArray(r.getEntity()), ContentType.getOrDefault(r.getEntity()));
-                }).toString();
-        long elapsed = System.currentTimeMillis() - start;
-
-        log.info("TAP request executed in {}ms", elapsed);
-
-        return tapResult;
+        return tapRequest.toString();
     }
 
     protected StringBuffer getAdqlURL() {
@@ -145,7 +124,7 @@ public class SIAServiceObsTAPImpl implements SIAService {
         log.info("Executing query {}", queryString);
 
         return URLEncoder.encode(queryString, "ISO-8859-1");
-
+        
     }
 
 }

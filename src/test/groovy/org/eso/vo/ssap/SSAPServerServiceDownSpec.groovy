@@ -4,6 +4,7 @@ import groovy.json.JsonOutput
 import org.eso.vo.ssap.controller.MockTAPService
 import org.eso.vo.ssap.controller.SSAPController
 import org.eso.vo.ssap.service.SSAPServiceTAPImpl
+import org.eso.vo.vosi.domain.VOService
 import org.eso.vo.vosi.service.AvailabilityService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -54,7 +55,7 @@ class SSAPServerServiceDownSpec extends Specification {
 	int port
 	
 	@Autowired
-	AvailabilityService availabilityService;
+	AvailabilityService availabilityService
 
 	def setupSpec() {
 		TimeZone.setDefault(TimeZone.getTimeZone("GMT"))
@@ -76,8 +77,11 @@ class SSAPServerServiceDownSpec extends Specification {
 		def headers = new HttpHeaders()
 		headers.setContentType(MediaType.APPLICATION_JSON)
 
-		def entity = new HttpEntity<String>(requestJson,headers);
+		def entity = new HttpEntity<String>(requestJson,headers)
+		println "$start $stop"
+		println availabilityService.availabilities[VOService.SSAP]*.downtimes.collect { "$it.start $it.stop" }
 		restTemplate.postForObject("/actuator/availability/ssap", entity, String.class)
+		println availabilityService.availabilities[VOService.SSAP]*.downtimes.collect { "$it.start $it.stop" }
 
 		when:
 		def res = restTemplate.exchange("$SSAPController.prefix?REQUEST=queryData", HttpMethod.GET, new HttpEntity<Object>(), String.class)

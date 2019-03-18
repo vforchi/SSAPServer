@@ -37,6 +37,6 @@ public interface SIAService {
      * @throws IOException
      * @throws ParseException
      */
-    String query(MultiValueMap<String, String> params) throws IOException, ParseException;
+    String getRedirectURL(MultiValueMap<String, String> params) throws IOException, ParseException;
 
 }

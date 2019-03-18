@@ -2,6 +2,9 @@ package org.eso.vo.sia
 
 import org.eso.vo.sia.controller.SIAController
 import org.eso.vo.sia.service.SIAServiceObsTAPImpl
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.boot.test.web.client.TestRestTemplate
 
 /*
  * This file is part of SIAPServer.
@@ -22,15 +25,14 @@ import org.eso.vo.sia.service.SIAServiceObsTAPImpl
  * Copyright 2019 - European Southern Observatory (ESO)
  */
 
-import org.eso.vo.ssap.controller.MockTAPService
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.boot.test.web.client.TestRestTemplate
 import org.springframework.boot.web.server.LocalServerPort
+import org.springframework.http.HttpHeaders
 import org.springframework.test.context.ActiveProfiles
+import org.springframework.util.MultiValueMap
 import org.springframework.web.util.UriComponentsBuilder
 import spock.lang.Specification
 import spock.lang.Unroll
+
 /**
  * @author Vincenzo Forch&igrave (ESO), vforchi@eso.org, vincenzo.forchi@gmail.com
  */
@@ -43,9 +45,6 @@ class SIAServerSpec extends Specification {
 
 	@Autowired
 	SIAServiceObsTAPImpl service
-
-	@Autowired
-	MockTAPService tapService
 
 	@LocalServerPort
 	int port
@@ -61,18 +60,16 @@ class SIAServerSpec extends Specification {
 		def builder = UriComponentsBuilder.fromUriString("$SIAController.prefix/query").query(encodedQuery)
 		def uri = builder.build(true).toUri()
 
-		tapService.requestParams = [:]
-		restTemplate.getForObject(uri, String.class)
+		def redirectQueryParams = headersToQuery(restTemplate.headForHeaders(uri))
 
 		then:
-		tapService.requestParams.QUERY == "$service.baseQuery AND ($condition)"
+		URLDecoder.decode(redirectQueryParams.getFirst("QUERY"), "ISO-8859-1") == "$service.baseQuery AND ($condition)"
 
 		when:
-		tapService.requestParams = [:]
 		restTemplate.postForObject(uri, encodedQuery, String.class)
 
 		then:
-		tapService.requestParams.QUERY == "$service.baseQuery AND ($condition)"
+		URLDecoder.decode(redirectQueryParams.getFirst("QUERY"), "ISO-8859-1") == "$service.baseQuery AND ($condition)"
 
 		where:
 		name | query || condition
@@ -126,18 +123,18 @@ class SIAServerSpec extends Specification {
 
 	def "No MAXREC"() {
 		when:
-		restTemplate.getForObject("$SIAController.prefix/query?CALIB=0", String.class)
+		def redirectQueryParams = headersToQuery(restTemplate.headForHeaders("$SIAController.prefix/query?CALIB=0"))
 
 		then:
-		tapService.requestParams.MAXREC == "1000"
+		redirectQueryParams.getFirst("MAXREC") == "1000"
 	}
 
 	def "With MAXREC"() {
 		when:
-		restTemplate.getForObject("$SIAController.prefix/query?CALIB=0&MAXREC=5000", String.class)
+		def redirectQueryParams = headersToQuery(restTemplate.headForHeaders("$SIAController.prefix/query?MAXREC=5000"))
 
 		then:
-		tapService.requestParams.MAXREC == "5000"
+		redirectQueryParams.getFirst("MAXREC") == "5000"
 	}
 
 	def "MAXREC too big"() {
@@ -152,10 +149,8 @@ class SIAServerSpec extends Specification {
 	@Unroll
 	def "Parameter names are case insensitive"() {
 		when:
-		restTemplate.getForObject("$SIAController.prefix/query?REQUEST=queryData&$query1", String.class)
-		def q1 = tapService.requestParams.QUERY
-		restTemplate.getForObject("$SIAController.prefix/query?REQUEST=queryData&$query2", String.class)
-		def q2 = tapService.requestParams.QUERY
+		def q1 = headersToQuery(restTemplate.headForHeaders("$SIAController.prefix/query?REQUEST=queryData&$query1")).getFirst("QUERY")
+		def q2 = headersToQuery(restTemplate.headForHeaders("$SIAController.prefix/query?REQUEST=queryData&$query2")).getFirst("QUERY")
 
 		then:
 		q1 == q2
@@ -189,6 +184,10 @@ class SIAServerSpec extends Specification {
     </interface>
   </capability>
 </vosi:capabilities>"""
+	}
+
+	static MultiValueMap<String, String> headersToQuery(HttpHeaders headers) {
+		MultiValueMap<String, String> queryParams = UriComponentsBuilder.fromUriString(headers.Location[0]).build().getQueryParams()
 	}
 
 }
