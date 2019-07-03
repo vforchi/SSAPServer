@@ -63,29 +63,35 @@ class SIAServerSpec extends Specification {
 		def redirectQueryParams = headersToQuery(restTemplate.headForHeaders(uri))
 
 		then:
-		URLDecoder.decode(redirectQueryParams.getFirst("QUERY"), "ISO-8859-1") == "$service.baseQuery AND ($condition)"
+		def getQuery = URLDecoder.decode(redirectQueryParams.getFirst("QUERY"), "ISO-8859-1")
+		getQuery.startsWith("$service.baseQuery AND ")
+		def getCondition = getQuery - "$service.baseQuery AND "
+		getCondition ==~ "\\($expectedCondition\\)"
 
 		when:
 		restTemplate.postForObject(uri, encodedQuery, String.class)
 
 		then:
-		URLDecoder.decode(redirectQueryParams.getFirst("QUERY"), "ISO-8859-1") == "$service.baseQuery AND ($condition)"
+		def postQuery = URLDecoder.decode(redirectQueryParams.getFirst("QUERY"), "ISO-8859-1")
+		postQuery.startsWith("$service.baseQuery AND ")
+		def postCondition = postQuery - "$service.baseQuery AND "
+		postCondition ==~ "\\($expectedCondition\\)"
 
 		where:
-		name | query || condition
-		"POS: CIRCLE"       | "POS=CIRCLE 10.0 20.0 1"                              || "INTERSECTS(s_region, CIRCLE('', 10.0, 20.0, 1)) = 1"
-		"POS: RANGE"        | "POS=RANGE 12.0 12.5 34.0 36.0"                       || "(s_ra BETWEEN 12.0 AND 12.5 AND s_dec BETWEEN 34.0 AND 36.0)"
-		"POS: POLYGON"      | "POS=POLYGON 12.0 34.0 14.0 35.0 14. 36.0 12.0 35.0"  || "INTERSECTS(s_region, POLYGON('', 12.0, 34.0, 14.0, 35.0, 14., 36.0, 12.0, 35.0)) = 1"
-		"POS: pole"         | "POS=RANGE 0 360.0 89.0 +Inf"                         || "(s_ra BETWEEN 0 AND 360.0 AND s_dec BETWEEN 89.0 AND 90)"
+		name | query || expectedCondition
+		"POS: CIRCLE"       | "POS=CIRCLE 10.0 20.0 1"                              || "INTERSECTS\\(s_region, CIRCLE\\('', 10.0, 20.0, 1\\)\\) = 1"
+		"POS: RANGE"        | "POS=RANGE 12.0 12.5 34.0 36.0"                       || "INTERSECTS\\(s_region, POLYGON\\('', 12.0,34.0,12.0,36.0,12.05,36.0.*,12.5,36.0,12.5,34.0,12.45,34.0,.*,12.05,34.0\\)\\) = 1"
+		"POS: POLYGON"      | "POS=POLYGON 12.0 34.0 14.0 35.0 14. 36.0 12.0 35.0"  || "INTERSECTS\\(s_region, POLYGON\\('', 12.0, 34.0, 14.0, 35.0, 14., 36.0, 12.0, 35.0\\)\\) = 1"
+		"POS: pole"         | "POS=RANGE 0 360.0 89.0 +Inf"                         || "INTERSECTS\\(s_region, POLYGON\\('', 0.0,89.0,0.0,90.0,360.0,90.0,360.0,89.0,356.4,89.0,.*,3.6000000000000227,89.0\\)\\) = 1"
 		//"POS: all sky"      | "POS=RANGE -Inf +Inf -Inf +Inf"                       || ""
 
-		"BAND 1" | "BAND=500e-9 550e-9" || "(500e-9 <= em_max AND 550e-9 >= em_min)"
+		"BAND 1" | "BAND=500e-9 550e-9" || "\\(500e-9 <= em_max AND 550e-9 >= em_min\\)"
 		"BAND 2" | "BAND=300 +Inf"      || "em_max >= 300"
 		"BAND 3" | "BAND=-Inf 0.21"     || "em_min <= 0.21"
-		"BAND 4" | "BAND=0.21"          || "(em_min <= 0.21 AND em_max >= 0.21)"
+		"BAND 4" | "BAND=0.21"          || "\\(em_min <= 0.21 AND em_max >= 0.21\\)"
 
-		"TIME 1"     | "TIME=55123.456 55123.466" || "(55123.456 <= t_max AND 55123.466 >= t_min)"
-		"TIME 2"     | "TIME=55678.123"        || "(t_min <= 55678.123 AND t_max >= 55678.123)"
+		"TIME 1"     | "TIME=55123.456 55123.466" || "\\(55123.456 <= t_max AND 55123.466 >= t_min\\)"
+		"TIME 2"     | "TIME=55678.123"        || "\\(t_min <= 55678.123 AND t_max >= 55678.123\\)"
 
 		// STRING
 		"POL"        | "POL=K"           || "pol_states LIKE '%/K/%'"
@@ -96,7 +102,7 @@ class SIAServerSpec extends Specification {
 		"DPTYPE"     | "DPTYPE=SOME"     || "dataproduct_type = 'SOME'"
 		"TARGET"     | "TARGET=SOME4"    || "target_name = 'SOME4'"
 		"FORMAT"     | "FORMAT=SOME"     || "access_format = 'SOME'"
-		"2 COLLECTION" | "COLLECTION=SOME&COLLECTION=SOME2" || "obs_collection IN ('SOME', 'SOME2')"
+		"2 COLLECTION" | "COLLECTION=SOME&COLLECTION=SOME2" || "obs_collection IN \\('SOME', 'SOME2'\\)"
 
 		// SINGLE VALUE
 		"CALIB"      | "CALIB=1"         || "calib_level = 1"

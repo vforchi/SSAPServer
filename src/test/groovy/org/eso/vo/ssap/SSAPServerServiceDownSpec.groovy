@@ -4,7 +4,6 @@ import groovy.json.JsonOutput
 import org.eso.vo.ssap.controller.MockTAPService
 import org.eso.vo.ssap.controller.SSAPController
 import org.eso.vo.ssap.service.SSAPServiceTAPImpl
-import org.eso.vo.vosi.domain.VOService
 import org.eso.vo.vosi.service.AvailabilityService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -16,7 +15,6 @@ import spock.lang.Specification
 
 import java.text.SimpleDateFormat
 import java.time.Instant
-
 /*
  * This file is part of SSAPServer.
  *
@@ -67,7 +65,6 @@ class SSAPServerServiceDownSpec extends Specification {
 	}
 
 	def "Make server unavailable and verify that it comes back online"() {
-
 		setup:
 		def now = Instant.now()
 		def start = now - 10
@@ -78,10 +75,7 @@ class SSAPServerServiceDownSpec extends Specification {
 		headers.setContentType(MediaType.APPLICATION_JSON)
 
 		def entity = new HttpEntity<String>(requestJson,headers)
-		println "$start $stop"
-		println availabilityService.availabilities[VOService.SSAP]*.downtimes.collect { "$it.start $it.stop" }
 		restTemplate.postForObject("/actuator/availability/ssap", entity, String.class)
-		println availabilityService.availabilities[VOService.SSAP]*.downtimes.collect { "$it.start $it.stop" }
 
 		when:
 		def res = restTemplate.exchange("$SSAPController.prefix?REQUEST=queryData", HttpMethod.GET, new HttpEntity<Object>(), String.class)

@@ -23,6 +23,7 @@ import org.apache.commons.lang3.EnumUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.eso.vo.sia.util.SIAUtils;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -86,27 +87,75 @@ public class PosQueryBuilder implements  ParameterQueryBuilder {
 
     private String buildRange(List<String> tokens) {
         if (tokens.size() != 4)
-            throw new RuntimeException("Invalid syntax for RANGE: expected 4 parameters (lon1, lat1, lon2, lat2), got " + tokens.size());
+            throw new RuntimeException("Invalid syntax for RANGE: expected 4 parameters (lon1, lon2, lat1, lat2), got " + tokens.size());
 
-        StringBuffer buf = new StringBuffer("s_ra BETWEEN ")
-                .append(tokens.get(0))
-                .append(" AND ")
-                .append(tokens.get(1))
-                .append(" AND s_dec BETWEEN ")
-                .append(sanitizeDec(tokens.get(2)))
-                .append(" AND ")
-                .append(sanitizeDec(tokens.get(3)));
-        return SIAUtils.withinParentheses(buf.toString());
+        Double ra1 = sanitizeRa(tokens.get(0));
+        Double ra2 = sanitizeRa(tokens.get(1));
+        if (ra2 <= ra1)
+            throw new RuntimeException("Invalid syntax for RANGE: lon2 must be larger than lon1");
+        Double dec1 = sanitizeDec(tokens.get(2));
+        Double dec2 = sanitizeDec(tokens.get(3));
+        if (dec2 < dec1)
+            throw new RuntimeException("Invalid syntax for RANGE: lat2 cannot be smaller than lat1");
+
+        StringBuffer buf = new StringBuffer("INTERSECTS(s_region, POLYGON('', ");
+
+        List<Double> coordinates = new ArrayList();
+
+        coordinates.add(ra1);
+        coordinates.add(dec1);
+        coordinates.add(ra1);
+        coordinates.add(dec2);
+
+        int pointsPerSide = Math.max(10, (int) Math.floor((ra2-ra1)*2));
+        pointsPerSide = Math.min(pointsPerSide, 100);
+
+        if (dec2 != 90) {
+            for (int i = 1; i < pointsPerSide; i++) {
+                coordinates.add(ra1 + (ra2 - ra1) * i / pointsPerSide);
+                coordinates.add(dec2);
+            }
+        }
+
+        coordinates.add(ra2);
+        coordinates.add(dec2);
+        coordinates.add(ra2);
+        coordinates.add(dec1);
+
+        if (dec1 != -90) {
+            for (int i = 1; i < pointsPerSide; i++) {
+                coordinates.add(ra2 - (ra2 - ra1) * i / pointsPerSide);
+                coordinates.add(dec1);
+            }
+        }
+
+        buf.append(StringUtils.join(coordinates, ","));
+
+        buf.append(")) = 1");
+        
+        return buf.toString();
     }
     
-    private String sanitizeDec(String dec) {
-        if (dec.equals("+Inf"))
-            return "90";
-        else if (dec.equals("-Inf"))
-            return "-90";
+    private Double sanitizeDec(String decString) {
+        Double dec;
+        if (decString.equals("+Inf"))
+            dec = 90.0;
+        else if (decString.equals("-Inf"))
+            dec = -90.0;
         else
-            return dec;
+            dec = Double.parseDouble(decString);
+
+        if (dec > 90.0 || dec < -90.0)
+            throw new RuntimeException("Latitude must be within -90 and 90");
+
+        return dec;
     }
 
-
+    private Double sanitizeRa(String raString) {
+        Double ra = Double.parseDouble(raString);
+        if (ra > 360.0 || ra < 0.0)
+            throw new RuntimeException("Longitude must be within 0 and 360");
+        return ra;
+    }
+    
 }
