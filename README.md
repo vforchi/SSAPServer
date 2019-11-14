@@ -1,3 +1,5 @@
+![](https://github.com/vforchi/SSAPServer/workflows/Run%20tests/badge.svg)
+
 # SSAPServer
 An implementation of the [Simple Spectral Access Protocol](http://www.ivoa.net/documents/SSA/20120210/REC-SSA-1.1-20120210.pdf) and of the [Simple Image Access](http://www.ivoa.net/documents/SIA/20151223/REC-SIA-2.0-20151223.html) of the IVOA.
 The server is a Spring Boot application that implements the APIs defined in the standard.
