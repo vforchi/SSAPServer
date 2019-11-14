@@ -82,7 +82,10 @@ class SIAServerSpec extends Specification {
 		"POS: CIRCLE"       | "POS=CIRCLE 10.0 20.0 1"                              || "INTERSECTS\\(s_region, CIRCLE\\('', 10.0, 20.0, 1\\)\\) = 1"
 		"POS: RANGE"        | "POS=RANGE 12.0 12.5 34.0 36.0"                       || "INTERSECTS\\(s_region, POLYGON\\('', 12.0,34.0,12.0,36.0,12.05,36.0.*,12.5,36.0,12.5,34.0,12.45,34.0,.*,12.05,34.0\\)\\) = 1"
 		"POS: POLYGON"      | "POS=POLYGON 12.0 34.0 14.0 35.0 14. 36.0 12.0 35.0"  || "INTERSECTS\\(s_region, POLYGON\\('', 12.0, 34.0, 14.0, 35.0, 14., 36.0, 12.0, 35.0\\)\\) = 1"
-		"POS: pole"         | "POS=RANGE 0 360.0 89.0 +Inf"                         || "INTERSECTS\\(s_region, POLYGON\\('', 0.0,89.0,0.0,90.0,360.0,90.0,360.0,89.0,356.4,89.0,.*,3.6000000000000227,89.0\\)\\) = 1"
+		"POS: pole"         | "POS=RANGE 0 360.0 89.0 +Inf"                         || "\\(s_dec BETWEEN 89.000000 AND 90.000000\\)"
+		"POS: DFS-15248 1"    | "POS=RANGE 0 360.0 -2 2"                              || "\\(s_dec BETWEEN -2.000000 AND 2.000000\\)"
+		"POS: DFS-15248 2"    | "POS=RANGE 10 20 -90 90"                              || "\\(s_ra BETWEEN 10.000000 AND 20.000000\\)"
+		"POS: DFS-15248 3"    | "POS=RANGE 10 20 -Inf +Inf"                           || "\\(s_ra BETWEEN 10.000000 AND 20.000000\\)"
 		//"POS: all sky"      | "POS=RANGE -Inf +Inf -Inf +Inf"                       || ""
 
 		"BAND 1" | "BAND=500e-9 550e-9" || "\\(500e-9 <= em_max AND 550e-9 >= em_min\\)"

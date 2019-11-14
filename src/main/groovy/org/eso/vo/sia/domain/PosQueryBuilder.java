@@ -98,6 +98,11 @@ public class PosQueryBuilder implements  ParameterQueryBuilder {
         if (dec2 < dec1)
             throw new RuntimeException("Invalid syntax for RANGE: lat2 cannot be smaller than lat1");
 
+        if (ra1 == 0 && ra2 == 360)
+            return String.format("(s_dec BETWEEN %f AND %f)", dec1, dec2);
+        if (dec1 == -90 && dec2 == 90)
+            return String.format("(s_ra BETWEEN %f AND %f)", ra1, ra2);
+
         StringBuffer buf = new StringBuffer("INTERSECTS(s_region, POLYGON('', ");
 
         List<Double> coordinates = new ArrayList();
