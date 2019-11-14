@@ -68,7 +68,7 @@ public class AvailabilityEndpoint {
  
     @WriteOperation
     public void configureAvailability(@Selector String arg0, String start, String stop, String note) {
-    	log.debug("configureAvailability by arg0={}, start={}, stop={}, note={}", arg0, start, stop, note);
+    	log.info("Schedule downtime for {}: start={}, stop={}, note={}", arg0, start, stop, note);
 
         Availability av = availabilityService.getAvailability(VOService.valueOf(arg0.toUpperCase()));
         av.getDowntimes().add(Downtime.getInstance(stringToInstant(start), stringToInstant(stop), note));
