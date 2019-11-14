@@ -1,7 +1,7 @@
 plugins {
 	id 'groovy'
-	id 'org.springframework.boot' version '2.1.2.RELEASE'
-	id "io.spring.dependency-management" version "1.0.6.RELEASE"
+	id 'org.springframework.boot' version '2.2.0.RELEASE'
+	id "io.spring.dependency-management" version "1.0.8.RELEASE"
 }
 
 
@@ -11,7 +11,7 @@ repositories {
 	jcenter()
 }
 
-wrapper.gradleVersion = 5.0
+wrapper.gradleVersion = 6.0
 
 /*
  * The build system is split in two files because we also include it as part of the build of a bigger project.
@@ -20,9 +20,6 @@ wrapper.gradleVersion = 5.0
 apply from: 'SSAPServer.gradle'
 
 version = '0.0.1'
-
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
 
 dependencies {
 	compile 'org.codehaus.groovy:groovy-all:2.5.4'
