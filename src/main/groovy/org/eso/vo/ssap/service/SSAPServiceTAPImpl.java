@@ -181,7 +181,7 @@ public class SSAPServiceTAPImpl implements SSAPService {
         StringBuffer buf = new StringBuffer(tapURL);
 
         buf.append("/sync?LANG=ADQL")
-           .append("&FORMAT=votable%2Ftd")
+           .append("&FORMAT=votable")
            .append("&REQUEST=doQuery")
            .append("&QUERY=");
 
