@@ -130,7 +130,6 @@ public class VOTableUtils {
             RESOURCE(type: "results") {
                 INFO(name: "QUERY_STATUS", value: "ERROR", error)
                 INFO(name: "SERVICE_PROTOCOL", value: "1.1", "SSAP")
-                INFO(name: "REQUEST", value:"queryData")
             }
         }
         return writer.toString()

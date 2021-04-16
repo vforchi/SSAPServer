@@ -98,7 +98,6 @@ class SSAPServerServiceDownSpec extends Specification {
   <RESOURCE type="results">
     <INFO name="QUERY_STATUS" value="ERROR">Premature end of file.</INFO>
     <INFO name="SERVICE_PROTOCOL" value="1.1">SSAP</INFO>
-    <INFO name="REQUEST" value="queryData" />
   </RESOURCE>
 </VOTABLE>"""
 
