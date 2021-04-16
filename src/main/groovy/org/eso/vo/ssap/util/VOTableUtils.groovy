@@ -123,7 +123,10 @@ public class VOTableUtils {
         def doc    = new MarkupBuilder(writer)
         doc.setDoubleQuotes(true)
 
-        doc.VOTABLE(version: "1.3") {
+        doc.VOTABLE(version: "1.3",
+                "xmlns:xsi": "http://www.w3.org/2001/XMLSchema-instance",
+                "xmlns": "http://www.ivoa.net/xml/VOTable/v1.3",
+                "xsi:schemaLocation": "http://www.ivoa.net/xml/VOTable/v1.3 http://www.ivoa.net/xml/VOTable/VOTable-1.3.xsd") {
             RESOURCE(type: "results") {
                 INFO(name: "QUERY_STATUS", value: "ERROR", error)
                 INFO(name: "SERVICE_PROTOCOL", value: "1.1", "SSAP")
