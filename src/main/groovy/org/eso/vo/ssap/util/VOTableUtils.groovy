@@ -100,7 +100,7 @@ public class VOTableUtils {
 
     static String convertTAPtoSSAP(String tapResult) {
         def insertionPoint = "<RESOURCE type=\"results\">"
-        def replacement = insertionPoint + "<INFO name=\"SERVICE_PROTOCOL\" value=\"1.1\">SSAP</INFO>"
+        def replacement = insertionPoint + "\n<INFO name=\"SERVICE_PROTOCOL\" value=\"1.1\">SSAP</INFO>"
         return tapResult.replaceFirst(insertionPoint, replacement)
     }
 
