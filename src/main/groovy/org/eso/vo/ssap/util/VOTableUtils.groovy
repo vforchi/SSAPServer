@@ -21,11 +21,9 @@ package org.eso.vo.ssap.util
 
 import groovy.util.logging.Slf4j
 import groovy.xml.MarkupBuilder
-import groovy.xml.XmlUtil
 import org.eso.vo.ssap.domain.ParameterHandler
 
 import java.text.ParseException
-
 /**
  * This class contains helper methods to deal with VOTable entity. It's in Groovy because
  * it has powerful XML libraries
@@ -100,22 +98,10 @@ public class VOTableUtils {
         return writer.toString()
     }
 
-    public static String convertTAPtoSSAP(String tapResult) {
-        def TAP = new XmlParser().parseText(tapResult)
-
-        def queryStatus = TAP.RESOURCE.INFO.find { it.@name == "QUERY_STATUS" }.@value
-        if (queryStatus != "OK") {
-            // TODO do something
-            log.error("Error executing TAP query. Status = $queryStatus")
-        }
-
-        /* add SERVICE_PROTOCOL */
-        TAP.RESOURCE[0].appendNode(
-                "INFO",
-                [name: "SERVICE_PROTOCOL", value: "1.1"],
-                "SSAP"
-        )
-        return XmlUtil.serialize(TAP)
+    static String convertTAPtoSSAP(String tapResult) {
+        def insertionPoint = "<RESOURCE type=\"results\">"
+        def replacement = insertionPoint + "<INFO name=\"SERVICE_PROTOCOL\" value=\"1.1\">SSAP</INFO>"
+        return tapResult.replaceFirst(insertionPoint, replacement)
     }
 
     public static String formatError(String error) {
