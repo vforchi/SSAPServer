@@ -1,17 +1,14 @@
 plugins {
 	id 'groovy'
-	id 'org.springframework.boot' version '2.2.0.RELEASE'
-	id "io.spring.dependency-management" version "1.0.8.RELEASE"
+	id 'org.springframework.boot' version '2.4.5'
+	id "io.spring.dependency-management" version "1.0.11.RELEASE"
 }
 
 
 repositories {
 	mavenLocal()
 	mavenCentral()
-	jcenter()
 }
-
-wrapper.gradleVersion = 6.0
 
 /*
  * The build system is split in two files because we also include it as part of the build of a bigger project.
@@ -29,9 +26,14 @@ dependencies {
 	testCompile 'org.springframework.boot:spring-boot-starter-test'
 }
 
-import org.apache.tools.ant.filters.ReplaceTokens
-processResources {
-	filter ReplaceTokens, tokens: [
-			'ssap.server.port': '9000'
-	]
+springBoot {
+    buildInfo()
+}
+
+tasks.withType(AbstractArchiveTask) {
+    setProperty("archiveFileName", "${rootProject.name}.jar")
+}
+
+tasks.bootJar {
+    launchScript()
 }
