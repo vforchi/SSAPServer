@@ -1,6 +1,6 @@
-# IntelliJ and Gradle stuff
 .idea
 .gradle
 build
+out
 gradlew.bat
-
+.github
