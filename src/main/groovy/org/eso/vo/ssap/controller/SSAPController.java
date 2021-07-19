@@ -113,7 +113,9 @@ public class SSAPController {
 
     public ResponseEntity<?> toVOTable(String message) {
         String errorVOTable = VOTableUtils.formatError(message);
-        return ResponseEntity.badRequest().body(errorVOTable);
+        return ResponseEntity.badRequest()
+                .contentType(MediaType.TEXT_XML)
+                .body(errorVOTable);
     }
     
 }
