@@ -113,7 +113,7 @@ class SSAPServerSpec extends Specification {
 
 		where:
 		name | query || message
-		"no request"            | "POS=10.0,20.0&VERSION=1.0"                     || "Required String parameter 'REQUEST' is not present"
+		"no request"            | "POS=10.0,20.0&VERSION=1.0"                     || "Required request parameter 'REQUEST' for method parameter type String is not present"
 		"unsupported request"   | "REQUEST=getData&POS=10.0,20.0&VERSION=1.0"     || "VERSION=1.0 is not supported"
 		"unsupported version"   | "REQUEST=queryData&POS=10.0,20.0&VERSION=1.0"   || "VERSION=1.0 is not supported"
 		"unsupported format"    | "REQUEST=queryData&POS=10.0,20.0&FORMAT=xml"    || "FORMAT=xml is not supported"
